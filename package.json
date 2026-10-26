@@ -1,0 +1,16 @@
+{
+  "name": "session-dispatch",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A portable skill that decides, with arithmetic, whether to continue an agent session or hand off, and which model class, effort and concurrency the work should run on.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "check": "node scripts/check.mjs",
+    "install-skill": "node scripts/install.mjs",
+    "pricing-new": "node scripts/pricing-new.mjs"
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "table_date": "2026-10-18",
+  "currency": "USD",
+  "unit": "per million tokens",
+  "max_age_days": 14,
+  "notes": [
+    "The newest file by name in this folder is the table in force. Refresh with node scripts/pricing-new.mjs, then fill the figures from each family's source page and set fetched to the day you read it.",
+    "class maps a model to the skill's capability tier (haiku, sonnet, opus, fable) across providers. null means the operator has not placed it yet; the skill treats a null class like a null price.",
+    "cache_write for the Anthropic rows is derived as 1.25 times input, the rule the fork_graft operator protocol section 6 uses; the other figures were read from the live pricing page on the fetched date.",
+    "A long_context block gives the prices that apply to a whole request once its prompt exceeds threshold_tokens."
+  ],
+  "families": {
+    "anthropic": {
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing.md",
+      "fetched": "2026-10-18",
+      "fetched_by": "fork_graft docs/operator-protocol.md section 2 (operator-verified)",
+      "models": {
+        "claude-haiku-5-5": {
+          "class": "haiku",
+          "input": 0.10,
+          "output": 0.50,
+          "cache_read": 0.01,
+          "cache_write": 0.125,
+          "long_context": {
+            "threshold_tokens": 100000,
+            "input": 0.50,
+            "output": 2.50,
+            "cache_read": 0.05,
+            "cache_write": 0.625
+          }
+        },
+        "claude-sonnet-5-5": {
+          "class": "sonnet",
+          "input": 2.00,
+          "output": 10.00,
+          "cache_read": 0.10,
+          "cache_write": 2.50
+        },
+        "claude-opus-5-5": {
+          "class": "opus",
+          "input": 4.00,
+          "output": 20.00,
+          "cache_read": 0.20,
+          "cache_write": 5.00
+        },
+        "claude-fable-5-1": {
+          "class": "fable",
+          "input": 10.00,
+          "output": 50.00,
+          "cache_read": 0.25,
+          "cache_write": 12.50
+        }
+      }
+    },
+    "openai": {
+      "source": "https://openai.com/api/pricing/",
+      "fetched": null,
+      "models": {
+        "gpt-6.1-sol": {
+          "class": null,
+          "input": null,
+          "output": null,
+          "cache_read": null,
+          "cache_write": null,
+          "note": "Named in the operator's ~/.codex/config.toml on 2026-10-27; prices and class to be filled from the source page."
+        }
+      }
+    },
+    "google": {
+      "source": "https://ai.google.dev/gemini-api/docs/pricing",
+      "fetched": null,
+      "models": {}
+    },
+    "deepseek": {
+      "source": "https://api-docs.deepseek.com/quick_start/pricing",
+      "fetched": null,
+      "models": {}
+    },
+    "kimi": {
+      "source": "https://platform.moonshot.ai/docs/pricing",
+      "fetched": null,
+      "models": {
+        "kimi-k3": { "class": null, "input": null, "output": null, "cache_read": null, "cache_write": null, "note": "Named in the operator's ~/.config/opencode/opencode.jsonc on 2026-10-27." },
+        "kimi-k2.7-code": { "class": null, "input": null, "output": null, "cache_read": null, "cache_write": null, "note": "Named in the operator's ~/.config/opencode/opencode.jsonc on 2026-10-27." },
+        "kimi-k2.7-code-highspeed": { "class": null, "input": null, "output": null, "cache_read": null, "cache_write": null, "note": "Named in the operator's ~/.config/opencode/opencode.jsonc on 2026-10-27." },
+        "kimi-k2.6": { "class": null, "input": null, "output": null, "cache_read": null, "cache_write": null, "note": "Named in the operator's ~/.config/opencode/opencode.jsonc on 2026-10-27." }
+      }
+    },
+    "glm": {
+      "source": "https://docs.z.ai/guides/overview/pricing",
+      "fetched": null,
+      "models": {}
+    }
+  }
+}
