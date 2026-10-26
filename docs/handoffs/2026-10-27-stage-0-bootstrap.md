@@ -33,13 +33,13 @@ remote the operator chose holds it.
 
 ## Verified facts
 - Session configuration (`get_session self`, 2026-10-27): `claude-fable-5-1`, `high`; matches this file.
-- `node scripts/check.mjs`: 45 files read, 0 findings, exit 0 (2026-10-27, Node 26.7.0).
+- `node scripts/check.mjs`: 47 files read, 0 findings, exit 0 (2026-10-27, Node 26.7.0, after the first commit 9e821b7).
 - `node scripts/install.mjs --harness all --dry-run`: six targets printed; no file written.
 - Harness folders present on the machine (`ls`, 2026-10-27): `~/.claude/skills` (skills listed in this session), `~/.codex/AGENTS.md` and `config.toml`, `~/.cline`, `~/Documents/Cline`, `~/.config/opencode/opencode.jsonc`, `~/.gemini/GEMINI.md` (empty), `~/.zcode/skills` (same layout as Claude's), `~/.antigravity`. Not present: `~/.codex/skills`, `~/.config/opencode/skill`, `~/Documents/Cline/Rules`, any Kimi or DeepSeek folder.
 - Context window in this harness (`get_usage self`): 1,000,000 tokens, auto-compact at 97 percent; baseline before any message 85,242 tokens (total 116,156 less the Messages category 30,914).
 
 ## Work completed
-- This commit, the first on `main`: skill, nine adapters, first price table, templates, worked example, three scripts, protocol, AGENTS.md, README, LICENSE, persona copies, session-start hook, this handoff.
+- `9e821b7`, the first commit on `main`: skill, nine adapters, first price table, templates, worked example, three scripts, protocol, AGENTS.md, README, LICENSE, persona copies, session-start hook, this handoff.
 - User-level install run once (`node scripts/install.mjs`).
 
 ## Unresolved questions
@@ -107,7 +107,7 @@ stage report.
 | Row | Value | Source |
 |---|---|---|
 | Context at start | 85,242 (clarifications), 188,039 (dispatch) | usage tool, two readings |
-| Context at end | 116,156 (clarifications), 196,000 (dispatch, read after this file was written) | usage tool |
+| Context at end | 116,156 (clarifications), 196,043 (dispatch, read after this file was written) | usage tool |
 | Input tokens read | about 25,000 (clarifications: protocol, template, persona sections, harness folders); about 2,000 (dispatch) | difference of the readings less output; estimate |
 | Output tokens | about 3,600 (clarifications: the message and the notes file); about 2,200 (dispatch: this section) | characters divided by 4; estimate |
 | Wall clock | 16 minutes (clarifications, 09:29 to 09:45 local); 6 minutes (dispatch) | session timestamps |
