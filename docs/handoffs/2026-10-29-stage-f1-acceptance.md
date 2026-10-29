@@ -2,7 +2,7 @@
 stage: "Stage F1: adversarial acceptance of Stage O1"
 model: claude-fable-5-1
 effort: xhigh
-status: ready
+status: done
 created: 2026-10-29
 from: "Session local_0988c077 (Opus 5.5, high): Stage O1, formula revision and calculator"
 ---
@@ -94,3 +94,5 @@ Fresh session, `claude-fable-5-1`, xhigh, one piece, serial. Exact next action: 
 | Priced | 3,000 x 5e-6 + 3,600 x 20e-6 = 0.09 USD | table `pricing/2026-10-29.json`, opus row |
 
 Stage O1 docs commit: `bd3fd2a` (this line added by the follow-up commit).
+
+Stage F1 done 2026-10-29 by `local_ec0281d1` (Fable 5.1, xhigh): O1 accepted, fourteen claims, none rejected; `docs/acceptance-2026-10-29-stage-o1.md`; commit `17c9526`; gate 59 files read, 0 findings, exit 0. Next: `docs/handoffs/2026-10-29-stage-o2-eval-design.md`.
