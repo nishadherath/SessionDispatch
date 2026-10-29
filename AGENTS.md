@@ -68,10 +68,15 @@ that every session applies without being asked:
    handoff; never a red tree, never uncommitted work.
 3. **Create the next session's entry yourself.** A fully specified
    stage for a cheaper class runs as a sub-agent with the handoff as its
-   brief; a stage that needs a fresh long-lived session gets a sidebar
-   entry carrying the handoff path, with the model and effort named for
-   the operator to pick. A session that takes over a handoff checks its
-   own model and effort first and stops on a mismatch.
+   brief, or as a fresh session started with `start_session` carrying
+   the handoff path and its `model` and `effort` (accepted at or below
+   this session's class). Without the operator's autonomy yes (protocol
+   section 1.3) the fresh session is proposed as a card for the operator
+   to start; with it, the session is started at once and the operator is
+   told. A stage that needs a higher class than this session gets a card
+   naming the model for the operator to pick. A session that takes over
+   a handoff checks its own model and effort first and stops on a
+   mismatch.
 4. **Every stage report ends with the next stage's model, effort and
    exact kickoff prompt**, as a labelled line and a fenced block.
 5. **Projections are arithmetic.** Cost at API list price from the table
@@ -85,6 +90,18 @@ that every session applies without being asked:
    check script enforces the last two outside the persona copies.
 8. **The standing analysis brief** (protocol section 1.1) is answered,
    when asked, in a dated `docs/assessment-YYYY-MM-DD.md`.
+9. **Say when you are guessing.** A figure or claim that is an estimate
+   or low-confidence is marked as such where it appears, never presented
+   as measured.
+10. **Two questions, asked once.** `docs/operator-preferences.json`
+    records whether the operator wants ASD-STE100 Simplified Technical
+    English and whether sessions may work autonomously. The session-start
+    hook names any unanswered one; ask it in the first reply, record the
+    answer with the date, commit. Protocol section 1.3 says what each
+    answer changes.
+11. **Keep `docs/status.md` current.** Work done, in progress and left,
+    each with a time estimate, updated at every stage boundary; the hook
+    announces it.
 
 ## Daily commands
 

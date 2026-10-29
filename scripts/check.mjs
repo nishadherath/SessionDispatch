@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // The gate for this repository: validates the price table in force, the
 // templates, the worked examples, the skill's front matter, the adapters,
-// the session-start hook and the prose rules. Standard library only, Node
+// the session-start hook, the operator preferences and live status files,
+// and the prose rules. Standard library only, Node
 // 20 or later. Exit codes: 0 green; 2 the table is stale and nothing else
 // is wrong (an expected state after max_age_days, see pricing/README.md);
 // 1 any other finding. Every finding names the file and the fix.
@@ -155,6 +156,28 @@ function checkHook() {
   if (!hasLine(text, "## Session dispatch decision") && !/Session dispatch not run/.test(text)) fail(newest, 'missing "## Session dispatch decision" section or a "Session dispatch not run" line');
 }
 
+// The two operator questions (protocol section 1.3) and the live status
+// document (AGENTS.md rule 11): present and well formed, so the hook can
+// read them and a session knows what is still unanswered.
+function checkPreferences() {
+  const file = path.join(ROOT, "docs", "operator-preferences.json");
+  let prefs;
+  try { prefs = JSON.parse(read(file)); } catch (e) { return fail(file, `missing or not valid JSON (${e.message})`); }
+  for (const key of ["ste100", "autonomy"]) {
+    const q = prefs.questions?.[key];
+    if (!q) { fail(file, `questions.${key} missing`); continue; }
+    if (typeof q.question !== "string" || !q.question) fail(file, `questions.${key}.question must be the text put to the operator`);
+    if (!(q.answer === null || typeof q.answer === "boolean")) fail(file, `questions.${key}.answer must be null, true or false`);
+    for (const d of ["asked", "recorded"]) if (!(q[d] === null || DATE_RE.test(String(q[d])))) fail(file, `questions.${key}.${d} must be null or YYYY-MM-DD`);
+    if (typeof q.answer === "boolean" && q.recorded === null) fail(file, `questions.${key} is answered but recorded has no date`);
+  }
+  const status = path.join(ROOT, "docs", "status.md");
+  if (!fs.existsSync(status)) return fail(status, "missing live status document (AGENTS.md rule 11)");
+  const text = read(status);
+  for (const h of ["## Done", "## In progress", "## To do", "## Decisions waiting"]) if (!hasLine(text, h)) fail(status, `missing heading "${h}"`);
+  if (!/^Last updated: \d{4}-\d{2}-\d{2}/m.test(text)) fail(status, 'missing a "Last updated: YYYY-MM-DD" line');
+}
+
 // Prose rules over every Markdown file except the generated persona
 // editions (which quote the banned list) and verbatim quote lines.
 function walkMd(dir, out = []) {
@@ -179,7 +202,7 @@ function checkProse() {
   }
 }
 
-for (const step of [checkPricing, checkTemplates, checkExamples, checkSkill, checkAdapters, checkHook, checkProse]) {
+for (const step of [checkPricing, checkTemplates, checkExamples, checkSkill, checkAdapters, checkHook, checkPreferences, checkProse]) {
   try { step(); } catch (e) { fail(step.name, `threw ${e.message}`); }
 }
 

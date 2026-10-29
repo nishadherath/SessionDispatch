@@ -23,7 +23,7 @@ the model's confidence.
 | `templates/` | `decision-record.md` (the section pasted into a handoff) and `handoff.md`. |
 | `examples/` | Filled records. The first is the fork_graft decision of 2026-10-27 that this skill generalises. |
 | `scripts/` | `check.mjs` (the gate), `install.mjs` (copies the skill where each harness looks), `pricing-new.mjs` (starts a refresh). |
-| `docs/` | `operator-protocol.md` (the operator's standing instructions) and `handoffs/`. |
+| `docs/` | `operator-protocol.md` (the operator's standing instructions), `handoffs/`, `status.md` (the live status), `operator-preferences.json` (the two questions asked once) and the dated assessments. |
 | `ENGINEERING_PERSONA.*.md`, `ENGINEERING_PERSONA_LANGUAGES/` | The engineering persona, one edition per model class, copied from the operator's Orchestrator repository. |
 
 ## Install
@@ -39,7 +39,7 @@ That copies `SKILL.md`, `pricing/`, `templates/` and `examples/` to
 the machine sees it. Other targets:
 
 ```bash
-node scripts/install.mjs --project D:\path\to\repo
+node scripts/install.mjs --project D:/path/to/repo
 ```
 
 ```bash
@@ -83,6 +83,12 @@ Exit 1 names each finding and its fix.
 
 ## Changelog
 
+- 2026-10-29: first assessment, `docs/assessment-2026-10-29.md`, with a
+  priced roadmap staged by model class. Operator protocol revised: the
+  standing instructions of 2026-10-29 recorded, session mechanics
+  re-verified (`start_session` sets model and effort), two operator
+  questions in `docs/operator-preferences.json`, live status in
+  `docs/status.md`; the hook announces both and the gate checks them.
 - 2026-10-27: first commit. Skill, nine adapters, first price table,
   templates, the fork_graft worked example, check and install scripts,
   operator protocol, persona copies.

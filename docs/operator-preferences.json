@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "notes": [
+    "The two questions the operator's standing instructions of 2026-10-29 ask every project to put to them once (docs/operator-protocol.md section 1.3).",
+    "answer is null until the operator answers, then true or false; recorded is the date the answer was written here. The session-start hook names every question whose answer is null.",
+    "Until autonomy is true, sessions propose the next session as a card. Until ste100 is true, prose follows the persona's section 14.1."
+  ],
+  "questions": {
+    "ste100": {
+      "question": "Should replies and project documentation follow ASD-STE100 Simplified Technical English, unless a deliverable says otherwise?",
+      "answer": null,
+      "asked": "2026-10-29",
+      "recorded": null,
+      "note": null
+    },
+    "autonomy": {
+      "question": "May sessions work autonomously: start the next session themselves with the model and effort set, keep docs/status.md current, and report rather than ask?",
+      "answer": null,
+      "asked": "2026-10-29",
+      "recorded": null,
+      "note": null
+    }
+  }
+}
