@@ -3,11 +3,13 @@
 // templates, the worked examples (headings, cost rows, and their Step A
 // figures recomputed from their own Inputs table by dispatch-core.mjs), the
 // skill's front matter, the adapters, the session-start hook, the operator
-// preferences and live status files, and the prose rules. Standard library
-// only, Node 20 or later. Exit codes: 0 green; 2 the table is stale and
-// nothing else is wrong (an expected state after max_age_days, see
-// pricing/README.md); 1 any other finding. Every finding names the file and
-// the fix.
+// preferences and live status files, the evaluation's scenarios (each run
+// through the calculator, its printed figures compared with the scenario's
+// stated expectation), and the prose rules. Standard library only, Node 20
+// or later. Exit codes: 0 green; 2 the table is stale and nothing else is
+// wrong (an expected state after max_age_days, see pricing/README.md); 1 any
+// other finding. Every finding names the file and the fix.
+import { execFile } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -46,6 +48,18 @@ const BANNED = [
   "delve", "nuanced", "tapestry", "robust", "multifaceted", "landscape",
   "it is worth noting", "it is important to note", "let's dive in", "in today's world",
 ];
+const BANNED_RE = BANNED.map((w) => new RegExp(`(^|[^a-z])${w.replace(/'/g, "['’]")}([^a-z]|$)`, "i"));
+// The prose faults in one line of text, each phrased as the fix.
+const proseFaults = (line) => [
+  ...(line.includes(EM_DASH) ? ["em-dash; restructure with a comma, colon or full stop"] : []),
+  ...BANNED_RE.flatMap((re, k) => (re.test(line) ? [`banned word "${BANNED[k]}"`] : [])),
+];
+
+// The evaluation's vocabulary (eval/rubric.md): what a scenario may expect.
+const EVAL_OUTCOMES = new Set(["continue", "fresh", "split", "not-run", "incomplete", "stop"]);
+const EVAL_GUARDRAILS = new Set([1, 2, 3, 5, 6, 7, 8]); // 4 is scored on every run through the model ids
+const EFFORTS = new Set(["low", "medium", "high", "xhigh", "max"]);
+const EVAL_FIGURES = ["exit", "draft", "percent", "cost_continue", "cost_fresh", "cost_split", "t_star", "crosses"];
 
 const findings = [];
 let stale = false;
@@ -316,19 +330,92 @@ function walkMd(dir, out = [], skip = new Set([".git", "node_modules", ...ignore
 }
 
 function checkProse() {
-  const banned = BANNED.map((w) => new RegExp(`(^|[^a-z])${w.replace(/'/g, "['’]")}([^a-z]|$)`, "i"));
   for (const file of walkMd(ROOT)) {
     const lines = read(file).split(/\r?\n/);
     lines.forEach((line, i) => {
       if (line.startsWith(">")) return;
-      if (line.includes(EM_DASH)) fail(file, `line ${i + 1}: em-dash; restructure with a comma, colon or full stop`);
-      banned.forEach((re, k) => { if (re.test(line)) fail(file, `line ${i + 1}: banned word "${BANNED[k]}"`); });
+      for (const f of proseFaults(line)) fail(file, `line ${i + 1}: ${f}`);
     });
   }
 }
 
-for (const step of [checkPricing, checkTemplates, checkExamples, checkSkill, checkAdapters, checkHook, checkPreferences, checkProse]) {
-  try { step(); } catch (e) { fail(step.name, `threw ${e.message}`); }
+// The figures the calculator prints for one input, in the shape a scenario's
+// expected.calculator states them: the exit code, the draft's side and
+// reason, its percent, the three totals and T* as printed, and `crosses`.
+// Asynchronous so the scenarios' calculator runs overlap: one process each,
+// run in series, costs seconds per gate run on Windows.
+async function calculatorFigures(scenarioFile, flags = {}) {
+  const args = [path.join(ROOT, "scripts", "dispatch.mjs"), "--json", scenarioFile];
+  for (const [k, v] of Object.entries(flags)) args.push(`--${k}`, String(v));
+  const r = await new Promise((resolve) => execFile(process.execPath, args, { cwd: ROOT, encoding: "utf8" },
+    (err, stdout) => resolve({ status: err ? (typeof err.code === "number" ? err.code : null) : 0, stdout })));
+  const out = r.stdout ?? "";
+  const total = (head) => {
+    const at = out.search(new RegExp(`^${head}`, "m"));
+    return at < 0 ? null : out.slice(at).match(/^\s*=\s*(\d[\d,]*\.\d+) USD/m)?.[1] ?? null;
+  };
+  const d = out.match(/^Draft verdict: (continue|fresh|incomplete)(?:, by (class|cost|quality|break-even))?/m);
+  const crosses = out.match(/^crosses = C_end > K\s+= (true|false)/m)?.[1];
+  return {
+    exit: r.status,
+    draft: d ? { side: d[1], by: d[2] ?? null } : null,
+    percent: out.match(/^Draft verdict:.*\(([\d.]+) percent of the smaller/m)?.[1] ?? null,
+    cost_continue: total("cost_continue on"), cost_fresh: total("cost_fresh on"), cost_split: total("cost_split: brief"),
+    t_star: out.match(/^T\* =.*\s(\d[\d,]*(?:\.\d+)?) turns$/m)?.[1] ?? (/^T\* =.*never/m.test(out) ? "never" : null),
+    crosses: crosses === undefined ? null : crosses === "true",
+  };
+}
+
+// The evaluation's scenarios (eval/scenarios/*.json, eval/rubric.md): each
+// is calculator input plus a brief and its expectations. The calculator runs
+// on each as its own file, and every figure it prints must equal the one the
+// scenario states, so a formula change that moves a figure fails here until
+// the expectation is regenerated with a dated reason. The hand-set parts
+// (final verdict, guardrails) are checked for shape, not for truth.
+async function checkEval() {
+  const dir = path.join(ROOT, "eval", "scenarios");
+  const names = fs.existsSync(dir) ? fs.readdirSync(dir).filter((n) => n.endsWith(".json")).sort() : [];
+  if (names.length === 0) return fail(dir, "no scenario; the evaluation ships with its scenario set (eval/README.md)");
+  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  const tables = new Map(); // a table is read once however many scenarios name it
+  const pending = []; // calculator comparisons, awaited together at the end
+  for (const n of names) {
+    const file = path.join(dir, n);
+    let s;
+    try { s = JSON.parse(read(file)); } catch (e) { fail(file, `not valid JSON (${e.message})`); continue; }
+    if (s.id !== n.slice(0, -5)) fail(file, `id ${JSON.stringify(s.id)} must equal the filename stem ${n.slice(0, -5)}`);
+    if (!Array.isArray(s.brief) || s.brief.length === 0 || !s.brief.every((l) => typeof l === "string")) fail(file, "brief must be a non-empty array of lines");
+    if (!String(s.brief?.[0]).includes("{{TODAY}}")) fail(file, "brief must state the day as {{TODAY}}, which the runner fills");
+    [...(s.brief ?? []), ...(s.notes ?? []), s.title ?? ""].forEach((l) => proseFaults(String(l)).forEach((f) => fail(file, `brief, title or notes: ${f}`)));
+    if (!EFFORTS.has(s.current_effort)) fail(file, `current_effort must be one of ${[...EFFORTS].join(", ")}, found ${JSON.stringify(s.current_effort)}`);
+    const e = s.expected ?? {};
+    const fin = e.final ?? {};
+    if (!EVAL_OUTCOMES.has(fin.outcome)) fail(file, `expected.final.outcome must be one of ${[...EVAL_OUTCOMES].join(", ")}, found ${JSON.stringify(fin.outcome)}`);
+    if (!(fin.effort === null || EFFORTS.has(fin.effort))) fail(file, `expected.final.effort must be null or one of ${[...EFFORTS].join(", ")}`);
+    if (typeof fin.approval_step !== "boolean") fail(file, "expected.final.approval_step must be true or false");
+    for (const k of ["skill_runs", "draft_required"]) if (typeof e[k] !== "boolean") fail(file, `expected.${k} must be true or false`);
+    const g = e.guardrails;
+    if (!Array.isArray(g) || !g.every((x) => EVAL_GUARDRAILS.has(x)) || !same(g, [...new Set(g)].sort((a, b) => a - b))) fail(file, `expected.guardrails must be a sorted list from ${[...EVAL_GUARDRAILS].join(", ")}, found ${JSON.stringify(g)}`);
+    let table = tables.get(s.table) ?? null;
+    if (!table) {
+      try { table = JSON.parse(read(path.join(ROOT, ...String(s.table).split("/")))); tables.set(s.table, table); } catch (err) { fail(file, `table ${s.table} cannot be read (${err.message}); name a table under pricing/ or eval/tables/`); }
+    }
+    if (table && fin.model !== null && !findModel(table, fin.model)) fail(file, `expected.final.model ${fin.model} is not in ${s.table}`);
+    const rel = path.relative(ROOT, file).split(path.sep).join("/");
+    const runs = [{ where: "expected.calculator", want: e.calculator, flags: {} }, ...(e.alternatives ?? []).map((a, i) => ({ where: `expected.alternatives[${i}].calculator`, want: a.calculator, flags: a.flags ?? {} }))];
+    for (const { where, want, flags } of runs) {
+      pending.push(calculatorFigures(rel, flags).then((got) => {
+        for (const k of EVAL_FIGURES) {
+          if (!same(want?.[k] ?? null, got[k])) fail(file, `${where}.${k} is ${JSON.stringify(want?.[k] ?? null)}, the calculator gives ${JSON.stringify(got[k])}; fix the inputs, or regenerate the expectation and say why in notes`);
+        }
+      }));
+    }
+  }
+  await Promise.all(pending);
+}
+
+for (const step of [checkPricing, checkTemplates, checkExamples, checkSkill, checkAdapters, checkHook, checkPreferences, checkEval, checkProse]) {
+  try { await step(); } catch (e) { fail(step.name, `threw ${e.message}`); }
 }
 
 const hard = findings.length - (stale ? 1 : 0);

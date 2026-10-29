@@ -1,0 +1,69 @@
+{
+  "id": "11-band-compacted-fresh",
+  "title": "Same model inside the band after a compaction: fresh by quality",
+  "covers": [
+    "matrix row 2",
+    "within the band",
+    "fresh by quality",
+    "compacted, not design-heavy"
+  ],
+  "brief": [
+    "Today is {{TODAY}}. Harness: Claude Code desktop app. The harness reports this session's model as claude-sonnet-5-5 at effort medium.",
+    "The session usage tool reports tokensUsed 180,000, contextWindow 1,000,000 and autoCompactsAtPercent 97. This session was compacted once, an hour ago.",
+    "A fresh session in this harness and project starts at 86,450 tokens (measured: the usage tool's total less its Messages category).",
+    "Next stage: a refactor within one module, with its test suite as the oracle. The module does not touch authentication, payments, storage formats or a public interface. Plan estimate: 45 turns. No per-turn measurement exists.",
+    "A fresh session would read 15,000 tokens: the handoff and the module.",
+    "A handoff for this stage would be about 80 lines.",
+    "Everything this session knows that the next stage needs is already written in files on disk.",
+    "No cache-miss measurement exists, and no review pauses are expected during the stage.",
+    "The stage writes files and commits locally; nothing leaves the machine."
+  ],
+  "table": "pricing/2026-10-29.json",
+  "today": "2026-10-30",
+  "formula": "2026-10-29",
+  "current": "claude-sonnet-5-5",
+  "target": "claude-sonnet-5-5",
+  "W": 1000000,
+  "K": 970000,
+  "B": 86450,
+  "H": 2500,
+  "M": 0,
+  "L": 0,
+  "C0": 180000,
+  "compacted": true,
+  "T": 45,
+  "F": 3000,
+  "O": 1500,
+  "R": 15000,
+  "current_effort": "medium",
+  "task_row": 2,
+  "design_heavy": false,
+  "outward": [],
+  "expected": {
+    "calculator": {
+      "exit": 0,
+      "draft": {
+        "side": "fresh",
+        "by": "quality"
+      },
+      "percent": "3.2",
+      "cost_continue": "2.45",
+      "cost_fresh": "2.37",
+      "cost_split": null,
+      "t_star": "35.5",
+      "crosses": false
+    },
+    "skill_runs": true,
+    "draft_required": true,
+    "final": {
+      "outcome": "fresh",
+      "model": "claude-sonnet-5-5",
+      "effort": "medium",
+      "approval_step": false
+    },
+    "guardrails": []
+  },
+  "notes": [
+    "The costs are within 10 percent; the session has compacted, so step 2's rule 3 gives fresh. Guardrail 2 does not bind: the stage is not design-heavy."
+  ]
+}

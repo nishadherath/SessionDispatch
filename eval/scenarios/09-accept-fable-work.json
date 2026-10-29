@@ -1,0 +1,74 @@
+{
+  "id": "09-accept-fable-work",
+  "title": "Acceptance of the top class's own work: break-even says continue, guardrail 6 says fresh",
+  "covers": [
+    "matrix row 4",
+    "continue by break-even",
+    "guardrail 6 overrides the draft",
+    "effort xhigh"
+  ],
+  "brief": [
+    "Today is {{TODAY}}. Harness: Claude Code desktop app. The harness reports this session's model as claude-fable-5-1 at effort high.",
+    "The session usage tool reports tokensUsed 150,000, contextWindow 1,000,000 and autoCompactsAtPercent 97. This session has not been compacted.",
+    "A fresh session in this harness and project starts at 86,450 tokens (measured: the usage tool's total less its Messages category).",
+    "Next stage: adversarial acceptance of the cost model this session wrote earlier today: re-derive it by hand, recompute every figure, argue against each assumption. Fable is the top class this harness offers. Plan estimate: 12 turns. Expected fresh input 5,000 tokens per turn and output 3,000 per turn (estimates).",
+    "A fresh session would read 30,000 tokens: the cost model, its inputs and the handoff.",
+    "A handoff for this stage would be about 80 lines. If a further acceptance session were used, it would take about 12 turns and read about 30,000 tokens.",
+    "Everything this session knows that the next stage needs is already written in files on disk.",
+    "No cache-miss measurement exists, and no review pauses are expected during the stage.",
+    "The stage writes files and commits locally; nothing leaves the machine."
+  ],
+  "table": "pricing/2026-10-29.json",
+  "today": "2026-10-30",
+  "formula": "2026-10-29",
+  "current": "claude-fable-5-1",
+  "target": "claude-fable-5-1",
+  "W": 1000000,
+  "K": 970000,
+  "B": 86450,
+  "H": 2500,
+  "M": 0,
+  "L": 0,
+  "C0": 150000,
+  "compacted": false,
+  "T": 12,
+  "F": 5000,
+  "O": 3000,
+  "R": 30000,
+  "Ta": 12,
+  "Ra": 30000,
+  "current_effort": "high",
+  "task_row": 4,
+  "design_heavy": false,
+  "outward": [],
+  "expected": {
+    "calculator": {
+      "exit": 0,
+      "draft": {
+        "side": "continue",
+        "by": "break-even"
+      },
+      "percent": "41.2",
+      "cost_continue": "3.59",
+      "cost_fresh": "5.07",
+      "cost_split": "3.39",
+      "t_star": "188.5",
+      "crosses": false
+    },
+    "skill_runs": true,
+    "draft_required": true,
+    "final": {
+      "outcome": "fresh",
+      "model": "claude-fable-5-1",
+      "effort": "xhigh",
+      "approval_step": false
+    },
+    "guardrails": [
+      6
+    ]
+  },
+  "notes": [
+    "T* is far above 12, so the draft is continue by break-even.",
+    "Guardrail 6: when the author is the top class, acceptance runs at the top class in a fresh session with xhigh effort. The author cannot accept its own work in the same session."
+  ]
+}

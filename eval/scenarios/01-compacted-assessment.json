@@ -1,0 +1,77 @@
+{
+  "id": "01-compacted-assessment",
+  "title": "A compacted Fable session before a whole-project assessment",
+  "covers": [
+    "matrix row 5",
+    "compacted",
+    "crosses K",
+    "guardrail 2",
+    "defaults B",
+    "seed: examples/2026-10-27-fork-graft-stage-26.md"
+  ],
+  "brief": [
+    "Today is {{TODAY}}. Harness: Claude Code desktop app. The harness reports this session's model as claude-fable-5-1 at effort high.",
+    "The status line shows about 100,000 tokens of context in use. The model's context window is 200,000 tokens and this harness compacts automatically at 95 percent of the window. This session was compacted once earlier today.",
+    "No baseline has been measured for a fresh session in this harness and project.",
+    "Next stage: a whole-project assessment of the repository. It answers six questions about the deliverables, the design, the status and the improvements, and writes a roadmap of later stages priced by model class. Plan estimate: 60 turns. On the previous assessment in this project, fresh input averaged 3,000 tokens per turn and output 1,500 tokens per turn (measured).",
+    "A fresh session would read: the stage's handoff (1,000 tokens), the previous assessment (12,000), three earlier handoffs (6,000 in all), the project's instruction files (9,000) and a code index summary (2,000).",
+    "A handoff for this stage would be about 60 lines. If an acceptance session were used, it would take about 15 turns and read about 40,000 tokens.",
+    "Everything this session knows that the next stage needs is already written in files on disk.",
+    "No cache-miss measurement exists, and no review pauses are expected during the stage.",
+    "The stage writes files and commits locally; nothing leaves the machine."
+  ],
+  "table": "pricing/2026-10-29.json",
+  "today": "2026-10-30",
+  "formula": "2026-10-29",
+  "current": "claude-fable-5-1",
+  "target": "claude-fable-5-1",
+  "W": 200000,
+  "K": 190000,
+  "C0": 100000,
+  "compacted": true,
+  "T": 60,
+  "F": 3000,
+  "O": 1500,
+  "B": 25000,
+  "R": 30000,
+  "H": 2500,
+  "M": 0,
+  "L": 0,
+  "Ta": 15,
+  "Ra": 40000,
+  "current_effort": "high",
+  "task_row": 5,
+  "design_heavy": true,
+  "outward": [],
+  "expected": {
+    "calculator": {
+      "exit": 0,
+      "draft": {
+        "side": "fresh",
+        "by": "quality"
+      },
+      "percent": "3.1",
+      "cost_continue": "11.90",
+      "cost_fresh": "11.54",
+      "cost_split": "4.39",
+      "t_star": "72.2",
+      "crosses": true
+    },
+    "skill_runs": true,
+    "draft_required": true,
+    "final": {
+      "outcome": "fresh",
+      "model": "claude-fable-5-1",
+      "effort": "high",
+      "approval_step": false
+    },
+    "guardrails": [
+      2
+    ]
+  },
+  "notes": [
+    "K is 0.95 W as the brief states; B is the step 1.3 default of 25,000 because none was measured.",
+    "Guardrail 2 binds twice over: the session has compacted and the stage is design-heavy; C_end also passes K.",
+    "The split is computed (target fable) but is not an option: an assessment is design work."
+  ]
+}

@@ -2,7 +2,7 @@
 stage: "Stage O2: evaluation design (scenario set, rubric, runner brief)"
 model: claude-opus-5-5
 effort: high
-status: ready
+status: done
 created: 2026-10-29
 from: "Session local_ec0281d1 (Fable 5.1, xhigh): Stage F1, acceptance of Stage O1"
 ---

@@ -1,0 +1,75 @@
+{
+  "id": "12-crosses-design-heavy",
+  "title": "Continue is cheaper, but a design-heavy stage would cross the compaction point",
+  "covers": [
+    "matrix row 3",
+    "draft continue by cost",
+    "crosses K",
+    "guardrail 2 overrides the draft",
+    "harness: Claude Code CLI"
+  ],
+  "brief": [
+    "Today is {{TODAY}}. Harness: Claude Code CLI. The harness reports this session's model as claude-opus-5-5 at effort high.",
+    "/context reports 126,450 tokens in use of a 200,000-token window. This installation compacts automatically at 80 percent of the window (160,000 tokens), as its settings state. This session has not been compacted.",
+    "A fresh session in this harness and project starts at 86,450 tokens (measured last week with /context before any message).",
+    "Next stage: evaluation design for a ranking procedure: choose the test cases, define the measures and write the runner's brief. Plan estimate: 12 turns. On the previous design stage in this project, fresh input averaged 2,500 tokens per turn and output 1,500 per turn (measured).",
+    "A fresh session would read 30,000 tokens: the procedure, the handoff and the prior results.",
+    "A handoff for this stage would be about 80 lines. If an acceptance session were used, it would take about 15 turns and read about 40,000 tokens.",
+    "Everything this session knows that the next stage needs is already written in files on disk.",
+    "No cache-miss measurement exists, and no review pauses are expected during the stage.",
+    "The stage writes files and commits locally; nothing leaves the machine."
+  ],
+  "table": "pricing/2026-10-29.json",
+  "today": "2026-10-30",
+  "formula": "2026-10-29",
+  "current": "claude-opus-5-5",
+  "target": "claude-opus-5-5",
+  "W": 200000,
+  "K": 160000,
+  "C0": 126450,
+  "compacted": false,
+  "T": 12,
+  "F": 2500,
+  "O": 1500,
+  "B": 86450,
+  "R": 30000,
+  "H": 2500,
+  "M": 0,
+  "L": 0,
+  "Ta": 15,
+  "Ra": 40000,
+  "current_effort": "high",
+  "task_row": 3,
+  "design_heavy": true,
+  "outward": [],
+  "expected": {
+    "calculator": {
+      "exit": 0,
+      "draft": {
+        "side": "continue",
+        "by": "cost"
+      },
+      "percent": "35.2",
+      "cost_continue": "1.16",
+      "cost_fresh": "1.57",
+      "cost_split": "2.66",
+      "t_star": "316.1",
+      "crosses": true
+    },
+    "skill_runs": true,
+    "draft_required": true,
+    "final": {
+      "outcome": "fresh",
+      "model": "claude-opus-5-5",
+      "effort": "high",
+      "approval_step": false
+    },
+    "guardrails": [
+      2
+    ]
+  },
+  "notes": [
+    "C_end passes K, so a compaction is ahead; the compaction penalty is smaller than the fresh session's first read, so the arithmetic favours continue by more than 10 percent.",
+    "Guardrail 2 makes the final verdict fresh: the stage is design-heavy and would cross K."
+  ]
+}
