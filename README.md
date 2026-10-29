@@ -125,6 +125,16 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-10-30: evaluation rerun on the revised text (Stage H2).
+  `prepare --repeat <n>` gives repeat runs of a scenario, subject and
+  arm distinct ids (`.2` and on), with its test. 120 sub-agent runs on
+  the `Agent` runner, labelled 2026-10-31 so H1's run folder stays:
+  `eval/results-2026-10-31.md` (thresholds, comparability and reading
+  notes first). Final agreement: Sonnet 40 of 40 in both arms (n = 40
+  each), Haiku calculator 17 of 20 and hand 19 of 20 (n = 20 each); the
+  Sonnet threshold is met, the Haiku calculator threshold (18 of 20) is
+  not met on the scorer's count. No change to the skill or the scorer.
+  F4 handoff written.
 - 2026-10-30: acceptance of Stage O3 (Stage F3),
   `docs/acceptance-2026-10-30-stage-o3.md`. Sixteen claims accepted,
   none rejected: the text carries F2's verdicts and the scenario 17
