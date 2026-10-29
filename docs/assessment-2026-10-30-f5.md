@@ -101,7 +101,7 @@ same day. Three things differed, all measured from the 42 CLI results.
 | Output tokens, median (min to max) | 25,327 (1,423 to 49,428) | 5,874 (507 to 11,760) | `usage.output_tokens` |
 | New context written after the first request, median | 56,221 | 28,190 | `cache_creation_input_tokens` |
 | Records that state the calculator ran | 0 of 20 | 12 of 21 (02, 04, 05 and 19 state it was refused; 14, 15, 17, 18 and 21 stop or refuse before the arithmetic by the skill's own rules) | the records' calculator lines |
-| Refused Bash commands | 16 runs: `cd "<sandbox>\skill" && node scripts/dispatch.mjs ...` (13) and `node "<quoted absolute path>\dispatch.mjs" ...` (3) | 10 runs, the same `cd ...; node ...` form, and in 8 of them a later form was allowed | `permission_denials` |
+| Refused Bash commands | 15 runs, 16 denials (one run refused twice): `cd "<sandbox>\skill" && node scripts/dispatch.mjs ...` (13) and `node "<quoted absolute path>\dispatch.mjs" ...` (3) | 10 runs, the same `cd ...; node ...` form, and in 8 of them a later form was allowed | `permission_denials` |
 
 The arithmetic of the window: a median Haiku run starts at about
 154,000 tokens of harness baseline and writes about 56,000 more, which
