@@ -22,7 +22,7 @@ the model's confidence.
 | `pricing/` | Dated price tables, `YYYY-MM-DD.json`. The newest is in force; stale or null means refuse, never guess. |
 | `templates/` | `decision-record.md` (the section pasted into a handoff) and `handoff.md`. |
 | `examples/` | Filled records. The first is the fork_graft decision of 2026-10-27 that this skill generalises. |
-| `scripts/` | `check.mjs` (the gate), `install.mjs` (copies the skill where each harness looks), `pricing-new.mjs` (starts a refresh). |
+| `scripts/` | `check.mjs` (the gate), `install.mjs` (copies the skill where each harness looks), `pricing-new.mjs` (starts a refresh), `dispatch.mjs` (the step 2 and 3.3 calculator) with `dispatch-core.mjs` (its arithmetic, shared with the gate). |
 | `docs/` | `operator-protocol.md` (the operator's standing instructions), `handoffs/`, `status.md` (the live status), `operator-preferences.json` (the two questions asked once) and the dated assessments. |
 | `ENGINEERING_PERSONA.*.md`, `ENGINEERING_PERSONA_LANGUAGES/` | The engineering persona, one edition per model class, copied from the operator's Orchestrator repository. |
 
@@ -83,6 +83,15 @@ Exit 1 names each finding and its fix.
 
 ## Changelog
 
+- 2026-10-29: step 2 formula revised (Stage O1). `continue` priced at the
+  current model and `fresh` at the target class; context grows by F + O;
+  a cache-miss term with M stated; the break-even T* as a short path; the
+  split comparison (brief, Sonnet run, Opus acceptance). New calculator
+  `node scripts/dispatch.mjs` (per-turn long-context pricing; `--formula
+  2026-10-27` reproduces older records). The gate recomputes every
+  example's figures from its inputs. New worked example
+  `examples/2026-10-29-sessiondispatch-stage-0b.md`; template rows for
+  the formula, the two models, M, L and the split.
 - 2026-10-29: first assessment, `docs/assessment-2026-10-29.md`, with a
   priced roadmap staged by model class. Operator protocol revised: the
   standing instructions of 2026-10-29 recorded, session mechanics

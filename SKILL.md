@@ -18,7 +18,13 @@ Files this skill uses, relative to its own folder:
 - `templates/decision-record.md`: the section you fill in and paste
   into the handoff.
 - `templates/handoff.md`: the handoff shape, if the project has none.
-- `examples/2026-10-27-fork-graft-stage-26.md`: a filled record.
+- `examples/2026-10-29-sessiondispatch-stage-0b.md`: a filled record
+  under the formula in force, with a class change and the split.
+- `examples/2026-10-27-fork-graft-stage-26.md`: a filled record under
+  the formula of 2026-10-27.
+- `scripts/dispatch.mjs`, where the copy you run has `scripts/`: the
+  calculator for steps 2 and 3.3. It multiplies; you still gather the
+  inputs, apply the guardrails and argue the adversarial pass.
 
 Prose rules for everything you write under this skill: Australian
 English, no em-dashes, no AI-telltale vocabulary (the engineering
@@ -69,23 +75,32 @@ say so. Never present an estimate as a measurement.
 |---|---|---|
 | Expected turns | T | From the plan or the handoff. One turn is one model call. A stage with 20 tool calls and a final message is about 21 turns. If unsure, give a range and compute with both ends. |
 | Fresh input per turn (tokens) | F | New material entering context each turn: tool results, file reads, user messages. Default 3,000 if unmeasured. Read-heavy stages (assessment, audit): 5,000 to 8,000. |
-| Output per turn (tokens) | O | Model output including reasoning. Default 1,500. Writing-heavy stages: 3,000. |
+| Output per turn (tokens) | O | Model output including reasoning. Default 1,500. Writing-heavy stages: 3,000. The defaults were measured at high effort; at xhigh or max, reasoning is longer and billed as output, so mark O as an estimate and test a larger value in step 5. |
 | Re-read set (tokens) | R | What a fresh session must read before it can work: the handoff, the files it names, the project's instruction files. Sum their sizes in tokens (characters divided by 4). |
 | Handoff size (tokens) | H | What you would write to hand off. Default 2,500 for a handoff under 120 lines; add the size of any unrecorded context you must write down. |
+| Cache misses over the stage | M | Turns whose prompt is no longer in cache and is written again in full. Pauses longer than the cache lifetime cause them (operator review, a long tool run), and so does any change early in the prompt. Unmeasured so far: default 0, say so, and in step 5 count one miss per review pause you expect. |
+| Rediscovery turns | L | Turns a fresh session would spend finding again the unrecorded context you choose not to write down. 0 when that list is empty. |
+| Acceptance turns and re-read | Ta, Ra | For the split of step 2.1 only: the turns an acceptance session takes and what it reads (the brief, the diff, the files named). |
 | Task type | one of the rows in step 3.1 | Decides the model class. If the stage mixes types, split it into pieces and dispatch each piece. |
 | Design-heavy | yes or no | Yes when the stage involves choosing between designs, cross-module changes, evaluation design, or an assessment. Guardrail 2 depends on this. |
 | Irreversible or outward-facing steps | list | Pushes, deletions, releases, messages, purchases, anything that leaves the machine. Guardrail 3 depends on this. |
 
 ### 1.3 Context growth
 
-Context grows by about F per turn until compaction. Over T turns:
+Context grows by G = F + O per turn until compaction: the fresh input
+and the turn's own output both stay in context. Over T turns:
 
 ```
-C_end     = C0 + T * F                       (where it would end without compaction)
+G         = F + O                            (growth per turn)
+C_end     = C0 + T * G                       (where it would end without compaction)
 crosses   = C_end > K                        (true means a compaction mid-stage)
-C_cont    = C0 + (T * F) / 2                 (average context if you continue)
-C_fresh   = B + R + (T * F) / 2              (average context in a fresh session)
+C_cont    = C0 + (T * G) / 2                 (average context if you continue)
+C_fresh   = B + R + (T * G) / 2              (average context in a fresh session)
 ```
+
+Some harnesses drop earlier reasoning from the context; there growth is
+nearer F plus the visible output. Without a measurement, keep G = F + O
+and say so.
 
 B is the fresh session's baseline: system prompt, tool definitions,
 project instruction files and skills, before any work. Measure it
@@ -117,7 +132,10 @@ unmeasured, use 25,000 and say so.
    "incomplete: price of <model> unknown".
 5. Where a table lists a long-context tier (a higher price when the
    whole prompt exceeds a threshold), use the higher price for every
-   turn whose context exceeds the threshold.
+   turn whose context exceeds the threshold, and only for those. An
+   average context cannot do this: price turn by turn, with turn t
+   reading C_start + (t - 1/2) * G. The calculator does; by hand, split
+   the stage at the turn where the context passes the threshold.
 
 Never pick a model by name from memory. Pick a class from step 3, then
 the model the table lists for that class in the family the harness
@@ -125,48 +143,127 @@ runs.
 
 ## 2. Step A: continue or hand off
 
-Compute both costs with the prices for the class the work needs (step
-3 decides the class; do step 3.1 first if the class might change,
-then return here).
+Do step 3.1 first: it names the class the work needs (the target).
+Then price each side at the model that would run it:
+
+- `continue` at the model this session runs on. A session never
+  changes its own class (guardrail 8), so continuing means the current
+  model does the work.
+- `fresh` at the target class's model from the table. The handoff H is
+  written by this session, so it is priced at the current model's
+  output rate.
+
+If the target class is above the current one, continuing would run the
+work below its class: the verdict is fresh, by class. Compute both
+sides anyway; the record shows the money.
+
+**Run the calculator where you have it.** With the inputs of step 1 in
+a JSON file (keys as the symbols; `--help` lists them) or as flags:
 
 ```
-cost_continue = T * C_cont * p_cache_read
-              + T * F      * p_cache_write
-              + T * O      * p_output
-              + penalty_compaction
+node scripts/dispatch.mjs --json inputs.json
+node scripts/dispatch.mjs --current <model id> --target <class> --W .. --K .. --C0 .. --T .. --F .. --O .. --B .. --R .. --H .. --compacted no
+```
 
-cost_fresh    = H * p_output                      (writing the handoff, in this session)
-              + (B + R) * p_cache_write           (the fresh session's first read)
+It reads the table in force, refuses a stale table or a null price as
+step 1.4 says (exit 2 and 3), and prints the block below filled in,
+with T*, the split and the cost per piece. Paste its block into the
+record. Without it, compute by hand:
+
+```
+G             = F + O
+cost_continue = T * C_cont * p_cache_read          (cache reads)
+              + T * G      * p_cache_write         (new context written to cache)
+              + T * O      * p_output              (output, reasoning included)
+              + M * C_cont * (p_cache_write - p_cache_read)   (cache misses)
+              + penalty_compaction
+              all at the current model's prices
+
+cost_fresh    = H * p_output[current]              (writing the handoff, in this session)
+              + (B + R) * p_cache_write            (the fresh session's first read)
               + T * C_fresh * p_cache_read
-              + T * F       * p_cache_write
+              + T * G       * p_cache_write
               + T * O       * p_output
+              + M * C_fresh * (p_cache_write - p_cache_read)
               + penalty_loss
+              at the target model's prices, except H
 ```
 
 Prices are per token here (the table's figure divided by one million).
 
+Every token that grows the context is written to cache once, the turn
+after it appears, so the write term is T * G: the output is written as
+well as the fresh input.
+
+Cache misses: a miss writes the whole context again at the cache-write
+rate instead of reading it at the cache-read rate. It costs more on the
+larger context, so a stage with review pauses favours fresh more than
+the other terms show. M is the number of misses over the stage, the
+same on both sides, default 0 until measured.
+
 `penalty_compaction`: if `crosses` is true, the session will be
 summarised mid-stage. Price it as one more full re-read of the working
 set after the compaction, `R * p_cache_write`, plus the output needed to
-re-establish state, `H * p_output`. If the stage is design-heavy,
-guardrail 2 applies and the arithmetic is moot: the verdict is "fresh".
+re-establish state, `H * p_output`, at the current model's prices. If
+the stage is design-heavy, guardrail 2 applies and the arithmetic is
+moot: the verdict is "fresh".
 
 `penalty_loss`: the unrecorded context you choose not to write into the
-handoff. Price each item as the turns needed to rediscover it times
-`(C_fresh * p_cache_read + F * p_cache_write + O * p_output)`. If you
-cannot name the items, the penalty is zero and you say that the list is
-empty.
+handoff. Price it as L turns at the fresh session's average:
+`L * (C_fresh * p_cache_read + G * p_cache_write + O * p_output)`. If you
+cannot name the items, L is 0 and you say that the list is empty.
+
+**Short path: the break-even.** When the model does not change, there is
+no long-context tier in play, `crosses` is false, the session has not
+compacted and L is 0, the growth terms cancel (C_cont - C_fresh = C0 -
+B - R) and fresh pays off on cost only after
+
+```
+T* = (H * p_output + (B + R) * p_cache_write) / ((C0 - B - R) * p_cache_read)
+```
+
+turns. With misses, replace p_cache_read in the divisor by p_cache_read
++ (M / T) * (p_cache_write - p_cache_read). If C0 is not above B + R,
+fresh never pays off on cost. If T is under T*, write "Draft verdict:
+continue, by break-even, T <n> under T* <n>" and go to step 3; Step A
+is settled in one line. Otherwise compute both sides in full.
 
 Verdict rule:
 
-1. If one cost is lower by more than 10 percent of the smaller, that
+1. If the target class is above the current one, fresh wins, by class.
+2. If one cost is lower by more than 10 percent of the smaller, that
    side wins on cost.
-2. If the costs are within 10 percent, the quality terms decide: a
+3. If the costs are within 10 percent, the quality terms decide: a
    session that has compacted once, or will cross K, loses; otherwise
    continue, because a handoff is work and a fresh session starts
    colder.
-3. Write the verdict as: "Draft verdict: <continue | fresh>, by <cost |
-   quality>, margin <amount and percent>."
+4. Write the verdict as: "Draft verdict: <continue | fresh>, by <class |
+   cost | quality | break-even>, margin <amount and percent of the
+   smaller>."
+
+Records dated before 2026-10-29 used the formula of 2026-10-27: growth
+F, no miss term, and every fresh-side price, H included, at the target
+model. `node scripts/dispatch.mjs --formula 2026-10-27` reproduces them.
+
+### 2.1 The split comparison
+
+When the target class is Opus or Fable, price a third plan beside
+`fresh`: this session writes a brief, a fresh Sonnet-class session runs
+the stage, and a fresh Opus-class session accepts it (one class above
+the author, matrix row 4).
+
+```
+cost_split = H * p_output[current]                     (the brief)
+           + the fresh side's terms at the sonnet model, without H
+           + (B + Ra) * p_cache_write + Ta turns from B + Ra at the opus model
+```
+
+The split is an option only when the brief can carry a contract, the
+oracle and an observable definition of done, so that the run becomes
+matrix row 1 or 2 work (the persona's section 3.5). If it cannot, the
+split is a figure in the record that shows what a sharper brief would
+save, not a plan. When it is an option and is cheaper than fresh by
+more than 10 percent, it is the plan for step 3, with three pieces.
 
 Time: a handoff costs about 10 minutes to write and commit and about 5
 minutes for the new session to read. Add this to the fresh side's
@@ -183,7 +280,7 @@ model in the needed class, use the next class up, never down.
 
 | Task type | Class | Effort | Why |
 |---|---|---|---|
-| Mechanical, fully specified text or script chores: apply a reviewed diff, rename, format, fixture cleanup, doc drift, run a checklist with the harness as oracle | Haiku | medium | The spec is the intelligence; the model executes. |
+| Mechanical, fully specified text or script chores: apply a reviewed diff, rename, format, fixture cleanup, doc drift, run a checklist with the harness as oracle | Haiku | medium | The spec is the intelligence; the model executes. Where the table gives the haiku model a long-context tier and B is near its threshold (Claude Code desktop, with its tools loaded), nearly every turn pays the tier: price the stage at the tier, which narrows Haiku's advantage over Sonnet, and say so. |
 | Scoped module work with a stated test: one feature inside one module, a test suite, a refactor within a module, first-pass review | Sonnet | medium; high when the module touches auth, payments, storage formats or a public interface | The workhorse tier; the test is the oracle. |
 | Cross-module merges, evaluation design, specification of ambiguous work, diagnosis of intermittent failures, writing briefs a lower class executes | Opus | high | Long-horizon coherence and self-critique are the job. |
 | Adversarial acceptance of another agent's work | one class above the author; Fable when the author is Opus | high; xhigh for acceptance of a release or a merge | A reviewer at the author's class shares the author's blind spots. |
@@ -228,8 +325,11 @@ measured failure or an escalation trigger (the persona's section 3.3).
 ### 3.3 Write the plan
 
 For each piece: name, class and model id from the table, effort,
-oracle, serial or parallel, and its cost by the step 2 formula with
-that piece's T, F and O. Sum the pieces for the stage cost. Add the
+oracle, serial or parallel, and its cost as a fresh session by the step
+2 formula (first read of B + R, then T turns) with that piece's T, F, O
+and R. A sub-agent's B is its own baseline, usually smaller than a
+session's; state it. The calculator prices pieces given as `pieces` in
+its JSON input. Sum the pieces for the stage cost. Add the
 time projection: the serial chain's wall clock plus the operator's
 review time, stated separately.
 
@@ -274,7 +374,8 @@ has four parts and takes no more than a third of the decision budget.
    percent off), turn count (what if it doubles), task type (is the
    stage really mechanical, or does it hide a design choice), prices
    (table age, long-context tier applied or not), the re-read set
-   (what did you leave out), the loss list (what else is unrecorded).
+   (what did you leave out), cache misses (how many review pauses the
+   stage will have), the loss list (what else is unrecorded).
 3. **Recompute with the adverse values.** Flip the input that moves the
    result most and recompute step 2. State whether the verdict holds.
 4. **Change the verdict only on arithmetic.** If the recomputation

@@ -20,6 +20,9 @@ Code (desktop app). Price table: `pricing/2026-10-18.json` (age 9 days).
 
 | Input | Value | Source |
 |---|---|---|
+| Formula | 2026-10-27 | The step 2 formula of the day: growth F, no miss term. `node scripts/dispatch.mjs --formula 2026-10-27` with these inputs reproduces Step A; the gate recomputes it. |
+| Current model | claude-fable-5-1 | Stated by the session. |
+| Target model | claude-fable-5-1 | Matrix row 5 (whole-project assessment): the table's fable row. |
 | Window W | 200,000 | Reconstructed: the session did not record it. The adversarial pass recomputes with 1,000,000, which the sibling session that wrote this example measured on the same day. |
 | Compaction point K | 190,000 | Assumed 0.95 W, stated as an assumption. |
 | Current context C0 | 100,000 | Stated by the session after its compaction ("roughly 100k"). |
