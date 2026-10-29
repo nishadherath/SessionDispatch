@@ -125,6 +125,19 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-10-30: skill text revision and evaluation contract (Stage O3).
+  `SKILL.md` carries F2's verdicts: the decision cap is on the record
+  (under 4,000 tokens) and the minutes (10), reading is measured, never
+  capped, and past the cap step 2's draft stands; guardrail 1 applies
+  at the same class only; the guardrails gain an order (a cost rule
+  never overrides a quality rule); matrix row 4 is the one acceptance
+  effort rule; a stress-test flip in step 5 is recorded as fragile and
+  kept; a target the table cannot name is written null; measured
+  cost-of-deciding figures name their source. The evaluation contract
+  follows (null `target`, `over_cap` on the record's size, guardrail 7's
+  new consequence, an overrun diagnostic); scenario 17's expected final
+  moves to fresh on Opus with the rule. Two H1 runs rescored, both
+  figures in `eval/results-2026-10-30.md`. No formula change.
 - 2026-10-30: reassessment on the evaluation results (Stage F2),
   `docs/assessment-2026-10-30-f2.md`. Sonnet runs the skill with or
   without the calculator (20/20 and 17/20, not separable at n = 20);
