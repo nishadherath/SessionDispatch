@@ -95,6 +95,8 @@ stale table leaves no draft in 14, the split replaces it in 07, and the
 skill does not run in 18. Those are where a subject that only copies the
 calculator's line fails. In 17 guardrail 7 binds and keeps the draft (since
 O3); the branch where the cap passes before any draft is not in the set.
+F3 and F4 decide whether a 21st scenario covers it in a later rerun; D9
+sized H2 at 20 scenarios, so nothing is added now.
 
 ## Where SKILL.md gave two answers: settled by F2, text in O3
 
