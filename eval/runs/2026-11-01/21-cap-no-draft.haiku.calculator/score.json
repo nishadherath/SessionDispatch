@@ -1,0 +1,54 @@
+{
+  "scenario": "21-cap-no-draft",
+  "subject": "haiku",
+  "arm": "calculator",
+  "outcome_expected": "continue",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "continue",
+  "final_ok": true,
+  "draft_ok": null,
+  "guardrails_ok": true,
+  "bound": [
+    7
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 0,
+    "correct": 0,
+    "missing": 3,
+    "max_error_usd": 0,
+    "rule_ok": false,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 16,
+    "matched": 16,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 10000,
+    "reported_minutes": 11,
+    "measured_tokens": 939647,
+    "measured_minutes": 2.4832,
+    "record_tokens": 1488,
+    "usd_to_decide": 0.0019,
+    "usd_measured": 0.0196,
+    "over_cap": true,
+    "report_ratio": 0.011
+  },
+  "consistency": {
+    "draft_line_ok": null,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": ""
+}

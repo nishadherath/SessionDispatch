@@ -1,0 +1,56 @@
+{
+  "scenario": "01-compacted-assessment",
+  "subject": "haiku",
+  "arm": "calculator",
+  "outcome_expected": "fresh",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": true,
+  "reason": "cost_of_deciding.input_tokens must be a number",
+  "outcome_got": null,
+  "final_ok": false,
+  "draft_ok": false,
+  "guardrails_ok": false,
+  "bound": [
+    2
+  ],
+  "bound_failed": [
+    2
+  ],
+  "g4_ok": false,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": false,
+    "reason": "unscorable",
+    "stated": 0,
+    "correct": 0,
+    "missing": 0,
+    "max_error_usd": null,
+    "rule_ok": null,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 0,
+    "matched": 0,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": null,
+    "reported_minutes": null,
+    "measured_tokens": 1067368,
+    "measured_minutes": 2.2256833333333335,
+    "record_tokens": 2154,
+    "usd_to_decide": null,
+    "usd_measured": 0.0322,
+    "over_cap": false,
+    "report_ratio": null
+  },
+  "consistency": {
+    "draft_line_ok": null,
+    "skill_ran_ok": null
+  },
+  "overrun_default_not_taken": null,
+  "note": "unscorable: cost_of_deciding.input_tokens must be a number"
+}

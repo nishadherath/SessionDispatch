@@ -1,0 +1,54 @@
+{
+  "scenario": "16-outward-release",
+  "subject": "haiku",
+  "arm": "calculator",
+  "outcome_expected": "fresh",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "fresh",
+  "final_ok": true,
+  "draft_ok": true,
+  "guardrails_ok": true,
+  "bound": [
+    3
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 2,
+    "correct": 2,
+    "missing": 0,
+    "max_error_usd": 0.0047,
+    "rule_ok": true,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 14,
+    "matched": 14,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 23000,
+    "reported_minutes": 10,
+    "measured_tokens": 1242313,
+    "measured_minutes": 2.53265,
+    "record_tokens": 2344,
+    "usd_to_decide": 0.004,
+    "usd_measured": 0.0193,
+    "over_cap": false,
+    "report_ratio": 0.019
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": ""
+}

@@ -1,0 +1,166 @@
+## Session dispatch decision
+
+Date: 2026-11-01. Decided by: claude-fable-5-1, effort high, in Claude Code desktop.
+Price table: `pricing/2026-10-31.json` (age 1 day). Formula 2026-10-29 (in force).
+
+Note: the stage brief gives today as 2026-11-01; the environment reports 2026-10-30. The table is 1 day old on the brief's date and within the 14-day limit on either.
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as of that date |
+| Current model | claude-fable-5-1 | Harness report, effort high |
+| Target model | claude-opus-5-5 | Matrix row 3 (cross-module, finished design), opus class from the table |
+| Window W | 1,000,000 | Usage tool contextWindow |
+| Compaction point K | 970,000 | Usage tool autoCompactsAtPercent 97 |
+| Current context C0 | 350,000 | Usage tool tokensUsed |
+| Compacted already | no | Usage tool |
+| Unrecorded context | none | Design note, handoff and modules are on disk |
+| Expected turns T | 50 | Plan estimate |
+| Fresh input per turn F | 3,000 | Estimate |
+| Output per turn O | 1,500 | Estimate, assumes effort high |
+| Fresh baseline B | 86,450 | Measured fresh-session start |
+| Re-read set R | design note, handoff, modules: 30,000 | Estimate for a fresh read |
+| Handoff size H | 2,500 | Estimate, brief about 110 lines |
+| Cache misses M | 0 | Unmeasured; no review pauses expected |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta | 15 | Plan estimate (split only) |
+| Acceptance re-read Ra | 40,000 | Estimate (split only) |
+| Task type | cross-module change implementing a finished design | Matrix row 3 |
+| Design-heavy | no | Design already finished |
+| Irreversible or outward-facing steps | none | Stage writes and commits locally only |
+
+### Step A: continue or hand off
+
+```
+G       = F + O                 = 4,500
+C_end   = C0 + T * G            = 575,000
+crosses = C_end > K             = false (K 970,000)
+C_cont  = C0 + T * G / 2        = 462,500
+C_fresh = B + R + T * G / 2     = 228,950
+
+cost_continue = 5.781 + 2.813 + 3.750 + 0 + 0 = 12.34 USD (claude-fable-5-1)
+cost_fresh    = 0.125 + 0.582 + 2.290 + 1.125 + 1.500 + 0 + 0 = 5.62 USD (claude-opus-5-5)
+T* = n/a: the model changes; compare the totals
+cost_split    = 0.125 + 2.748 + 1.900 = 4.77 USD
+                (brief at fable; run at sonnet; acceptance at opus)
+```
+
+Prices used (per million): claude-fable-5-1 input 10, output 50, cache_read 0.25, cache_write 12.5. claude-opus-5-5 input 4, output 20, cache_read 0.2, cache_write 5. claude-sonnet-5-5 input 2, output 10, cache_read 0.1, cache_write 2.5.
+
+Draft verdict: fresh, by cost, margin 6.72 USD (119.6 percent of the smaller).
+
+Split (step 2.1): split costs 4.77 against fresh 5.62, 17.8 percent under fresh, which clears the 10 percent band. The split holds because the brief can carry the contract, oracle and definition of done.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| 1. Brief | fable | claude-fable-5-1 | high | Brief covers contract, 14 tests, definition of done | serial, first | 0.125 handoff |
+| 2. Run | sonnet | claude-sonnet-5-5 | medium | Check script exit 0 and 14 tests passing | serial, after the brief | 2.748 |
+| 3. Acceptance | opus | claude-opus-5-5 | high | Fresh session, reads the brief and the result | serial, after the run | 1.900 |
+
+Serial chain and its wall clock: not measured. Operator review time: none expected.
+
+Effort raised or lowered because: no change for the run. Medium kept because no security, money, storage or public interface is touched.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 50, so the decision applies.
+2. Design-heavy across a compaction: no crossing. C_end 575,000 is below K 970,000.
+3. Irreversible steps and their approval step: none outward. Stage commits locally only. Approval step null.
+4. Model chosen from the table, not memory: yes. All three ids are in `pricing/2026-10-31.json`.
+5. Table age and nulls: 1 day of 14. No nulls on the rows used.
+6. Acceptance at matrix row 4's class and effort: binding. Acceptance runs at opus, high, in a fresh session.
+7. Decision budget: record under 4,000 tokens; decision made in about 6 minutes against 10.
+8. Class and effort match the harness: binding. Harness is fable at high. Handoff front matter must state the three model ids and efforts above.
+
+### Adversarial pass
+
+The opposite verdict, argued: continue. C0 is 350,000 with headroom to K, and cost_continue is only 2.2 times cost_fresh. A fresh start must re-read 30,000 tokens of design and modules, and the brief could miss context that a continued session keeps, so rediscovery cost may exceed the figures. Rediscovery is priced at L 0 here, so this argument is not in the numbers.
+
+Each input, the way it could be wrong:
+
+- C0: could be lower or higher than the usage report; a 30 percent drop gives continue 11.03, still above fresh.
+- T: could be 100 rather than 50; continue 27.5, fresh 12.79, split 8.36. Split still cheapest.
+- F and O: O 3,000 (effort higher than assumed) gives continue 17.5, fresh 7.87, split 5.90. Verdict holds.
+- B and R: R could be larger than 30,000; this moves fresh and split only slightly.
+- M (review pauses): unmeasured. Each miss adds to continue and fresh; the split's fresh sessions limit the exposure.
+- Task type: a design gap found during the run would turn the job into design-heavy work and push effort up.
+- Prices: table is 1 day old; no nulls on rows used.
+- Unrecorded context: none listed; L 0 assumed.
+
+Recomputed with the adverse value that moves the result most (T 100 with O 3,000): the figures above hold the ordering split < fresh < continue.
+
+```
+cost_continue = 27.5 to 17.5 range by input, see above
+cost_fresh    = 12.79 to 7.87 range
+cost_split    = 8.36 to 5.90 range
+```
+
+Verdict holds: yes. Split stays cheapest across the stresses above.
+
+### Final verdict
+
+split, model claude-sonnet-5-5 (run), effort medium, pieces 3 (serial). Exact next action: write the brief in this session at claude-fable-5-1, high. Then start a fresh claude-sonnet-5-5 session at medium to run it, with the oracle check script exiting 0 and 14 tests passing. Then start a fresh claude-opus-5-5 session at high to accept the result.
+
+### Cost of deciding
+
+| Row | Value | Source (measured, naming the harness report, or self-estimate) |
+|---|---|---|
+| Context at start | 350,000 | Harness report, usage tool tokensUsed |
+| Context at end | not measured | Self-estimate |
+| Input tokens read | about 9,000 | Self-estimate |
+| Output tokens | about 2,800 | Self-estimate |
+| Wall clock | about 6 minutes | Self-estimate |
+| Priced | 0.25 USD, table `pricing/2026-10-31.json` | Self-estimate |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-fable-5-1",
+    "target": "claude-opus-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 350000,
+    "T": 50,
+    "F": 3000,
+    "O": 1500,
+    "B": 86450,
+    "R": 30000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": 15,
+    "Ra": 40000,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "12.34",
+    "cost_fresh": "5.62",
+    "cost_split": "4.77",
+    "t_star": null
+  },
+  "draft": {
+    "side": "fresh",
+    "by": "cost"
+  },
+  "guardrails_triggered": [6, 8],
+  "final": {
+    "outcome": "split",
+    "model": "claude-sonnet-5-5",
+    "effort": "medium",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 9000,
+    "output_tokens": 2800,
+    "minutes": 6,
+    "usd": "0.25"
+  }
+}
+```
