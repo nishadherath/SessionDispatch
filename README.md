@@ -125,6 +125,16 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-10-30: acceptance of Stage O3 (Stage F3),
+  `docs/acceptance-2026-10-30-stage-o3.md`. Sixteen claims accepted,
+  none rejected: the text carries F2's verdicts and the scenario 17
+  ruling as written; one run rescored by hand, the over-cap column and
+  the overrun diagnostic recomputed from the 80 records, the scorer
+  probed with twenty-one mutations. Seven findings handed on (the
+  rubric's row 7 against the guardrail order where 5 and 7 both bind;
+  a repeat index for `prepare` before H2; the runner choice for H2).
+  H2 handoff written for 120 runs on the `Agent` runner. No change to
+  the skill, the scripts or the evaluation.
 - 2026-10-30: skill text revision and evaluation contract (Stage O3).
   `SKILL.md` carries F2's verdicts: the decision cap is on the record
   (under 4,000 tokens) and the minutes (10), reading is measured, never

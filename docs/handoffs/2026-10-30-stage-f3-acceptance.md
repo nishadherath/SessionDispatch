@@ -2,7 +2,7 @@
 stage: "Stage F3: adversarial acceptance of Stage O3"
 model: claude-fable-5-1
 effort: high
-status: ready
+status: done
 created: 2026-10-30
 from: "Session local_0b6855b7 (Opus 5.5, high): Stage O3, skill text revision and evaluation contract"
 ---
