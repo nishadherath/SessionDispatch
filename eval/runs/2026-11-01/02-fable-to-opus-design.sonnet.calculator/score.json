@@ -1,0 +1,57 @@
+{
+  "scenario": "02-fable-to-opus-design",
+  "subject": "sonnet",
+  "arm": "calculator",
+  "outcome_expected": "fresh",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "fresh",
+  "final_ok": true,
+  "draft_ok": true,
+  "guardrails_ok": true,
+  "bound": [],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 3,
+    "correct": 2,
+    "missing": 0,
+    "max_error_usd": 1.4864,
+    "rule_ok": true,
+    "errors": [
+      {
+        "figure": "cost_split",
+        "why": "outside half a unit of the last decimal"
+      }
+    ]
+  },
+  "inputs": {
+    "scored": 16,
+    "matched": 16,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 14500,
+    "reported_minutes": 5,
+    "measured_tokens": 712864,
+    "measured_minutes": 1.2441,
+    "record_tokens": 1987,
+    "usd_to_decide": 0.0625,
+    "usd_measured": 0.4432,
+    "over_cap": false,
+    "report_ratio": 0.02
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": "first failed check: arithmetic (cost_split)"
+}

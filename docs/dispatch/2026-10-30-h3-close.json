@@ -1,0 +1,20 @@
+{
+  "_note": "Stage H3 close (2026-10-30): the session dispatch decision of claude-sonnet-5-5 at medium for Stage F5 (closing assessment on H3). Run: node scripts/dispatch.mjs --json docs/dispatch/2026-10-30-h3-close.json --today 2026-10-30. C0 measured by get_usage self at the close of H3 (165,868 total, 85,289 less Messages 80,579). B 87,114 is F4's Fable baseline, measured. T, F, O and R are estimates: T 30 (F4 used 45, F5 reads one results file), O 3,000 at high, R 25,000 (the F5 handoff 5,000, the results file 9,000, F4 sections 1.4 and 3.6 and 3.7 4,000, SKILL.md 7,000). H 4,000. M is 0 (unmeasured).",
+  "formula": "2026-10-29",
+  "table": "pricing/2026-10-29.json",
+  "today": "2026-10-30",
+  "current": "claude-sonnet-5-5",
+  "target": "claude-fable-5-1",
+  "W": 1000000,
+  "K": 970000,
+  "C0": 165868,
+  "compacted": false,
+  "T": 30,
+  "F": 3000,
+  "O": 3000,
+  "B": 87114,
+  "R": 25000,
+  "H": 4000,
+  "M": 0,
+  "L": 0
+}

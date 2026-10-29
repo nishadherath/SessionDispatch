@@ -1,0 +1,121 @@
+## Session dispatch decision
+
+Date: 2026-11-01. Decided by: claude-fable-5-1 (the session's own model as the harness reports it), effort xhigh, in Claude Code desktop. Resumed after an interruption; the record was written by a Sonnet-class run on the session's behalf.
+Price table: `pricing/2026-10-31.json` (age 1 day, limit 14, not stale; no null price on the rows used).
+
+Step 0: the skill runs (trigger 1: T = 40 turns, over 10; trigger 2 does not apply as no change is made by this session).
+
+**Decision budget overrun.** Step 1 used 11 minutes of wall clock and 8,400 tokens before this resume. The cap is 10 minutes from the first line of step 1 (step 0, guardrail 7). The cap is passed, so steps 2, 3 and 5 were not run. Steps 4 and 6 run. Per step 0 the verdict is step 2's draft where written; no draft was written, so the verdict is the default: continue, same model, same effort.
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as of that date |
+| Current model | claude-fable-5-1, class fable, effort xhigh | Measured: the harness's report |
+| Target model | claude-opus-5-5 (class opus) | Matrix row 3 (specification of ambiguous work, writing a brief a lower class executes), then the table's opus model |
+| Window W | 1,000,000 | Measured: usage tool `contextWindow` |
+| Compaction point K | 970,000 | Measured: 97 percent (`autoCompactsAtPercent`) of W |
+| Current context C0 | 420,000 | Measured: usage tool `tokensUsed` |
+| Compacted already | no | Measured: the situation states it |
+| Unrecorded context | none | Everything the next stage needs is in files on disk |
+| Expected turns T | 40 | Plan estimate |
+| Fresh input per turn F | 3,000 | Default, unmeasured (not read-heavy) |
+| Output per turn O | 3,000 | Estimated: writing-heavy default (matrix row 3 writing); at xhigh the real figure is likely higher |
+| Fresh baseline B | 86,450 | Measured: usage tool total less its Messages category |
+| Re-read set R | 25,000 (two design notes and the handoff) | Situation figure |
+| Handoff size H | 2,500 | Default: the handoff is about 100 lines, under 120; no unrecorded context to add |
+| Cache misses M | 0 | Default, unmeasured; no review pauses expected |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta | 15 | Situation figure (split only) |
+| Acceptance re-read Ra | 30,000 | Situation figure (split only) |
+| Task type | Row 3: Opus class, high effort | Specifying ambiguous work across modules |
+| Design-heavy | yes | Choosing between two designs, cross-module |
+| Irreversible or outward-facing steps | none | Writes files and commits locally; nothing leaves the machine |
+
+Growth: G = F + O = 6,000 per turn (not changed). C_end = 420,000 + 40 * 6,000 = 660,000, under K (970,000), so `crosses` is false. Context is 42 percent of W, under 60.
+
+### Step A: continue or hand off
+
+Not computed: the 10-minute cap was passed before step 2 began (11 minutes spent in step 1). No cost_continue, cost_fresh, cost_split or T* figure is given. No draft verdict was written.
+
+Note for the operator: the matrix puts this work at the Opus class, and the session runs on Fable, one class above. Continuing runs the work above its class, not below it, so step 2 rule 1 (fresh by class) does not apply. Whether a fresh Opus session would save money was not priced.
+
+Draft verdict: none written (cap passed). Default applies.
+
+### Step B: model, effort and concurrency
+
+Not run (cap passed). One piece, the session's own work: stage 40 turns, model claude-fable-5-1, effort xhigh, serial, oracle: the brief is complete against the handoff template and both design notes are decided. No effort change: no raise trigger holds (nothing irreversible, no security or money, no merge or release, no earlier failed attempt).
+
+Split (step 2.1): not computed.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 40. Does not bind.
+2. Design-heavy across a compaction: design-heavy yes, but `crosses` is false and the session has not compacted. Does not bind.
+3. Irreversible steps and their approval step: none (local files and commits only). No approval step is needed; none named.
+4. Model chosen from the table, not memory: the target (claude-opus-5-5) comes from the table's opus row; the run stays on the session's current model.
+5. Table age and nulls: 1 day old, no null on the rows used. Does not bind.
+6. Acceptance at matrix row 4's class and effort: no acceptance session in the plan. Does not apply.
+7. Decision budget: wall clock 11 minutes against 10, over the cap. Binds: step 5 is cut and the verdict is the default (continue, keep model and effort). Record size is well under 4,000 tokens.
+8. Class and effort match the harness: fable and xhigh are what the harness reports. Does not bind.
+
+### Adversarial pass
+
+Cut by guardrail 7 (cap passed). Not run. Opposite verdict, for the operator's judgement only: a fresh Opus session at high effort would start at B + R = 111,450 against 420,000 now, and is the matrix's class for this work. That has not been priced and does not change the verdict.
+
+### Final verdict
+
+continue, model claude-fable-5-1, effort xhigh, pieces 1 (serial). Exact next action: carry on the stage in this session, choose between the two storage designs and write the brief. Question I would put to the operator: "The decision ran past its 10-minute cap with step 2 unrun. Do you want a fresh Opus-class session priced for this stage (the matrix class), or is continuing on Fable acceptable?" Until answered, the verdict is continue.
+
+### Cost of deciding
+
+| Row | Value | Source (measured, naming the harness report, or self-estimate) |
+|---|---|---|
+| Context at start | 420,000 tokens | Usage tool (situation figure) |
+| Context at end | not measured | No usage report after this record |
+| Input tokens read | 8,400 | Harness figure for step 1 (reading and writing combined; split not given, all placed here) |
+| Output tokens | 2,000 | Self-estimate: this record in characters divided by 4 |
+| Wall clock | 11 minutes | Harness figure for step 1; this resume adds to it |
+| Priced | 0.21 USD | Input at cache-write 12.5 and output at 50 USD per million for claude-fable-5-1, table `pricing/2026-10-31.json`; self-estimate for output |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-fable-5-1",
+    "target": "claude-opus-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 420000,
+    "T": 40,
+    "F": 3000,
+    "O": 3000,
+    "B": 86450,
+    "R": 25000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": 15,
+    "Ra": 30000,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": null,
+  "draft": null,
+  "guardrails_triggered": [7],
+  "final": {
+    "outcome": "continue",
+    "model": "claude-fable-5-1",
+    "effort": "xhigh",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 8400,
+    "output_tokens": 2000,
+    "minutes": 11,
+    "usd": "0.21"
+  }
+}
+```

@@ -1,0 +1,129 @@
+{
+  "duration_api_ms": 41059,
+  "stop_reason": "end_turn",
+  "session_id": "77690f41-78fa-47f2-a006-b08e412e332a",
+  "total_cost_usd": 0.7931317999999998,
+  "usage": {
+    "input_tokens": 12,
+    "cache_creation_input_tokens": 150199,
+    "cache_read_input_tokens": 703459,
+    "output_tokens": 5162,
+    "output_tokens_details": {
+      "thinking_tokens": 807
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 150199,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 53,
+        "cache_read_input_tokens": 146495,
+        "cache_creation_input_tokens": 3704,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 3704
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "claude-sonnet-5-5": {
+      "inputTokens": 12,
+      "outputTokens": 5162,
+      "cacheReadInputTokens": 703459,
+      "cacheCreationInputTokens": 150199,
+      "webSearchRequests": 0,
+      "costUSD": 0.7931317999999998,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "thinkingTokens": 807,
+      "canonicalModel": "claude-sonnet-5-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "is_error": false,
+  "num_turns": 6,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Finished: I wrote the decision record to `record.md`, and its verdict is to hand off to a fresh session. The task is complete and nothing further is running.\n\ndone",
+  "ttft_ms": 5573,
+  "type": "result",
+  "duration_ms": 60285,
+  "uuid": "18de8588-d9da-491b-bf03-2c0dd0b6277f",
+  "ttft_stream_ms": 4804,
+  "time_to_request_ms": 1153,
+  "time_to_request_phases_ms": {
+    "other": 119,
+    "system_prompt": 106,
+    "resume_other": 1,
+    "process_user_input": 12,
+    "input_attachments": 28,
+    "input_hooks": 6,
+    "tool_pool_refresh": 14,
+    "init_message": 666,
+    "engine_pickup": 3,
+    "message_prep": 2,
+    "model_config_wait": 4,
+    "autocompact": 6,
+    "query_setup": 2,
+    "model_gates": 2,
+    "tool_schema_build": 60,
+    "message_normalization": 9,
+    "client_creation": 43,
+    "request_build": 70
+  },
+  "turn_start_resume_kind": "none",
+  "process_turn_index": 0,
+  "time_to_request_loop_lag_ms": 562,
+  "time_to_request_cpu_ms": 641,
+  "time_to_request_major_faults": 4889,
+  "input_attachments_detail": {
+    "slowest_producer": "queued_commands",
+    "slowest_producer_ms": 19,
+    "cpu_ms": 47,
+    "major_faults": 297
+  },
+  "first_content_frame_ms": 4806,
+  "queued_turn_count": 0,
+  "result_index": 0
+}
