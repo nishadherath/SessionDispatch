@@ -10,8 +10,8 @@
 //
 // Exit codes: 0 computed; 1 an input or table error, named with its fix;
 // 2 the table is past max_age_days, nothing computed (step 1.4.2); 3 a price
-// is null, verdict incomplete (step 1.4.4). The date is the UTC date, the
-// convention check.mjs uses; --today overrides it.
+// is null, verdict incomplete (step 1.4.4). The date is the local calendar
+// day, the convention check.mjs and pricing-new.mjs use; --today overrides it.
 import fs from "node:fs";
 import path from "node:path";
 import { parseArgs } from "node:util";
@@ -78,7 +78,7 @@ function loadTable(inp) {
   }
   let table;
   try { table = JSON.parse(fs.readFileSync(file, "utf8")); } catch (e) { die(1, `cannot read ${file} as JSON (${e.message})`); }
-  const today = inp.today ?? new Date().toISOString().slice(0, 10);
+  const today = inp.today ?? (() => { const d = new Date(), two = (n) => String(n).padStart(2, "0"); return `${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())}`; })();
   const age = Math.round((Date.parse(today) - Date.parse(table.table_date)) / 86400000);
   if (!Number.isFinite(age)) die(1, `cannot date the table: table_date ${table.table_date}, today ${today}; both must be YYYY-MM-DD`);
   if (age < 0) die(1, `${file}: table_date ${table.table_date} is after today ${today}; fix the table or --today`);

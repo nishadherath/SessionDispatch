@@ -53,7 +53,12 @@ let filesChecked = 0;
 const fail = (file, msg) => findings.push(`${path.relative(ROOT, file) || file}: ${msg}`);
 const read = (file) => { filesChecked += 1; return fs.readFileSync(file, "utf8"); };
 const hasLine = (text, line) => text.split(/\r?\n/).some((l) => l.trim() === line);
-const todayIso = () => new Date().toISOString().slice(0, 10);
+// The day a table's age is judged against: --today YYYY-MM-DD (tests and
+// dry runs), else the local calendar day, the convention pricing-new.mjs
+// names tables by and dispatch.mjs shares.
+const argToday = process.argv.includes("--today") ? process.argv[process.argv.indexOf("--today") + 1] : null;
+const two = (n) => String(n).padStart(2, "0");
+const todayIso = () => argToday ?? (() => { const d = new Date(); return `${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())}`; })();
 const daysBetween = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
 
 function checkPricing() {
