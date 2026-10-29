@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, sixth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after starting Stage O2.
+Last updated: 2026-10-30, seventh update, by the Fable coordinating session (claude-fable-5-1, xhigh) after the operator answered D2.
 
 ## Done
 
@@ -48,6 +48,7 @@ review separate.
 | H1: evaluation runs with Haiku and Sonnet as subjects | Sonnet orchestrating | 3 to 6 (rough) | 30 to 60 min | S2 |
 | S3: adapter verification on each harness | Sonnet, medium, operator present | 1 to 2.5 | 30 to 45 min plus the operator's installs | none |
 | F2: reassessment on the evaluation results | Fable, high | 12 to 20 | 60 to 120 min | H1 |
+| Variant C (D2, conditional): `SKILL.md`, adapters and templates rewritten under STE100's writing rules, scored on the evaluation scenarios | Opus, high | 3 to 5 (estimate) | 30 to 60 min | H1 |
 
 From the F1 acceptance (its section 7), not yet staged: an Opus stage for
 the fresh-side fixed-cost terms and step 2.1's two sentences (F1-1,
@@ -66,7 +67,7 @@ Each is set out in the five-part shape in section 7 of the assessment,
 D5 below.
 
 - D1 Autonomy: yes, recorded 2026-10-29 in `docs/operator-preferences.json`. Finishing sessions start the next stage themselves where the class allows; a higher class is started by the Fable coordinating session or by the operator.
-- D2 ASD-STE100 (key `ste100`): unanswered; asked again by the F1 session on 2026-10-29. The assessment recommends A (no).
+- D2 ASD-STE100 (key `ste100`): no, recorded 2026-10-30 (option A, the recommendation). Variant C, STE100's writing rules without its dictionary for `SKILL.md`, the adapters and the templates, is deferred to after H1 and is adopted only if it scores higher on the evaluation scenarios.
 - D3 How price refreshes are filled: the operator chose live reads (option b) on 2026-10-29, for the Anthropic family first. Other families stay null until the operator names them.
 - D4 Stage order: settled on 2026-10-29 by the operator starting O1, S1 and H0 together.
 - D5 Acceptance of O2's design, below.
