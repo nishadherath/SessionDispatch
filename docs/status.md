@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, twenty-first update, by the Stage S5 session (claude-sonnet-5-5, medium) at its close; H3 next.
+Last updated: 2026-10-30, twenty-first update, by the Fable coordinating session (claude-fable-5-1, xhigh) after accepting and pushing S5 and starting Stage H3.
 
 ## Done
 
@@ -34,7 +34,7 @@ Last updated: 2026-10-30, twenty-first update, by the Stage S5 session (claude-s
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| H3: clean-harness regression, 42 runs | not started; follows from `docs/handoffs/2026-10-30-stage-h3-clean-harness.md` once the operator confirms its subject budget (about 14 USD measured from one run per class) | Sonnet, medium | this checkout, `main` | 20 to 40 min |
+| H3: clean-harness regression, 42 runs | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-h3-clean-harness.md`; session `local_e1d2c989`, name `stage-h3`, sharing this checkout; S5 accepted (three additions verbatim) and pushed (`c1890f7`). Order: the Bash grant test, the Haiku half, then the Sonnet half once the operator confirms the subject budget (about 14 USD measured from one run per class, against F4's 1 to 5) | Sonnet, medium; subjects Sonnet and Haiku | this checkout, `main` | 20 to 40 min; session 0.85 USD plus subjects about 14 (8 to 20, estimate) |
 
 The three installed copies (claude, codex, opencode) were refreshed with
 `node scripts/install.mjs` on 2026-10-30 after O3; `--check` reports 0
