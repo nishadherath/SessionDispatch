@@ -125,6 +125,16 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-10-30: Stage F5, the closing assessment on H3
+  (`docs/assessment-2026-10-30-f5.md`). Sonnet threshold met (21 of 21);
+  Haiku not met (13 of 21), ruled the subject's record formatting and the
+  harness (a 200,000-token window the CLI applied to `claude-haiku-5-5`,
+  and a calculator grant that refused every Haiku command form), not the
+  procedure or the contract. D10 ruled A (variant C closed); D11 raised
+  (a Haiku rerun, recommended declined). The class floor in `SKILL.md`
+  gained two measured sentences on the H3 cells (no figure, formula,
+  matrix row or guardrail changed); `eval/README.md` gained the H3 entry.
+  S3 handoff written; the project is not done until S3.
 - 2026-10-30: Stage H3, the clean-harness regression (`eval/results-2026-11-01.md`,
   42 runs through the CLI runner on the S5 text). Sonnet calculator 21 of 21
   (threshold 20 of 21 met); Haiku calculator 13 of 21 (threshold 19 of 21 not

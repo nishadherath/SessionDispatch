@@ -153,6 +153,20 @@ Sonnet. Haiku is three below and was never in the claim.
   fixes that remove the two format failures are Stage S4's; they change
   the prompt, so the first twenty scenarios are rerun in H3 on a clean
   harness.
+- H3 (2026-11-01 label, run 2026-10-30, the S5 text on the CLI runner):
+  Sonnet 21 of 21; Haiku 13 of 21 on the scorer's count (40.9 to 79.2
+  percent), every written record right on the verdict, 7 blocks with the
+  wrong field types, 1 run with no record. The CLI gave `claude-haiku-5-5`
+  (an id it does not recognise) a 200,000-token window behind a baseline of
+  about 150,000 tokens, so the Haiku subject's own session was summarised
+  mid-run (three runs say so), and the `Bash(node *dispatch.mjs*)` grant
+  refused the `cd <dir> && node ...` and quoted-path forms the Haiku subject
+  wrote (0 of 20 Haiku records ran the calculator; 12 of 21 Sonnet records
+  did). F5's ruling (`docs/assessment-2026-10-30-f5.md` section 1): the
+  misses are the subject's record formatting and the harness, not the
+  procedure and not the contract; the floor stands. A Haiku rerun needs
+  `--autocompact` set to the model's window and a grant that matches those
+  command forms (decision D11, not staged).
 
 ## Running it
 
