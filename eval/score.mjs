@@ -24,8 +24,8 @@ const INPUT_SYMBOLS = ["current", "target", "W", "K", "C0", "compacted", "T", "F
 const DECIDE_CAP_RECORD_TOKENS = 4000; // guardrail 7's cap on the record (SKILL.md step 0)
 const DECIDE_CAP_MINUTES = 10;
 const CHARS_PER_TOKEN = 4; // the skill's estimate for prose (step 1.1)
-const DEFAULT_SIDES = ["continue", "fresh", "incomplete"];
-const OUTCOME_GUARDRAILS = [1, 2, 5, 8]; // guardrails whose consequence is an outcome (rubric section 4)
+const DRAFT_SIDES = ["continue", "fresh"]; // an "incomplete" draft is step 2 unfinished: no draft to keep
+const OUTCOME_GUARDRAILS = [1, 2, 5, 6, 8]; // guardrails that set the outcome themselves (6: a fresh session for acceptance)
 const USD_PER_TABLE_UNIT = 1e-6; // table figures are USD per million tokens
 const WILSON_Z = 1.96;
 
@@ -179,7 +179,7 @@ function arithmetic(block, rc, expectedCalc) {
 // else continue. A split carries out a fresh draft (step 2.1 runs before the
 // cap cuts step 5).
 function takesCapDefault(block) {
-  const side = DEFAULT_SIDES.includes(block.draft?.side) ? block.draft.side : "continue";
+  const side = DRAFT_SIDES.includes(block.draft?.side) ? block.draft.side : "continue";
   return block.final.outcome === side || (side === "fresh" && block.final.outcome === "split");
 }
 
@@ -281,7 +281,7 @@ export function scoreRun({ scenario, table, record, usage = null, pricing = tabl
   };
   const decide = decideCost(b, usage, pricing, record);
   // F2-6: the run recorded an overrun (guardrail 7 listed) or is over the cap, and its verdict is not the cap's.
-  // Runs listing a guardrail that sets the outcome itself (1, 2, 5, 8) are left out: step 4 still runs past the cap.
+  // Runs listing a guardrail that sets the outcome itself (1, 2, 5, 6, 8) are left out: step 4 still runs past the cap.
   const overrun = b.guardrails_triggered.includes(7) || decide.over_cap;
   const outcomeSetElsewhere = b.guardrails_triggered.some((g) => OUTCOME_GUARDRAILS.includes(g));
   const overrun_default_not_taken = overrun && !outcomeSetElsewhere && ["continue", "fresh", "split"].includes(f.outcome) && !takesCapDefault(b);

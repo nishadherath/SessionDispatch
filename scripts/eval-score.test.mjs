@@ -180,6 +180,12 @@ test("guardrail 7 keeps the draft past the cap, else continue at the current mod
   assert.deepEqual([r.bound_failed, r.overrun_default_not_taken], [[], false]);
   r = score(s, block(fresh, "split", "claude-sonnet-5-5", "medium"));
   assert.deepEqual(r.bound_failed, []);
+  // An incomplete draft is step 2 unfinished: continue at the current model is guardrail 7's verdict.
+  r = score(s, block({ side: "incomplete", by: null }, "continue", s.current, s.current_effort));
+  assert.deepEqual([r.bound_failed, r.overrun_default_not_taken], [[], false]);
+  // A guardrail that sets the outcome itself (6 here) leaves the run out of the diagnostic.
+  r = score(s, { ...block(fresh, "continue", s.current, s.current_effort), guardrails_triggered: [6, 7] });
+  assert.equal(r.overrun_default_not_taken, false);
   // The H1 pattern: a fresh draft dropped for continue at the cap.
   r = score(s, block(fresh, "continue", s.current, s.current_effort));
   assert.deepEqual([r.bound_failed, r.overrun_default_not_taken], [[7], true]);

@@ -87,7 +87,7 @@ holds:
 | 3 | `final.approval_step` is a non-empty string |
 | 5 | `final.outcome` equals the expected one (`continue` for a stale table, `incomplete` for a null price); for a stale table (`expected.calculator.exit` 2) every `totals` figure is null |
 | 6 | `final.model` and `final.effort` equal the expected ones |
-| 7 | `final.outcome` is the block's `draft.side` where it has a draft (`split` also passes for a `fresh` draft), else `continue`; where it is `continue`, `final.model` is the scenario's `current` and `final.effort` its `current_effort` (`SKILL.md` step 0: past the cap, step 2's draft stands, else the default) |
+| 7 | `final.outcome` is the block's `draft.side` where it has a `continue` or `fresh` draft (`split` also passes for a `fresh` draft), else `continue` (an `incomplete` draft is step 2 unfinished); where it is `continue`, `final.model` is the scenario's `current` and `final.effort` its `current_effort` (`SKILL.md` step 0: past the cap, step 2's draft stands, else the default) |
 | 8 | `final.outcome` is `stop` and `final.model` is the expected one |
 
 **(b) Guardrail 4, every run.** Each model id in `inputs.current`,
@@ -183,12 +183,12 @@ Reported, never part of a headline:
   outside the block.
 - **False alarms.** Section 4.
 - **Overrun, default not taken** (F2-6). The block lists guardrail 7 or the
-  run is `over_cap`, lists none of guardrails 1, 2, 5 and 8 (each sets the
+  run is `over_cap`, lists none of guardrails 1, 2, 5, 6 and 8 (each sets the
   outcome itself, and step 4 still runs past the cap), the outcome is
   `continue`, `fresh` or `split`, and it is not guardrail 7's verdict (the
-  draft's side, else `continue`, as in section 4). It shows how often a subject drops a verdict the text says
-  to keep, or keeps one it says to drop, whether or not the scenario binds
-  guardrail 7.
+  draft's side, else `continue`, as in section 4). It shows how often a
+  subject drops a verdict the text says to keep, or keeps one it says to
+  drop, whether or not the scenario binds guardrail 7.
 
 ## 8. Aggregation and the report
 

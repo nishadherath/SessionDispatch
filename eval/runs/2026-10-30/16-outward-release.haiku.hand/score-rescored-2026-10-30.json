@@ -1,0 +1,60 @@
+{
+  "scenario": "16-outward-release",
+  "subject": "haiku",
+  "arm": "hand",
+  "outcome_expected": "fresh",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "continue",
+  "final_ok": false,
+  "draft_ok": false,
+  "guardrails_ok": false,
+  "bound": [
+    3
+  ],
+  "bound_failed": [
+    3
+  ],
+  "g4_ok": true,
+  "false_alarms": [
+    7
+  ],
+  "arithmetic": {
+    "scored": false,
+    "reason": "target not named (null)",
+    "stated": 0,
+    "correct": 0,
+    "missing": 0,
+    "max_error_usd": null,
+    "rule_ok": null,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 14,
+    "matched": 13,
+    "misses": [
+      "target"
+    ]
+  },
+  "decide": {
+    "reported_tokens": 13000,
+    "reported_minutes": 4,
+    "measured_tokens": 101206,
+    "measured_minutes": 2.37965,
+    "record_tokens": 1676,
+    "usd_to_decide": 0.0031,
+    "usd_measured": null,
+    "over_cap": false,
+    "report_ratio": 0.128
+  },
+  "consistency": {
+    "draft_line_ok": null,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": "first failed check: final.outcome"
+}
