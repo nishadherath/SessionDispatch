@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, fourteenth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after the operator answered D9.
+Last updated: 2026-10-30, fifteenth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after the operator answered D8.
 
 ## Done
 
@@ -72,7 +72,7 @@ assessment; D8 and D9 are repeated below.
 - D5 Acceptance of O2's design: F2 was the acceptance (option A); accepted on 2026-10-30 with four contract findings carried to O3 (`docs/assessment-2026-10-30-f2.md` section 3.7).
 - D6 Pushes to origin: standing yes, 2026-10-30, under `approvals.push_origin`.
 - D7 H1's scope: B, decided by the operator on 2026-10-30; done.
-- D8 Variant C: open, below.
+- D8 Variant C: A (defer to F4; staged only if Haiku stays below 18 of 20 on the revised text), decided by the operator on 2026-10-30; below.
 - D9 H2's size: A (120 runs), decided by the operator on 2026-10-30; below.
 - Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`.
 
@@ -83,6 +83,7 @@ Options:       A defer to F4: stage C1 only if H2 shows Haiku still below 18 of 
 Pros and cons: A costs nothing now; if the cap fix alone lifts Haiku, the rewrite has no target and is never paid for; if not, C1 runs with a clean baseline. B gets the answer one stage earlier at about 6 USD plus 40 Haiku runs, but two text changes land in one rerun and H2 cannot say which one moved Haiku. C saves about 6 to 9 USD and leaves D2's condition untested; Sonnet's cells cannot show a rise at any n the budget allows, so Haiku is the only place variant C could ever be shown to help.
 Blast radius:  A none now. B a confounded H2. C D2's condition closed without data.
 Recommended:   A, because H2 must attribute any change to one cause, and the cap finding means Haiku's baseline is not yet measured; the threshold (18 of 20) is fixed now so F4 does not choose it after seeing the result.
+Decided:       A, by the operator on 2026-10-30 ("A: defer to F4"); the threshold of 18 of 20 on Haiku is fixed from this date.
 ```
 
 ```
