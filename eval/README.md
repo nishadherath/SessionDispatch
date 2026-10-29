@@ -72,7 +72,7 @@ moved expectation is regenerated, with the reason added to `notes`.
 | 14 | The price table in force is 29 days old | exit 2, none | continue, sonnet-5-5 medium | 5 |
 | 15 | A Codex session whose model has no price in the table | exit 3, incomplete | incomplete | 5 |
 | 16 | A mechanical chore that ends in a push and a release tag | fresh by cost, 411.1% | fresh, haiku-5-5 high | 3 |
-| 17 | The decision has already used its budget | fresh by cost, 134.8% | continue, fable-5-1 xhigh | 7 |
+| 17 | The decision has already used its budget | fresh by cost, 134.8% | fresh, opus-5-5 high (continue, fable-5-1 xhigh until O3) | 7 |
 | 18 | Six turns left and no trigger: the skill does not run | continue by break-even, 46.2% | not-run, sonnet-5-5 medium | none |
 | 19 | Taking over a handoff on the wrong model | fresh by class, 259.0% | stop, sonnet-5-5 medium | 8 |
 | 20 | A harness that reports no usage: every figure estimated | fresh by cost, 11.7% | fresh, sonnet-5-5 medium | none |
@@ -89,31 +89,56 @@ outward step (16); the decision cap (17); five harnesses; the defaults for
 an unmeasured B, K and C0 (01, 15, 20). Within or near the band: 01 (3.1
 percent), 10 (6.3, acceptance note F1-1), 11 (3.2), 06 (11.5), 20 (11.7).
 Growth F plus visible output: 13 (acceptance note F1-2). Seeded from the
-worked examples: 01 and 02. In eight scenarios the final verdict is not
-the calculator's draft: a guardrail overrides it in 04, 09, 12, 17 and 19,
-the stale table leaves no draft in 14, the split replaces it in 07, and the
+worked examples: 01 and 02. In seven scenarios the final verdict is not
+the calculator's draft: a guardrail overrides it in 04, 09, 12 and 19, the
+stale table leaves no draft in 14, the split replaces it in 07, and the
 skill does not run in 18. Those are where a subject that only copies the
-calculator's line fails.
+calculator's line fails. In 17 guardrail 7 binds and keeps the draft (since
+O3); the branch where the cap passes before any draft is not in the set.
 
-## Where SKILL.md gives two answers
+## Where SKILL.md gave two answers: settled by F2, text in O3
 
-The set avoids these on purpose, so that every expectation follows from
-one rule; F2 should settle each in the text:
+The set avoided the first three on purpose, so that every expectation
+follows from one rule. Stage F2 settled them and a fourth that scenario 10
+found (`docs/assessment-2026-10-30-f2.md` section 3.6); Stage O3 wrote
+them into `SKILL.md` on 2026-10-30, with a precedence line in step 4
+(guardrails 5 and 8, then 2, 3 and 6, then 1 and 7; a cost rule never
+overrides a quality rule). One expectation moved with the rule: scenario
+17's final is now the draft (fresh, opus-5-5 high), because guardrail 7
+now keeps a written draft past the cap; the coordinating session ruled it
+before H2 ran, and H1's rows for 17 stay as scored.
 
-1. Guardrail 1 against step 2's rule 1: a stage under 10 turns that needs
-   a class above the current session's. Guardrail 1 forbids the handoff;
-   rule 1 says fresh by class.
-2. Guardrail 1 against guardrail 2: a design-heavy stage under 10 turns in
-   a session that has compacted.
-3. The effort for an acceptance (acceptance note F1-4): matrix row 4 says
-   high, guardrail 6 says xhigh when the author is the top class, the
-   operator protocol says Fable runs xhigh only for acceptance. Scenario 08
-   has a Sonnet author (Opus, high); scenario 09 a top-class author, where
-   guardrail 6 is explicit.
+1. Guardrail 1 against step 2's rule 1 (a stage under 10 turns that needs
+   a higher class): rule 1 wins. Guardrail 1 now forbids a fresh session
+   for short work at the same class; short work that needs a higher class
+   goes to a sub-agent of that class.
+2. Guardrail 1 against guardrail 2 (a design-heavy stage under 10 turns
+   in a compacted session): guardrail 2 wins, fresh.
+3. The effort for an acceptance (acceptance note F1-4): one rule, in
+   matrix row 4: high; xhigh when the author is the top class or the
+   accepted change is a release or a merge. Guardrail 6 and the operator
+   protocol point at the row. Scenarios 08 (Opus, high) and 09 (Fable,
+   xhigh) already encoded it.
+4. Step 5.3 against 5.4 (scenario 10): the adverse recompute changes a
+   verdict only on a value inside the input's stated range or a
+   measurement the draft ignored; a flip under a stress test such as a
+   doubled T is recorded as fragile and kept.
 
-Two readings are fixed by the subject prompt rather than by `SKILL.md`: for
-a split, `final.model` names the run piece; for a stop, the model the
-session should be on.
+Three readings are fixed by the subject prompt rather than by `SKILL.md`:
+for a split, `final.model` names the run piece; for a `not-run`, the
+session's own model (added 2026-10-30, prospective: H1's subjects did not
+see it, so scenario 18 is not rescored); for a stop, the model the session
+should be on.
+
+## The measured position on Haiku
+
+The skill's claim is "one or two classes below the frontier": Opus and
+Sonnet. Haiku is three below and was never in the claim. As scored on
+2026-10-30, Haiku agreed on 11 of 20 runs with the calculator and 10 of 20
+by hand; every miss took guardrail 7's default under the 8,000-token cap
+that O3 replaced, after a draft that was correct in 14 of 17 scored cases
+(F2 section 3.2). No class floor goes into the text until Stage H2
+measures Haiku on the revised cap.
 
 ## Running it
 

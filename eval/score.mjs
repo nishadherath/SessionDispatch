@@ -21,8 +21,11 @@ const BANNED_RE = BANNED.map((w) => new RegExp(`(^|[^a-z])${w.replace(/'/g, "['â
 const OPEN_FENCE = "```json dispatch-result";
 const OUTCOMES = ["continue", "fresh", "split", "not-run", "incomplete", "stop"];
 const INPUT_SYMBOLS = ["current", "target", "W", "K", "C0", "compacted", "T", "F", "O", "B", "R", "H", "M", "L", "Ta", "Ra"];
-const DECIDE_CAP_TOKENS = 8000; // guardrail 7's budget
+const DECIDE_CAP_RECORD_TOKENS = 4000; // guardrail 7's cap on the record (SKILL.md step 0)
 const DECIDE_CAP_MINUTES = 10;
+const CHARS_PER_TOKEN = 4; // the skill's estimate for prose (step 1.1)
+const DEFAULT_SIDES = ["continue", "fresh", "incomplete"];
+const OUTCOME_GUARDRAILS = [1, 2, 5, 8]; // guardrails whose consequence is an outcome (rubric section 4)
 const USD_PER_TABLE_UNIT = 1e-6; // table figures are USD per million tokens
 const WILSON_Z = 1.96;
 
@@ -57,7 +60,8 @@ export function validateBlock(b) {
   const i = b.inputs;
   if (i !== null) {
     if (typeof i !== "object" || Array.isArray(i) || i === undefined) return bad("inputs", "null or an object");
-    for (const k of ["current", "target"]) if (typeof i[k] !== "string") return bad(`inputs.${k}`, "a string");
+    if (typeof i.current !== "string") return bad("inputs.current", "a string");
+    if (!isStrOrNull(i.target)) return bad("inputs.target", "a string or null"); // null when the table cannot give one (step 1.4.4)
     for (const k of ["W", "K", "C0", "T", "F", "O", "B", "R", "H", "M", "L"]) if (!isNum(i[k])) return bad(`inputs.${k}`, "a number");
     if (typeof i.compacted !== "boolean") return bad("inputs.compacted", "a boolean");
     for (const k of ["Ta", "Ra", "G"]) if (!isNumOrNull(i[k])) return bad(`inputs.${k}`, "a number or null");
@@ -117,6 +121,7 @@ function recompute(inputs, table, scenarioToday) {
   if (inputs === null) return { computable: false, reason: "no inputs" };
   const current = findModel(table, inputs.current);
   if (!current) return { computable: false, reason: "current model not in the table" };
+  if (inputs.target === null) return { computable: false, reason: "target not named (null)" };
   const target = resolveModel(table, inputs.target, current.family);
   if (!target) return { computable: false, reason: "target model not in the table" };
   if (missingPrices(current).length || missingPrices(target).length) return { computable: false, reason: "a price is null" };
@@ -170,6 +175,14 @@ function arithmetic(block, rc, expectedCalc) {
   return { scored: true, reason: null, stated, correct, missing, max_error_usd: roundTo(maxError, 4), rule_ok, errors };
 }
 
+// Guardrail 7's verdict past the cap: step 2's draft where the block has one,
+// else continue. A split carries out a fresh draft (step 2.1 runs before the
+// cap cuts step 5).
+function takesCapDefault(block) {
+  const side = DEFAULT_SIDES.includes(block.draft?.side) ? block.draft.side : "continue";
+  return block.final.outcome === side || (side === "fresh" && block.final.outcome === "split");
+}
+
 // Measure 2(a): each bound guardrail, with its consequence in the block.
 function boundGuardrailFailures(scenario, block) {
   const e = scenario.expected, f = block.final, failed = [];
@@ -179,7 +192,7 @@ function boundGuardrailFailures(scenario, block) {
     3: () => typeof f.approval_step === "string" && f.approval_step.trim() !== "",
     5: () => f.outcome === e.final.outcome && (e.calculator.exit !== 2 || block.totals === null || Object.values(block.totals).every((v) => v === null)),
     6: () => f.model === e.final.model && f.effort === e.final.effort,
-    7: () => f.outcome === "continue" && f.model === scenario.current && f.effort === scenario.current_effort,
+    7: () => takesCapDefault(block) && (f.outcome !== "continue" || (f.model === scenario.current && f.effort === scenario.current_effort)),
     8: () => f.outcome === "stop" && f.model === e.final.model,
   };
   for (const g of e.guardrails) if (!block.guardrails_triggered.includes(g) || !consequence[g]?.()) failed.push(g);
@@ -194,14 +207,18 @@ function inputFidelity(scenario, inputs) {
   for (const k of INPUT_SYMBOLS) {
     if (scenario[k] === undefined) continue;
     scored += 1;
-    if (inputs[k] === scenario[k] || (accept[k] ?? []).includes(inputs[k])) matched += 1; else misses.push(k);
+    // A null target is the step 1.4.4 answer where the table has no priced row to name (calculator exit 3).
+    const nullTargetOk = k === "target" && inputs[k] === null && scenario.expected.calculator.exit === 3;
+    if (inputs[k] === scenario[k] || (accept[k] ?? []).includes(inputs[k]) || nullTargetOk) matched += 1; else misses.push(k);
   }
   return { scored, matched, misses };
 }
 
-// Measure 4 for one run. `pricing` is the table in force on the scoring day.
-function decideCost(block, usage, pricing) {
+// Measure 4 for one run. `pricing` is the table in force on the scoring day;
+// the record's size is measured here, never taken from the subject.
+function decideCost(block, usage, pricing, record) {
   const c = block?.cost_of_deciding ?? null;
+  const recordTokens = Math.round(record.length / CHARS_PER_TOKEN);
   const reportedTokens = c ? c.input_tokens + c.output_tokens : null;
   const reportedMinutes = c ? c.minutes : null;
   const measuredTokens = isNum(usage?.total_tokens) ? usage.total_tokens : null;
@@ -210,9 +227,10 @@ function decideCost(block, usage, pricing) {
   const price = (inTok, outTok) => (model ? roundTo((inTok * model.cache_write + outTok * model.output) * USD_PER_TABLE_UNIT, 4) : null);
   return {
     reported_tokens: reportedTokens, reported_minutes: reportedMinutes, measured_tokens: measuredTokens, measured_minutes: measuredMinutes,
+    record_tokens: recordTokens,
     usd_to_decide: c ? price(c.input_tokens, c.output_tokens) : null,
     usd_measured: isNum(usage?.input_tokens) && isNum(usage?.output_tokens) ? price(usage.input_tokens, usage.output_tokens) : null,
-    over_cap: (reportedTokens ?? 0) > DECIDE_CAP_TOKENS || (reportedMinutes ?? 0) > DECIDE_CAP_MINUTES || (measuredMinutes ?? 0) > DECIDE_CAP_MINUTES,
+    over_cap: recordTokens > DECIDE_CAP_RECORD_TOKENS || (reportedMinutes ?? 0) > DECIDE_CAP_MINUTES || (measuredMinutes ?? 0) > DECIDE_CAP_MINUTES,
     report_ratio: reportedTokens !== null && measuredTokens ? roundTo(reportedTokens / measuredTokens, 3) : null,
   };
 }
@@ -239,7 +257,7 @@ export function scoreRun({ scenario, table, record, usage = null, pricing = tabl
       ...base, unscorable: true, reason: typeError, outcome_got: null, final_ok: false, draft_ok: scenario.expected.draft_required ? false : null,
       guardrails_ok: false, bound: [...scenario.expected.guardrails], bound_failed: [...scenario.expected.guardrails], g4_ok: false, false_alarms: [],
       arithmetic: arithmetic(null, { computable: false, reason: "unscorable" }, {}), inputs: { scored: 0, matched: 0, misses: [] },
-      decide: decideCost(null, usage, pricing), consistency: { draft_line_ok: null, skill_ran_ok: null }, note: `unscorable: ${typeError}`,
+      decide: decideCost(null, usage, pricing, record), consistency: { draft_line_ok: null, skill_ran_ok: null }, overrun_default_not_taken: null, note: `unscorable: ${typeError}`,
     };
   }
   const b = x.block, e = scenario.expected, f = b.final;
@@ -261,6 +279,12 @@ export function scoreRun({ scenario, table, record, usage = null, pricing = tabl
     draft_line_ok: b.draft && drafted ? b.draft.side === drafted : null,
     skill_ran_ok: /Session dispatch not run/i.test(x.outside) === !b.skill_ran,
   };
+  const decide = decideCost(b, usage, pricing, record);
+  // F2-6: the run recorded an overrun (guardrail 7 listed) or is over the cap, and its verdict is not the cap's.
+  // Runs listing a guardrail that sets the outcome itself (1, 2, 5, 8) are left out: step 4 still runs past the cap.
+  const overrun = b.guardrails_triggered.includes(7) || decide.over_cap;
+  const outcomeSetElsewhere = b.guardrails_triggered.some((g) => OUTCOME_GUARDRAILS.includes(g));
+  const overrun_default_not_taken = overrun && !outcomeSetElsewhere && ["continue", "fresh", "split"].includes(f.outcome) && !takesCapDefault(b);
   const fail = finalChecks.find(([, ok]) => !ok)?.[0]
     ?? (draft_ok === false ? "draft" : null)
     ?? (boundFailed.length ? `guardrail ${boundFailed[0]}` : null)
@@ -270,7 +294,7 @@ export function scoreRun({ scenario, table, record, usage = null, pricing = tabl
     ...base, unscorable: false, reason: null, outcome_got: f.outcome, final_ok, draft_ok,
     guardrails_ok: boundFailed.length === 0 && g4_ok, bound: [...e.guardrails], bound_failed: boundFailed, g4_ok,
     false_alarms: b.guardrails_triggered.filter((g) => !e.guardrails.includes(g)),
-    arithmetic: arith, inputs: inputFidelity(scenario, b.inputs), decide: decideCost(b, usage, pricing), consistency,
+    arithmetic: arith, inputs: inputFidelity(scenario, b.inputs), decide, consistency, overrun_default_not_taken,
     note: fail ? `first failed check: ${fail}` : "",
   };
 }
@@ -355,6 +379,7 @@ export function renderReport({ header, scores }) {
   diag("Draft line and block disagree", (s) => s.consistency.draft_line_ok === false);
   diag("Step 0 line and skill_ran disagree", (s) => s.consistency.skill_ran_ok === false);
   diag("Em-dashes or banned words in the record", (s) => s.prose.em_dashes > 0 || s.prose.banned.length > 0);
+  diag("Overrun recorded or over the cap, default not taken (guardrail 7: the draft, else continue)", (s) => s.overrun_default_not_taken === true);
   L.push("");
   return L.join("\n");
 }
