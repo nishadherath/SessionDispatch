@@ -1,0 +1,213 @@
+## Session dispatch decision
+
+Date: 2026-10-30. Decided by: claude-haiku-5-5, effort medium, in Claude Code (desktop app).
+Price table: `pricing/2026-10-29.json` (age 1 day).
+Calculator: `scripts/dispatch.mjs` is not in this copy of the skill (no `scripts/` folder), so the arithmetic was done by hand, step 2 "Without it" form.
+
+Step 0: the skill runs. The stage is about 30 turns (over 10), and the model changes (handoff front matter says claude-sonnet-5-5 at medium; this session is claude-haiku-5-5 at medium).
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 and the table in force |
+| Current model | claude-haiku-5-5 | Measured: the harness's session tool reports this session's model and effort (medium) |
+| Target model | claude-sonnet-5-5 | Matrix row 2 (a refactor within one module, test suite as oracle), so Sonnet at medium. The handoff's front matter says the same. The table's sonnet row |
+| Window W | 1,000,000 | Measured: usage tool, `contextWindow` |
+| Compaction point K | 970,000 | Measured: `autoCompactsAtPercent` 97 times W |
+| Current context C0 | 95,000 | Measured: usage tool, `tokensUsed` |
+| Compacted already | no | Measured: the session has not been compacted |
+| Unrecorded context | none | The situation: everything the next stage needs is in files on disk |
+| Expected turns T | 30 | The situation: about 30 turns |
+| Fresh input per turn F | 3,000 | Estimated: step 1.2 default; a refactor is not read-heavy |
+| Output per turn O | 1,500 | Estimated: step 1.2 default; the figure assumes medium effort |
+| Growth G | 4,500 | F + O |
+| Fresh baseline B | 86,450 | Measured: usage tool total less the Messages category |
+| Re-read set R | 15,000 | Given by the situation: what a fresh session reads for this stage |
+| Handoff size H | 2,500 | Step 1.2 default: the handoff is about 80 lines, under 120 |
+| Cache misses M | 0 | The situation: no cache-miss measurement and no review pauses expected |
+| Rediscovery turns L | 0 | The unrecorded list is empty |
+| Acceptance turns Ta, re-read Ra | not applicable | The target is below Opus, so no split |
+| Task type | scoped module work with a test suite | Matrix row 2 |
+| Design-heavy | no | The situation describes a refactor within one module |
+| Irreversible or outward-facing steps | none | Local file writes and local commits only |
+
+### Price check
+
+Table age: 2026-10-30 less 2026-10-29 = 1 day (under 14). No nulls in the rows used.
+
+- claude-haiku-5-5, standard tier: input 0.1, output 0.5, cache_read 0.01, cache_write 0.125 (USD per million). Long-context tier above 100,000 tokens: output 2.5, cache_read 0.05, cache_write 0.625.
+- claude-sonnet-5-5: input 2, output 10, cache_read 0.1, cache_write 2.5. No long-context tier.
+
+### Step A: continue or hand off
+
+Context (step 2 formulas):
+
+```
+G       = F + O                 = 4,500
+C_end   = C0 + T * G            = 95,000 + 135,000 = 230,000
+crosses = C_end > K             = false (K 970,000)
+C_cont  = C0 + T * G / 2        = 162,500
+C_fresh = B + R + T * G / 2     = 86,450 + 15,000 + 67,500 = 168,950
+```
+
+Long-context tier on the continuing side (step 1.4.5): turn t reads C_t = C0 + (t - 1/2) * G = 92,750 + 4,500 t. Turn 1 reads 97,250, under 100,000, so standard prices. Turns 2 to 30 read more than 100,000, so long-context prices. The sum of C_t over turns 2 to 30 is 4,777,750 tokens.
+
+```
+cost_continue on claude-haiku-5-5 (USD)
+  cache reads   turn 1: 97,250 * 0.01 = 972.5
+                turns 2-30: 4,777,750 * 0.05 = 238,887.5
+                total 239,860 / 1e6        = 0.2399
+  cache writes  turn 1: 4,500 * 0.125 = 562.5
+                turns 2-30: 130,500 * 0.625 = 81,562.5
+                total 82,125 / 1e6         = 0.0821
+  output        turn 1: 1,500 * 0.5 = 750
+                turns 2-30: 43,500 * 2.5 = 108,750
+                total 109,500 / 1e6        = 0.1095
+  misses        M 0                        = 0.0000
+  compaction    none ahead                 = 0.0000
+  = 0.431485 -> 0.43 USD
+```
+
+For comparison only: at standard prices on every turn the continuing side would be 0.09 USD. The long-context tier adds 0.34 USD.
+
+```
+cost_fresh on claude-sonnet-5-5 (USD)
+  H * p_out[haiku]    = 2,500 * 0.5          = 1,250     /1e6 = 0.0013
+  (B + R) * p_cw      = 101,450 * 2.5        = 253,625   /1e6 = 0.2536
+  T * C_fresh * p_cr  = 30 * 168,950 * 0.1   = 506,850   /1e6 = 0.5069
+  T * G * p_cw        = 135,000 * 2.5        = 337,500   /1e6 = 0.3375
+  T * O * p_out       = 45,000 * 10          = 450,000   /1e6 = 0.4500
+  misses M 0          = 0.0000
+  penalty_loss L 0    = 0.0000
+  = 1.549225 -> 1.55 USD
+```
+
+T*: not computed as a figure. The model changes, so the short path does not apply. As a note: C0 (95,000) is below B + R (101,450), so on cost alone a fresh session at the same model would never pay off.
+
+cost_split: not computed. The target is below Opus.
+
+Prices used (USD per million): claude-haiku-5-5 cache_read 0.01 (0.05 above 100,000 tokens), cache_write 0.125 (0.625), output 0.5 (2.5). claude-sonnet-5-5 cache_read 0.1, cache_write 2.5, output 10.
+
+Draft verdict: fresh, by class, margin 1.12 USD, 259.0 percent of the smaller (1.55 against 0.43). Step 2 verdict rule 1 comes before rule 2: the target class (sonnet) is above the current class (haiku), so fresh wins by class even though continuing is cheaper on cost.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| The refactor in the module (the stage in the handoff) | Sonnet | claude-sonnet-5-5 | medium | the module's test suite | one piece, serial | 1.55 USD (fresh side, as computed) |
+
+Effort: no raise, since the stage has no irreversible or outward-facing step, does not touch security, credentials or money, is not a merge or release, and has no failed attempt. No lowering either: the stage writes to a repository, so it never goes below medium.
+
+Serial chain and wall clock: the handoff write and commit about 10 minutes, the new session's read about 5 minutes (step 2.1). The stage's own wall clock is not estimated here. Operator review time: none expected. A fresh session needs the operator to pick the model and start it, so the operator starts the session.
+
+Split (step 2.1): not an option, since the target is below Opus.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 30. Not binding.
+2. Design-heavy across a compaction: not design-heavy and no compaction. Not binding.
+3. Irreversible steps and their approval step: none. Not binding.
+4. Model chosen from the table, not memory: haiku and sonnet rows from `pricing/2026-10-29.json`. Not binding.
+5. Table age and nulls: 1 day old, no nulls in the rows used. Not binding.
+6. Acceptance one class above the author: no acceptance piece planned. Not binding.
+7. Decision budget: BINDS. Reading the skill, its template, the example and the price table is about 11,000 tokens (estimate, characters divided by 4), and this record adds about 3,000 (estimate). That is about 14,000 against the cap of 8,000. The overrun is recorded here. The default would be continue on claude-haiku-5-5 at medium, but guardrail 8 rules that default out, so the verdict is stop (see Final verdict).
+8. Class and effort match the harness: BINDS. The handoff front matter says claude-sonnet-5-5 at medium. This session reports claude-haiku-5-5 at medium. The session stops and names the value to pick: claude-sonnet-5-5 at medium.
+
+### Adversarial pass
+
+The opposite verdict, argued: continue. On cost alone, continuing costs 0.43 USD against 1.55 USD for fresh, 259 percent cheaper. The session holds 95,000 tokens, well under K, has nothing unrecorded, and a fresh session pays a 101,450-token baseline and re-read before it does any work. A handoff is itself work, and a refactor with a test oracle is mostly mechanical. The matrix puts a module refactor at Sonnet, though, and step 2 rule 1 puts a higher target class ahead of cost. This argument does not change the verdict.
+
+Each input, the way it could be wrong:
+
+- C0: measured at 95,000. If it were 30 percent high (123,500), the continuing side would pay the long-context tier from turn 1. Fresh still wins by class.
+- T: 30. If it doubled to 60, see the recompute below. Continue stays cheaper, and fresh still wins by class.
+- F and O: estimated at 3,000 and 1,500. If O were 3,000 (writing-heavy), Haiku's tiered output rate would raise the continuing side more than the fresh side. Fresh still wins by class.
+- B and R: B measured. R was given as 15,000. If R were 25,000, fresh would rise by about 0.06 USD. Continue stays cheaper.
+- M: 0, since no review pauses are expected. Three misses would add about 0.28 USD to continue (Haiku long-context rate) and about 1.22 USD to fresh (Sonnet cache-write rate). Fresh gets more expensive, so the cost gap grows, and the class rule still decides.
+- Task type: a refactor within one module. If it hid a cross-module design choice, the target would be Opus and the split would be priced. Fresh would still win by class.
+- Prices: 1 day old. The long-context tier is applied from turn 2. Without the tier, continue is 0.09 USD and the class rule still decides.
+- Unrecorded context: none. If five turns of rediscovery were needed (L 5), fresh would rise by about 0.22 USD (5 times C_fresh * 0.1, G * 2.5 and O * 10, at Sonnet rates). Fresh still wins by class.
+
+Recomputed with the adverse value that moves the result most (T = 60):
+
+```
+cost_continue (T 60, haiku tier from turn 2) = 0.68611 + 0.1665 + 0.222 = 1.07 USD
+cost_fresh    (T 60, C_fresh 236,450)        = 0.0013 + 0.2536 + 1.4187 + 0.675 + 0.90 = 3.25 USD
+```
+
+Fresh is 2.17 USD more, 202 percent of the smaller. Continue is still the cheaper side. The verdict holds: yes. It is fresh by class, and the arithmetic changes only the cost margin, not the verdict.
+
+### Final verdict
+
+Verdict: fresh, by class, margin 1.12 USD (259.0 percent of the smaller).
+
+Outcome: stop. This session does not run the stage. Guardrail 8 applies, and the decision budget default (continue on haiku) cannot be taken, because it would run a sonnet-front-matter stage on haiku.
+
+Model to pick: claude-sonnet-5-5, effort medium, in a fresh session with `docs/handoffs/2026-11-02-stage-s4.md` as its brief. One piece, serial. Approval step: none named, since the stage is local writes and local commits.
+
+Question the skill says to ask the operator (not asked in this run, as nobody answers): "Start a fresh session on claude-sonnet-5-5 at medium effort, with docs/handoffs/2026-11-02-stage-s4.md as its brief?"
+
+Meanwhile, the verdict the skill takes: stop. No stage work is done in this session, and nothing is written to the project.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 95,000 | Measured: usage tool, `tokensUsed`, when step 1 began |
+| Context at end | about 109,000 | Estimate: start, plus the input read and this output |
+| Input tokens read | about 11,000 | Estimate, characters divided by 4: `SKILL.md` about 6,000, the template about 1,000, the example about 3,000, the price table about 900 |
+| Output tokens | about 3,000 | Estimate: this record, characters divided by 4 |
+| Wall clock | about 8 minutes | Estimate |
+| Priced | 0.0029 USD | Table `pricing/2026-10-29.json`, claude-haiku-5-5 at standard rates: 11,000 * 0.125 + 3,000 * 0.5 = 2,875 per million. About 0.014 USD if the long-context tier applied to all of it |
+
+The decision overran its 8,000-token cap (about 14,000 estimated). The overrun is recorded above under guardrail 7.
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-haiku-5-5",
+    "target": "claude-sonnet-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 95000,
+    "T": 30,
+    "F": 3000,
+    "O": 1500,
+    "B": 86450,
+    "R": 15000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": null,
+    "Ra": null,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "0.43",
+    "cost_fresh": "1.55",
+    "cost_split": null,
+    "t_star": null
+  },
+  "draft": {
+    "side": "fresh",
+    "by": "class"
+  },
+  "guardrails_triggered": [7, 8],
+  "final": {
+    "outcome": "stop",
+    "model": "claude-sonnet-5-5",
+    "effort": "medium",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 11000,
+    "output_tokens": 3000,
+    "minutes": 8,
+    "usd": "0.0029"
+  }
+}
+```

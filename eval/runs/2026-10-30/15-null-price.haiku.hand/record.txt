@@ -1,0 +1,149 @@
+## Session dispatch decision
+
+Date: 2026-10-30. Decided by: claude-haiku-5-5 (Haiku 5.5), effort not stated by the harness, in the evaluation run (the decision is for a Codex session).
+Price table: `pricing/2026-10-29.json` (age 1 day, max 14, in force).
+Calculator: the copy of the skill supplied has no `scripts/` folder, so the step 2 arithmetic was done by hand.
+
+Session under decision: Codex harness, model gpt-6.1-sol, effort high (as the situation states).
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2, the formula in force |
+| Current model | gpt-6.1-sol | The harness's report, per the situation. Its row in the table has class null and every price null |
+| Target model | claude-sonnet-5-5 | Matrix row 2 of step 3.1 (scoped module refactor with a test suite as oracle, Sonnet, medium). The table's sonnet row |
+| Window W | 1,000,000 | `/status` (measured, per the situation) |
+| Compaction point K | 900,000 | Estimate: the documentation gives no figure, so 0.9 W as the skill directs |
+| Current context C0 | 300,000 | `/status` (measured, per the situation) |
+| Compacted already | no | The situation: this session has not been compacted |
+| Unrecorded context | none | The situation: everything the next stage needs is in files on disk. L = 0 |
+| Expected turns T | 30 | The plan estimate in the situation (no per-turn measurement exists) |
+| Fresh input per turn F | 3,000 | Default, unmeasured. The stage is a refactor, not read-heavy, so the 5,000 to 8,000 range does not apply |
+| Output per turn O | 1,500 | Default, measured at high effort. Estimate: the target effort is medium, so the true figure may be lower |
+| Fresh baseline B | 25,000 | Default, unmeasured for this harness and project |
+| Re-read set R | 15,000 | The situation: a fresh session reads the handoff and the module, 15,000 tokens |
+| Handoff size H | 2,500 | Default for a handoff under 120 lines; the situation gives about 80 lines |
+| Cache misses M | 0 | Unmeasured; the situation expects no review pauses |
+| Rediscovery turns L | 0 | The unrecorded list is empty |
+| Acceptance turns Ta, re-read Ra | not applicable | The target is below Opus, so no split |
+| Task type | Scoped module refactor with a test suite | Matrix row 2, Sonnet, medium |
+| Design-heavy | no | One module, test suite as oracle, no design choice named |
+| Irreversible or outward-facing steps | none | The stage writes files and commits locally; nothing leaves the machine |
+
+Growth and context (formula of 2026-10-29, G = F + O):
+
+```
+G       = F + O                 = 3,000 + 1,500 = 4,500 tokens per turn
+C_end   = C0 + T * G            = 300,000 + 30 * 4,500 = 435,000
+crosses = C_end > K             = 435,000 > 900,000 = false
+C_cont  = C0 + T * G / 2        = 300,000 + 67,500 = 367,500
+C_fresh = B + R + T * G / 2     = 25,000 + 15,000 + 67,500 = 107,500
+```
+
+### Step A: continue or hand off
+
+Price table check: the table date is 2026-10-29 and today is 2026-10-30, so the age is 1 day, under the 14-day maximum. The table is in force.
+
+Prices in force (USD per million tokens):
+
+- claude-sonnet-5-5 (target): input 2, output 10, cache_read 0.1, cache_write 2.5. No long-context block, so no tier applies.
+- gpt-6.1-sol (current): class null, input null, output null, cache_read null, cache_write null. The table note says the figures are still to be filled from the source page.
+
+cost_continue: cannot be computed. Every term is at the current model's price, and that price is null.
+
+```
+cost_continue = T*C_cont*p_cr + T*G*p_cw + T*O*p_out + M*C_cont*(p_cw - p_cr) + penalty_compaction
+              = 30*367,500*p_cr[gpt] + 30*4,500*p_cw[gpt] + 30*1,500*p_out[gpt] + 0 + 0
+              = not computed: price of gpt-6.1-sol unknown
+```
+
+cost_fresh: partly computed. The target-side terms are at sonnet prices. The handoff term needs the current model's output price, which is null.
+
+```
+(B + R) * p_cw        = 40,000 * 2.5 / 1e6          = 0.1000 USD
+T * C_fresh * p_cr    = 30 * 107,500 * 0.1 / 1e6    = 0.3225 USD
+T * G * p_cw          = 30 * 4,500 * 2.5 / 1e6      = 0.3375 USD
+T * O * p_out         = 30 * 1,500 * 10 / 1e6       = 0.4500 USD
+M terms, penalties    = 0 (M = 0, crosses false, L = 0)
+subtotal at sonnet    = 1.21 USD
+H * p_out[gpt-6.1-sol] = 2,500 * null / 1e6         = not computed
+cost_fresh            = 1.21 USD + the handoff term (unknown)
+```
+
+T* (break-even): not applicable. The model changes between the two sides, so the short path does not hold.
+
+cost_split: not computed. The target class is Sonnet, below Opus, so step 2.1 does not apply.
+
+Hypothetical sensitivity, not a verdict and not a fill of the null: if gpt-6.1-sol were priced at Sonnet rates (2, 10, 0.1, 2.5), cost_continue would be 1.1025 + 0.3375 + 0.4500 = 1.89 USD and cost_fresh 1.21 + 0.025 = 1.235 USD. Fresh would then be cheaper by 0.655 USD, 53 percent of the smaller. The operator should know that the price decides the cost side.
+
+Draft verdict: incomplete: price of gpt-6.1-sol unknown. The class rule (rule 1) also cannot be applied, because the current class is null.
+
+Stage guardrail 5 (null price) is the reason. Step 1.4.4 says: until the null is filled, compute what you can and mark the verdict incomplete. Nobody can answer during this run, so the question is recorded here.
+
+What I would ask the operator, in one message (not sent, since no one answers in this run):
+
+- Option (a): give the input, output, cache_read and cache_write prices of gpt-6.1-sol, and its class, now.
+- Option (b): authorise a live read of its source page, https://openai.com/api/pricing/, with the figures and fetch date written to a new `pricing/<today>.json`.
+
+Meanwhile the skill's verdict for an incomplete record is recorded, and the final verdict below follows guardrail 7.
+
+### Step B: model, effort and concurrency
+
+Not reached as a plan for a fresh session. The default applies (see the final verdict). The matrix row for this work is Sonnet at medium. The session keeps gpt-6.1-sol at high under the default, which is above the row's effort. The record does not raise or lower the effort on preference.
+
+Serial chain: one piece. Wall clock: about 30 turns, not estimated in minutes. Operator review time: none expected.
+
+Split (step 2.1): not an option. The target is Sonnet, not Opus or Fable.
+
+### Guardrails checked
+
+1. Under 10 turns: no. T = 30, so the skill runs.
+2. Design-heavy across a compaction: not design-heavy, not compacted, crosses = false. Does not bind.
+3. Irreversible steps and their approval step: none outward. Local commits only. No approval step is needed. Does not bind.
+4. Model chosen from the table, not memory: the target model comes from the sonnet row. The current model is identified from the table, and its class is not assumed. Holds.
+5. Table age and nulls: age 1 day, within 14. The current model's class and every price are null. This binds: the verdict is incomplete, and the question above goes to the operator.
+6. Acceptance one class above the author: no acceptance piece. Does not bind.
+7. Decision budget: the cap is 8,000 tokens and 10 minutes. Estimated use: about 8,000 tokens read (the skill, the pricing table and the template, which alone is near the cap) plus about 3,000 tokens written, so about 11,000 tokens in total (estimate, +/- 30 percent). Wall clock about 8 minutes (estimate). The token cap is exceeded by an estimated 3,000 tokens. This binds: the default applies and the overrun is recorded.
+8. Class and effort match the harness: the harness reports gpt-6.1-sol at high, matching the situation. No handoff is written, so no front matter must match. Does not bind.
+
+### Adversarial pass
+
+The opposite verdict, argued: fresh. Continuing carries the 300,000-token context through all 30 turns, so the average context is 367,500 tokens against 107,500 for a fresh session, about 3.4 times the cache reads. The stage is a Sonnet-class refactor at medium effort, and continuing runs it on a model whose class and prices this record cannot verify, at the session's high effort. A fresh session at Sonnet medium, carrying the 80-line handoff with the test suite as oracle, is the matrix's row. Under Sonnet-rate parity the fresh side wins by 53 percent, and one cache miss on the continue side would add about 0.88 USD under that same parity.
+
+Each input, the way it could be wrong:
+
+- C0: measured at 300,000. If it is 30 percent higher (390,000), C_cont rises to 457,500 and the continue side grows. The crossing does not change: C_end would be 525,000, under K.
+- T: 30 from the plan. If it doubles to 60, C_end is 570,000, still under K. A crossing would need T above about 133.
+- F and O: if the stage is read-heavy, F of 6,000 gives G of 7,500 and C_end of 525,000, still under K. If O is 3,000 at high effort, G is 6,000 and C_end 480,000, still under K. Medium effort would lower O.
+- B and R: B of 40,000 instead of 25,000 adds only about 0.04 USD to the fresh side at sonnet prices. R is from the situation; any missed file in R raises the fresh side.
+- M (review pauses): none expected, so M = 0. Each miss on the continue side costs C_cont times (p_cw minus p_cr). Under parity pricing that is about 0.88 USD for one miss, which favours fresh more than the table shows.
+- Task type: "refactor within one module" could hide a cross-module choice. If so, the class is Opus and the split of step 2.1 applies, which favours fresh by class.
+- Prices: the Sonnet row is 1 day old and has no long-context tier. The current model's prices are null, the dominant unknown.
+- Unrecorded context: the situation says none. If some exists, each rediscovery turn at Sonnet costs about 0.037 USD (L times the fresh average), a small amount.
+- Decision cost: estimated 11,000 tokens against the 8,000 cap, within a 30 percent error band. The overrun is recorded either way.
+
+Recomputed with the adverse value that moves the result most (the current model's price, which is null): at Sonnet-rate parity, cost_continue = 1.89 USD and cost_fresh = 1.235 USD. Fresh wins on cost by 53 percent, so the arithmetic would favour fresh if the price is near that. The verdict does not change on that basis, because the price is still unknown. The cap guardrail (7) sets the default, and guardrail 7 says a verdict that breaks it is wrong whatever the arithmetic says. Verdict holds: no, but only because of the cap. The price question remains open for the operator and would decide the cost side once answered.
+
+### Final verdict
+
+Continue, model gpt-6.1-sol, effort high, pieces 1 (serial). The default applies because the decision overran its token cap (guardrail 7), and the verdict's draft is incomplete because the current model's price is null (guardrail 5).
+
+Exact next action: keep the stage in this session on gpt-6.1-sol at high effort, and record the overrun in the handoff or status note. Do not hand off. Before any later dispatch, the operator fills the price of gpt-6.1-sol by option (a) or (b) above, and the step 2 arithmetic is run again with the table in force. The refactor's test suite is the oracle for the stage.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 300,000 tokens of the session being decided | `/status`, as stated in the situation (measured) |
+| Context at end | not reported | No usage figure was available to this decision |
+| Input tokens read | about 8,000 | Estimate: `SKILL.md` about 6,300, `pricing/2026-10-29.json` about 1,100, `templates/decision-record.md` about 700 |
+| Output tokens | about 3,000 | Estimate: characters divided by 4, this record |
+| Wall clock | about 8 minutes | Estimate |
+| Priced | USD 0.0025 | Input 8,000 at the cache-write rate 0.125 per million, plus output 3,000 at the output rate 0.5 per million, for claude-haiku-5-5 from `pricing/2026-10-29.json` |
+
+The decision costs about 0.0025 USD against a 30-turn stage. The decision was over the 8,000-token cap, which is a signal that the reading cost of this skill is high for a stage of this size. The operator should judge whether the skill pays for itself at 30 turns. The skill reads about 6,000 tokens before any arithmetic, so the cap is nearly spent on reading alone.
+
+```json dispatch-result
+{"skill_ran": true, "inputs": {"current": "gpt-6.1-sol", "target": "claude-sonnet-5-5", "W": 1000000, "K": 900000, "C0": 300000, "T": 30, "F": 3000, "O": 1500, "B": 25000, "R": 15000, "H": 2500, "M": 0, "L": 0, "compacted": false, "Ta": null, "Ra": null, "G": null}, "table_age_days": 1, "totals": {"cost_continue": null, "cost_fresh": null, "cost_split": null, "t_star": null}, "draft": {"side": "incomplete", "by": null}, "guardrails_triggered": [5, 7], "final": {"outcome": "continue", "model": "gpt-6.1-sol", "effort": "high", "approval_step": null}, "cost_of_deciding": {"input_tokens": 8000, "output_tokens": 3000, "minutes": 8, "usd": "0.0025"}}
+```

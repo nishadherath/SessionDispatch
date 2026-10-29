@@ -1,0 +1,52 @@
+{
+  "scenario": "07-split-plan",
+  "subject": "sonnet",
+  "arm": "hand",
+  "outcome_expected": "split",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "split",
+  "final_ok": true,
+  "draft_ok": true,
+  "guardrails_ok": true,
+  "bound": [],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [
+    6
+  ],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 3,
+    "correct": 3,
+    "missing": 0,
+    "max_error_usd": 0.0038,
+    "rule_ok": true,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 16,
+    "matched": 16,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 6500,
+    "reported_minutes": 6,
+    "measured_tokens": 92818,
+    "measured_minutes": 2.5618833333333333,
+    "usd_to_decide": 0.0425,
+    "usd_measured": null,
+    "over_cap": false,
+    "report_ratio": 0.07
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "note": ""
+}

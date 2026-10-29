@@ -1,0 +1,9 @@
+{
+  "model": "claude-haiku-5-5",
+  "model_source": "named by the orchestrator; the Agent result reports no model",
+  "total_tokens": 102778,
+  "tool_uses": 8,
+  "duration_ms": 155145,
+  "input_tokens": null,
+  "output_tokens": null
+}

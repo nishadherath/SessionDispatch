@@ -1,0 +1,56 @@
+{
+  "scenario": "04-under-ten-turns",
+  "subject": "haiku",
+  "arm": "hand",
+  "outcome_expected": "continue",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "continue",
+  "final_ok": true,
+  "draft_ok": false,
+  "guardrails_ok": false,
+  "bound": [
+    1
+  ],
+  "bound_failed": [
+    1
+  ],
+  "g4_ok": true,
+  "false_alarms": [
+    7
+  ],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 0,
+    "correct": 0,
+    "missing": 3,
+    "max_error_usd": 0,
+    "rule_ok": false,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 14,
+    "matched": 14,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 14000,
+    "reported_minutes": 5,
+    "measured_tokens": 97949,
+    "measured_minutes": 2.2951166666666665,
+    "usd_to_decide": 0.004,
+    "usd_measured": null,
+    "over_cap": true,
+    "report_ratio": 0.143
+  },
+  "consistency": {
+    "draft_line_ok": null,
+    "skill_ran_ok": true
+  },
+  "note": "first failed check: draft"
+}

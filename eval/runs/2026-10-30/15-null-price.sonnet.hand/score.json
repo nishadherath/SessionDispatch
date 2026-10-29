@@ -1,0 +1,54 @@
+{
+  "scenario": "15-null-price",
+  "subject": "sonnet",
+  "arm": "hand",
+  "outcome_expected": "incomplete",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": true,
+  "reason": "inputs.target must be a string",
+  "outcome_got": null,
+  "final_ok": false,
+  "draft_ok": null,
+  "guardrails_ok": false,
+  "bound": [
+    5
+  ],
+  "bound_failed": [
+    5
+  ],
+  "g4_ok": false,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": false,
+    "reason": "unscorable",
+    "stated": 0,
+    "correct": 0,
+    "missing": 0,
+    "max_error_usd": null,
+    "rule_ok": null,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 0,
+    "matched": 0,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": null,
+    "reported_minutes": null,
+    "measured_tokens": 85131,
+    "measured_minutes": 1.9014833333333334,
+    "usd_to_decide": null,
+    "usd_measured": null,
+    "over_cap": false,
+    "report_ratio": null
+  },
+  "consistency": {
+    "draft_line_ok": null,
+    "skill_ran_ok": null
+  },
+  "note": "unscorable: inputs.target must be a string"
+}

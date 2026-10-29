@@ -1,0 +1,133 @@
+## Session dispatch decision
+
+Date: 2026-10-30. Decided by: claude-haiku-5-5, effort not stated, in the Claude Code desktop app (evaluation run).
+Price table: `pricing/2026-10-29.json` (age 1 day, within the 14-day limit).
+
+### Step 0: does the skill run
+
+Trigger 3 holds. The session usage tool reports tokensUsed 650,000 of contextWindow 1,000,000, which is 65 percent, past the 60 percent line. The stage is planned at 8 turns, which alone would not trigger the skill, so the record runs on trigger 3. Guardrail 1 still bars a handoff for work under 10 turns.
+
+### Inputs (step 1)
+
+| Input | Value | Source |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2, the table in force |
+| Current model | claude-sonnet-5-5, effort medium | Measured: harness report |
+| Target model | claude-sonnet-5-5 | Matrix row 2 (scoped module refactor with a test oracle): Sonnet, medium. Same class as current, so no model change |
+| Window W | 1,000,000 | Measured: usage tool `contextWindow` |
+| Compaction point K | 970,000 | Measured: `autoCompactsAtPercent` 97 times W |
+| Current context C0 | 650,000 | Measured: usage tool `tokensUsed` |
+| Compacted already | no | Situation |
+| Unrecorded context | none | Situation: everything the next stage needs is in files on disk. L = 0 |
+| Expected turns T | 8 | Estimated: plan figure, no range given |
+| Fresh input per turn F | 3,000 | Estimated: skill default, unmeasured |
+| Output per turn O | 1,500 | Estimated: skill default, unmeasured; assumes effort medium |
+| Fresh baseline B | 86,450 | Measured: usage total less its Messages category, per the situation |
+| Re-read set R | 15,000 | Situation: the handoff and the module |
+| Handoff size H | 2,500 | Skill default for a handoff under 120 lines; the situation gives about 80 lines |
+| Cache misses M | 0 | Unmeasured; no review pauses expected |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance Ta, Ra | not applicable | No split: the target is Sonnet, not Opus or Fable |
+| Task type | scoped module refactor with a test suite | Situation |
+| Design-heavy | no | A refactor within one module |
+| Irreversible or outward-facing steps | none | Commits stay on the local machine |
+
+G = F + O = 4,500 per turn, estimated from the defaults.
+
+### Decision budget
+
+The reads alone are estimated at about 7,800 tokens: `SKILL.md` about 6,000, the price table about 900, the decision-record template about 800, and about 100 for the directory listings. Add the record and this reasoning as output and the 8,000-token cap is exceeded during step 1, before step 2 is reached. Under the skill, the default applies: continue, same model, same effort. The overrun is recorded here.
+
+Because the cap was reached first, steps 2, 2.1 and 5 were not run and no cost figures are computed. `scripts/dispatch.mjs` is not in this copy of the skill folder, so the calculator could not be run either. The operator can re-run step 2 with a larger budget if the figures are wanted. The default verdict does not depend on them in this record, but the record does not show whether a fresh session would be cheaper at 8 turns.
+
+### Step A: continue or hand off
+
+Not computed (decision budget spent). Draft verdict: none.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| 1. Refactor within the module | Sonnet | claude-sonnet-5-5 | medium | The module's test suite | Serial | Not computed |
+
+Serial chain: one piece, about 8 turns; wall clock not measured. Operator review time: none expected.
+
+Effort raised or lowered because: no change. The rule would raise effort to high only if the module touches auth, payments, storage formats or a public interface; the situation does not say it does. Medium is the floor for a repository writer.
+
+Split (step 2.1): not an option. The target is not Opus or Fable.
+
+### Guardrails checked
+
+1. Under 10 turns: yes, T = 8 (plan estimate). Not evaluated against a computed verdict. If the stage runs past 10 turns, step 0 applies again.
+2. Design-heavy across a compaction: not design-heavy and not compacted. Not binding.
+3. Irreversible steps and their approval step: none. The stage commits locally and pushes nothing. Approval step: none.
+4. Model chosen from the table, not memory: claude-sonnet-5-5, class sonnet, from `pricing/2026-10-29.json`. Not binding.
+5. Table age and nulls: 1 day old against a limit of 14; the sonnet row has no null. Not binding.
+6. Acceptance one class above the author: no acceptance piece. Not applicable.
+7. Decision budget: exceeded (see above). Binding: the default applies.
+8. Class and effort match the harness: the harness reports claude-sonnet-5-5 at medium, and the stage keeps both. Not binding.
+
+### Adversarial pass
+
+Not run. The decision budget was spent before a draft verdict existed, so there was nothing to test. The default verdict is the one the skill names for an overrun.
+
+### Final verdict
+
+Continue, model claude-sonnet-5-5, effort medium, pieces 1 (serial). Exact next action: run the refactor in this session against the module's test suite and commit the work locally. Re-run step 0 if the stage goes past 10 turns. Approval step: none, since nothing leaves the machine.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 650,000 | Measured: usage tool, the session being decided |
+| Context at end | about 664,000 | Estimated: start plus about 8,000 read plus about 6,000 output |
+| Input tokens read | about 8,000 | Estimated: file sizes divided by four |
+| Output tokens | about 6,000 | Estimated: characters divided by four, record and reasoning together |
+| Wall clock | about 5 minutes | Estimated |
+| Priced | $0.004 | Table `pricing/2026-10-29.json`, rates for claude-haiku-5-5 (the decider): 8,000 at the cache-write rate of $0.125 per million, plus 6,000 at the output rate of $0.50 per million. No long-context tier, as the decider's context is under 100,000 tokens |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-sonnet-5-5",
+    "target": "claude-sonnet-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 650000,
+    "T": 8,
+    "F": 3000,
+    "O": 1500,
+    "B": 86450,
+    "R": 15000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": null,
+    "Ra": null,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": null,
+    "cost_fresh": null,
+    "cost_split": null,
+    "t_star": null
+  },
+  "draft": null,
+  "guardrails_triggered": [7],
+  "final": {
+    "outcome": "continue",
+    "model": "claude-sonnet-5-5",
+    "effort": "medium",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 8000,
+    "output_tokens": 6000,
+    "minutes": 5,
+    "usd": "0.004"
+  }
+}
+```
