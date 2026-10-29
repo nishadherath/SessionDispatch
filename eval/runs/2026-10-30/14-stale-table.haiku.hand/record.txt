@@ -1,0 +1,142 @@
+## Session dispatch decision
+
+Date: 2026-10-30. Decided by: claude-sonnet-5-5, effort medium, in Claude Code (desktop app).
+Price table: `pricing/2026-10-01.json` (age 29 days, table_date 2026-10-01, max_age_days 14). STALE.
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as of that date |
+| Current model | claude-sonnet-5-5 | Measured: harness report of this session's model, medium effort |
+| Target model | claude-sonnet-5-5 (class sonnet) | Matrix row "scoped module work" (step 3.1). The model id comes from the harness, not the table, because the table is stale and cannot be used. Unconfirmed against the table. |
+| Window W | 1,000,000 | Measured: session usage tool `contextWindow` |
+| Compaction point K | 970,000 | Measured: `autoCompactsAtPercent` 97 times W |
+| Current context C0 | 400,000 | Measured: session usage tool `tokensUsed` |
+| Compacted already | no | Measured: the situation states the session has not been compacted |
+| Unrecorded context | none | The situation says everything the next stage needs is already on disk |
+| Expected turns T | 30 | Plan estimate from the situation. No per-turn measurement exists. |
+| Fresh input per turn F | 3,000 | Estimated: the skill default, unmeasured. A refactor is not in the read-heavy list. |
+| Output per turn O | 1,500 | Estimated: the skill default, assumes medium effort |
+| Fresh baseline B | 86,450 | Measured: usage tool total 400,000 less 'Messages' category, per the situation |
+| Re-read set R | 15,000 | Measured in the situation: the handoff and the module (fresh session reads) |
+| Handoff size H | 2,500 | Estimated: skill default for a handoff under 120 lines (situation gives about 80 lines) |
+| Cache misses M | 0 | Unmeasured, default 0. No review pauses are expected. |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta, re-read Ra | null | Split only. Target is not Opus or Fable, so no split is computed. |
+| Task type | Scoped module work (refactor within one module, test suite as oracle), Sonnet row | Step 3.1 matrix |
+| Design-heavy | no | A refactor with a test oracle; no design choice is named |
+| Irreversible or outward-facing steps | none | The stage writes files and commits locally. Nothing leaves the machine. |
+
+### Step 1.4: the price table is stale
+
+- Table date 2026-10-01, today 2026-10-30: age 29 days, which is more than `max_age_days` (14).
+- Per step 1.4 and guardrail 5, no figure is computed from this table. Cost lines are left null.
+- Refresh step: `node scripts/pricing-new.mjs`, then a fresh `pricing/<today>.json` with the figures.
+- The default applies: continue, same model (claude-sonnet-5-5), same effort (medium). Staleness recorded here.
+
+### Context check without prices (no table needed)
+
+```
+G       = F + O                 = 3,000 + 1,500 = 4,500 tokens per turn (estimated)
+C_end   = C0 + T * G            = 400,000 + 30 * 4,500 = 535,000
+crosses = C_end > K             = 535,000 > 970,000 = false
+C_cont  = C0 + T * G / 2        = 400,000 + 67,500 = 467,500
+C_fresh = B + R + T * G / 2     = 86,450 + 15,000 + 67,500 = 168,950
+```
+
+The context check does not depend on prices. It shows no compaction mid-stage if the session continues.
+
+Step A cost comparison: not computed. `cost_continue`, `cost_fresh`, `cost_split` and `T*` need prices in force.
+
+Draft verdict: none. The default verdict is the outcome, not a draft.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Module refactor (single piece) | sonnet | claude-sonnet-5-5 (harness; table stale) | medium | The module's test suite | Serial | not computed (stale table) |
+
+Serial chain and its wall clock: one piece, 30 turns, estimated, not measured. Operator review time: none expected.
+
+Effort raised or lowered because: no change (matrix default for scoped module work with a test oracle).
+
+Split (step 2.1): not an option. The target is below Opus.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 30 (estimate). Not triggered.
+2. Design-heavy across a compaction: not design-heavy, and no compaction crossed. Not triggered.
+3. Irreversible steps and their approval step: none. Local commits only. Not triggered.
+4. Model chosen from the table, not memory: the id comes from the harness report because the table is stale. Flagged, see Final verdict.
+5. Table age and nulls: table is 29 days old, over 14. Triggered. No computation from the table. Default taken.
+6. Acceptance one class above the author: no acceptance piece. Not triggered.
+7. Decision budget: within budget on the estimates below (about 5 minutes, about 12,000 tokens in total).
+8. Class and effort match the harness: sonnet, medium, matches the harness report. Not triggered.
+
+### Adversarial pass
+
+Not run in full. There is no draft verdict to argue against, and the adverse recomputation needs prices. The opposite verdict, argued in words: a fresh session would start at about 86,450 tokens instead of 400,000, so every turn of the 30 would read a smaller context. The stage has 30 turns and the savings per turn are large, so a handoff could be cheaper. That case cannot be priced here, because the table is stale. It is recorded as open, not decided.
+
+### Questions the operator would be asked (not asked during this run)
+
+Message to the operator, in one message:
+"The price table pricing/2026-10-01.json is 29 days old (limit 14). I have not computed a cost from it. Choose one: (a) give me the current Sonnet figures (input 2 / output 10 / cache read 0.1 / cache write 2.5, or corrected values), and I compute the verdict now; or (b) authorise a live read of the Anthropic pricing page, and I write pricing/2026-10-30.json. Refresh step: node scripts/pricing-new.mjs."
+
+Meanwhile the verdict stands: continue, claude-sonnet-5-5, medium.
+
+### Final verdict
+
+continue, model claude-sonnet-5-5, effort medium, pieces 1 (serial). Default taken under guardrail 5 because the price table is stale. Exact next action: refresh the table with `node scripts/pricing-new.mjs`, or give the figures, then re-run step 2 with this record's inputs. Until then, start the 30-turn refactor in this session.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 400,000 tokens | Measured: session usage tool |
+| Context at end | about 412,000 tokens | Estimated: start plus the reading and writing of this decision |
+| Input tokens read | about 9,000 tokens | Estimated: SKILL.md, decision-record template, price table, handoff template, glob |
+| Output tokens | about 3,000 tokens | Estimated: characters divided by 4 for this record |
+| Wall clock | about 5 minutes | Estimated |
+| Priced | not priced | The only table in the folder is stale (29 days). No price in force, so no USD figure. |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-sonnet-5-5",
+    "target": "claude-sonnet-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 400000,
+    "T": 30,
+    "F": 3000,
+    "O": 1500,
+    "B": 86450,
+    "R": 15000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": null,
+    "Ra": null,
+    "G": null
+  },
+  "table_age_days": 29,
+  "totals": null,
+  "draft": null,
+  "guardrails_triggered": [5],
+  "final": {
+    "outcome": "continue",
+    "model": "claude-sonnet-5-5",
+    "effort": "medium",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 9000,
+    "output_tokens": 3000,
+    "minutes": 5,
+    "usd": "not priced: stale table"
+  }
+}
+```

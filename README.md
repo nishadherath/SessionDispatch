@@ -125,6 +125,12 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-10-30: evaluation runs (Stage H1). 80 sub-agent runs (20 scenarios,
+  Haiku and Sonnet, calculator and hand arms) scored into
+  `eval/results-2026-10-30.md`: final agreement Sonnet 20/20 with the
+  calculator and 17/20 by hand, Haiku 11/20 and 10/20 (n = 20 per cell).
+  No change to the skill; F2 reassesses from
+  `docs/handoffs/2026-10-30-stage-f2-reassessment.md`.
 - 2026-10-30: evaluation runner and scorer (Stage S2). `eval/score.mjs`
   scores one record into the rubric's four measures and writes the report
   with Wilson intervals; `eval/run.mjs` prepares a sandbox and prompt per

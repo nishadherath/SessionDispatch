@@ -1,0 +1,59 @@
+{
+  "scenario": "08-accept-sonnet-work",
+  "subject": "sonnet",
+  "arm": "hand",
+  "outcome_expected": "fresh",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "fresh",
+  "final_ok": true,
+  "draft_ok": true,
+  "guardrails_ok": true,
+  "bound": [
+    6
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [
+    8
+  ],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 4,
+    "correct": 3,
+    "missing": 0,
+    "max_error_usd": 0.0034,
+    "rule_ok": true,
+    "errors": [
+      {
+        "figure": "t_star",
+        "why": "stated where the recompute has none"
+      }
+    ]
+  },
+  "inputs": {
+    "scored": 16,
+    "matched": 16,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 10600,
+    "reported_minutes": 6,
+    "measured_tokens": 88327,
+    "measured_minutes": 2.1841666666666666,
+    "usd_to_decide": 0.0505,
+    "usd_measured": null,
+    "over_cap": true,
+    "report_ratio": 0.12
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "note": "first failed check: arithmetic (t_star)"
+}

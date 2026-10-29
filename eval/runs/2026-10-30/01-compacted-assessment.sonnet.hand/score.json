@@ -1,0 +1,61 @@
+{
+  "scenario": "01-compacted-assessment",
+  "subject": "sonnet",
+  "arm": "hand",
+  "outcome_expected": "fresh",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "fresh",
+  "final_ok": true,
+  "draft_ok": true,
+  "guardrails_ok": true,
+  "bound": [
+    2
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 4,
+    "correct": 2,
+    "missing": 0,
+    "max_error_usd": 1.7438,
+    "rule_ok": true,
+    "errors": [
+      {
+        "figure": "cost_split",
+        "why": "outside half a unit of the last decimal"
+      },
+      {
+        "figure": "t_star",
+        "why": "never, but the recompute is finite"
+      }
+    ]
+  },
+  "inputs": {
+    "scored": 16,
+    "matched": 16,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 7800,
+    "reported_minutes": 8,
+    "measured_tokens": 93926,
+    "measured_minutes": 2.242566666666667,
+    "usd_to_decide": 0.0458,
+    "usd_measured": null,
+    "over_cap": false,
+    "report_ratio": 0.083
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "note": "first failed check: arithmetic (cost_split)"
+}

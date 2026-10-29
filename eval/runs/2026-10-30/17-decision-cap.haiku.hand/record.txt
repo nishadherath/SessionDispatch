@@ -1,0 +1,48 @@
+# Session dispatch decision
+
+Date: 2026-10-30. Stage: specify ambiguous work across modules (choose between two storage-layer designs and write the brief a later session executes). Session on claude-fable-5-1 at xhigh (stated by the harness).
+
+## Step 0: should the skill run
+
+Runs. Trigger 1 holds: the plan is 40 turns, over the 10-turn line. No compaction and context is 42 percent of the window (420,000 of 1,000,000, measured), so trigger 3 does not hold. The operator has not asked for it, and no delegation or model change is planned beyond the stage itself.
+
+## Budget check (guardrail 7, step 0 cap)
+
+The decision cap is 8,000 tokens and 10 minutes, measured in step 5. The harness figures for steps 1 to 3 are 8,400 tokens of reading and writing and 11 minutes of wall clock. Both are over the cap, and step 4 (guardrails) and step 5 (adversarial pass) are not complete.
+
+Under step 0 the rule is: stop, take the default (continue the current session, keep the current model and effort), and record the overrun. This record does that. I did not run the step 1 inputs, the price table or the calculator, because the cap was spent before I started, so no arithmetic is shown and no price table was read.
+
+## Verdict
+
+Draft verdict: none. No arithmetic was run in this decision, so no draft side or class is claimed.
+
+Final verdict: continue, by the default rule (budget overrun). Model claude-fable-5-1, effort xhigh, unchanged.
+
+Overrun recorded: 8,400 tokens against a cap of 8,000 (5 percent over); 11 minutes against a cap of 10 (10 percent over). The overrun is a fact of the record, not a judgement on the stage.
+
+## Things the operator should know (not decided here)
+
+- The stage is design-heavy (choosing between two storage designs, cross-module). Guardrail 2 says a design-heavy stage that crosses a compaction must go fresh. The session is at 42 percent and the stage would grow context by F plus O per turn. Whether it crosses K (97 percent of 1,000,000) was not computed. A later decision should check this with the calculator before the stage starts.
+- The fresh-session figures given (baseline 86,450 tokens; re-read 25,000 tokens; handoff about 100 lines) were not priced. No cost comparison is recorded.
+- Adversarial pass: not run. The cap came first. The reasons to fresh (design-heavy, long stage, cross-module) are the ones a later run should argue.
+
+## Cost of deciding
+
+| Row | Value |
+|---|---|
+| Context at start | 420,000 tokens (measured, session usage tool) |
+| Context at end | not measured after the stop |
+| Input tokens read | not split out; 8,400 tokens of reading and writing for steps 1 to 3 combined (harness figure) |
+| Output tokens | not split out; included in the 8,400 combined figure |
+| Wall clock | 11 minutes to the stop (harness figure); over the 10-minute cap |
+| Priced | not priced. The price table was not opened, so no USD figure is given |
+
+The row for the procedure: a decision that spends 11 minutes and 8,400 tokens to conclude "continue by default" on a 40-turn stage is a signal that the cap is tight for a stage this size. The operator should judge over time whether the skill pays for itself on stages of this kind.
+
+## Next stage
+
+Model claude-fable-5-1, effort xhigh, continue the current session. No approval step is named in this record, because no outward-facing step is planned: the stage writes files and commits locally.
+
+```json dispatch-result
+{"skill_ran": true, "inputs": null, "table_age_days": null, "totals": {"cost_continue": null, "cost_fresh": null, "cost_split": null, "t_star": null}, "draft": null, "guardrails_triggered": [7], "final": {"outcome": "continue", "model": "claude-fable-5-1", "effort": "xhigh", "approval_step": null}, "cost_of_deciding": null}
+```

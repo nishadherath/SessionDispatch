@@ -1,0 +1,54 @@
+{
+  "scenario": "10-band-continue-quality",
+  "subject": "haiku",
+  "arm": "hand",
+  "outcome_expected": "continue",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "continue",
+  "final_ok": true,
+  "draft_ok": false,
+  "guardrails_ok": true,
+  "bound": [],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [
+    7
+  ],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 0,
+    "correct": 0,
+    "missing": 2,
+    "max_error_usd": 0,
+    "rule_ok": false,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 14,
+    "matched": 13,
+    "misses": [
+      "O"
+    ]
+  },
+  "decide": {
+    "reported_tokens": 10900,
+    "reported_minutes": 5,
+    "measured_tokens": 99050,
+    "measured_minutes": 2.2912833333333333,
+    "usd_to_decide": 0.0023,
+    "usd_measured": null,
+    "over_cap": true,
+    "report_ratio": 0.11
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "note": "first failed check: draft"
+}

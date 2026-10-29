@@ -1,0 +1,208 @@
+## Session dispatch decision
+
+Date: 2026-10-30. Decided by: claude-haiku-5-5 (as the situation states), effort medium, in Claude Code desktop app.
+Price table: `pricing/2026-10-29.json` (age 1 day, limit 14; no null in the rows used).
+
+Step 0: runs. T = 20 is over 10 turns (trigger 1). No `scripts/dispatch.mjs` exists in the skill folder given, so everything below is computed by hand.
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as of that date |
+| Current model | claude-haiku-5-5, effort medium | Measured: the harness report in the situation |
+| Target model | claude-haiku-5-5 (class haiku), effort medium | Matrix row 1 (mechanical: apply a reviewed list of edits, check script as oracle), then the table's haiku model |
+| Window W | 1,000,000 | Measured: usage tool contextWindow |
+| Compaction point K | 970,000 | Measured: 97 percent x W (autoCompactsAtPercent 97) |
+| Current context C0 | 90,000 | Measured: usage tool tokensUsed |
+| Compacted already | no | Measured: situation says not compacted |
+| Unrecorded context | none | Situation: everything the next stage needs is on disk |
+| Expected turns T | 20 | Plan estimate in the situation |
+| Fresh input per turn F | 3,000 | Estimated: skill default; no per-turn measurement exists |
+| Output per turn O | 1,500 | Estimated: skill default (measured at high effort; effort here is medium, so likely not larger) |
+| Fresh baseline B | 86,450 | Measured: usage total less Messages category |
+| Re-read set R | 10,000 (handoff and list of edits) | Measured: situation states 10,000 tokens |
+| Handoff size H | 2,500 | Estimated: skill default for a handoff under 120 lines (situation: about 60 lines); unrecorded context is none so nothing added |
+| Cache misses M | 0 | Default, unmeasured; no review pauses expected |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta | n/a | Split not an option (target is below opus) |
+| Acceptance re-read Ra | n/a | Same |
+| Task type | Mechanical, fully specified edit list with check script oracle (matrix row 1) | Situation |
+| Design-heavy | no | Reviewed list of 40 edits, no design choice |
+| Irreversible or outward-facing steps | none | Situation: writes files and commits locally, nothing leaves the machine |
+
+### Step A: continue or hand off
+
+The target class equals the current class and the table gives haiku a long-context tier (threshold 100,000 tokens). B + R = 96,450 is just under the threshold, so the short-path break-even does not apply and the stage is priced turn by turn (step 1.4.5), turn t reading C_start + (t - 1/2) * G.
+
+```
+G       = F + O                 = 3,000 + 1,500 = 4,500
+C_end   = C0 + T * G            = 90,000 + 20*4,500 = 180,000
+crosses = C_end > K             = 180,000 > 970,000 = false
+C_cont  = C0 + T * G / 2        = 90,000 + 45,000 = 135,000   (average, for reference only)
+C_fresh = B + R + T * G / 2     = 96,450 + 45,000 = 141,450   (average, for reference only)
+```
+
+Where the tier bites (turn t context, threshold 100,000):
+
+- Continue: turn t context = 90,000 + 4,500*(t - 0.5). Turn 1 = 92,250, turn 2 = 96,750 (base prices); turn 3 = 101,250 and later (tier). So 2 base turns, 18 tier turns.
+- Fresh: turn t context = 96,450 + 4,500*(t - 0.5). Turn 1 = 98,700 (base); turn 2 = 103,200 and later (tier). So 1 base turn, 19 tier turns. The first read of 96,450 is under the threshold, so cache_write at base.
+
+Prices used (per million): claude-haiku-5-5 base: input 0.10, output 0.50, cache_read 0.01, cache_write 0.125. Tier (whole request over 100,000 tokens): input 0.50, output 2.50, cache_read 0.05, cache_write 0.625. Target and current are the same model. The handoff H is written at context 90,000, under the threshold, so at the base output rate.
+
+cost_continue (no compaction, M = 0, penalty_compaction = 0):
+
+```
+base turns 1-2:  reads 189,000 tok x 0.01 = 0.001890
+                 writes 2*4,500 x 0.125   = 0.001125
+                 output 2*1,500 x 0.50    = 0.001500      subtotal 0.004515
+tier turns 3-20: contexts sum = 18*90,000 + 4,500*198 = 2,511,000
+                 reads 2,511,000 x 0.05   = 0.125550
+                 writes 18*4,500 x 0.625  = 0.050625
+                 output 18*1,500 x 2.50   = 0.067500      subtotal 0.243675
+cost_continue = 0.004515 + 0.243675 = 0.248190 = 0.2482 USD
+```
+
+cost_fresh (L = 0, M = 0, penalty_loss = 0):
+
+```
+handoff        2,500 x 0.50              = 0.001250
+first read     96,450 x 0.125            = 0.012056
+turn 1 (base): reads 98,700 x 0.01 = 0.000987; writes 4,500 x 0.125 = 0.000563;
+               output 1,500 x 0.50 = 0.000750             subtotal 0.002300
+tier turns 2-20 (19): contexts sum = 19*96,450 + 4,500*199.5 = 2,730,300
+                 reads 2,730,300 x 0.05   = 0.136515
+                 writes 19*4,500 x 0.625  = 0.053438
+                 output 19*1,500 x 2.50   = 0.071250      subtotal 0.261203
+cost_fresh = 0.001250 + 0.012056 + 0.002300 + 0.261203 = 0.276808 = 0.2768 USD
+```
+
+T* = (H*p_out + (B+R)*p_cw) / ((C0 - B - R) * p_cr): C0 (90,000) is not above B + R (96,450), so fresh never pays off on cost: T* = never. (Cross-check: the tier is in play, so T* is a reference only; the full computation above governs.)
+
+cost_split: not computed, the target is below opus.
+
+Draft verdict: continue, by cost, margin $0.0286 (0.2768 - 0.2482), 11.5 percent of the smaller (0.0286 / 0.2482), which is over the 10 percent line. Fresh also starts above the tier threshold sooner (one more tier turn) and re-reads 96,450 tokens, which is more than the 90,000 this session already holds.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Apply the 40 reviewed edits, run the check script, commit locally | haiku | claude-haiku-5-5 | medium | The project's check script exits zero; commit made | Single piece, serial | 0.2482 USD (continue, this session) |
+
+Serial chain and its wall clock: one piece, 20 turns; wall clock not measured, a guess is 10 to 20 minutes. Operator review time: none expected (no review pauses).
+
+Effort raised or lowered because: no change. Not raised (no irreversible or outward step, no security, credentials or money, not a merge or release). Not lowered (the matrix already sets medium, and the stage writes to a repository, so never below medium).
+
+Tier note (matrix row 1): B (86,450) is near the 100,000 threshold, so nearly every turn pays the long-context tier on either side. At the tier, Haiku's cost for this stage is 0.2482 USD. Sonnet would cost more at 2.00 / 10.00 / 0.10 / 2.50 without a tier, but that is not computed here because the class comes from the matrix, not from the money, and the class is not raised on budget.
+
+Split (step 2.1): not an option, the target class is haiku, below opus.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 20. Handing off would be allowed, but the cost says continue.
+2. Design-heavy across a compaction: not design-heavy and crosses is false (180,000 against K 970,000). Not binding.
+3. Irreversible steps and their approval step: none (local files and a local commit). No approval step needed. Not binding.
+4. Model chosen from the table, not memory: yes, claude-haiku-5-5 is the table's haiku-class row and is the model the harness reports.
+5. Table age and nulls: 1 day old against 14; no null in the haiku row. Not binding.
+6. Acceptance one class above the author: the oracle is the project's check script, not a model acceptance; no acceptance piece is planned. Not binding.
+7. Decision budget: the cap is 8,000 tokens and 10 minutes. My estimate of the decision is about 13,300 tokens (see Cost of deciding), which is over the cap. The default is continue, same model, same effort, which is the same verdict the arithmetic reached; the overrun is recorded here: OVERRUN, tokens, estimated. This is a guess, not measured.
+8. Class and effort match the harness: yes. This session is haiku at medium, the matrix says haiku at medium, so it continues without a change.
+
+### Adversarial pass
+
+The opposite verdict, argued: hand off. A fresh session would hold only the handoff and the edit list, so its context is clean, there is no 90,000 tokens of history to carry, and the work is 20 mechanical turns, so there is no reasoning to lose. The handoff is cheap at 2,500 tokens. A fresh session would also be insulated from any stale facts in this session. But the baseline B is already 86,450 of the 90,000 here, so a fresh session saves almost nothing in context (3,550 tokens) and has to re-read 96,450 tokens, which is more than this session holds.
+
+Each input, the way it could be wrong:
+
+- C0: measured (90,000). If 30 percent higher (117,000), every turn is on the tier and continue costs more, but fresh still starts at 96,450, so fresh can win; recomputed below.
+- T: plan estimate with no per-turn measure. If it doubles to 40, the fresh side's extra tier turn and its larger context keep it behind (per turn the gap is about 6,450 tokens x 0.05 USD per million, plus the one-off 0.0133 USD handoff and first read), so continue stays ahead and the margin grows.
+- F and O (and the effort O assumes): both are defaults, not measured. Defaults were measured at high effort; effort here is medium so O is probably not under-stated. Tested F = 1,000 below.
+- B and R: B measured, R measured at 10,000. If R were 20,000, fresh is worse still (more read, higher context).
+- M (review pauses): none expected. A miss costs more on the larger fresh context, so any miss favours continue.
+- Task type: a rename of a configuration key across docs with a reviewed list is mechanical. The only hidden design risk would be a key that appears in code, but the list is reviewed and the check script is the oracle. Held as matrix row 1.
+- Prices: table 1 day old. The long-context tier is applied turn by turn, not on an average. If the tier were ignored (all base prices), continue would cost 0.0533 USD and fresh 0.0678 USD (27 percent apart), so continue wins either way.
+- Unrecorded context: none, because the situation says everything is on disk. If something were unrecorded, writing it down would raise H and L would rise for fresh only.
+
+Recomputed with the adverse value that moves the result most (F = 1,000, so G = 2,500, which lets the stage spend more turns under the threshold and so narrows the tier penalty):
+
+```
+continue: base turns 1-4 (contexts 91,250 / 93,750 / 96,250 / 98,750) = 0.00805
+          tier turns 5-20 (16 turns, contexts sum 2,400,000)          = 0.18100
+cost_continue = 0.18905 USD
+
+fresh:    handoff 0.00125 + first read 0.01206 + turn 1 (base) 0.00204
+          + tier turns 2-20 (19 turns, contexts sum 2,331,300)        = 0.21740
+cost_fresh    = 0.23275 USD
+```
+
+Continue is lower by 0.0437 USD, which is 23.1 percent of the smaller. The gap is wider, not narrower.
+
+Verdict holds: yes. No input crosses the 10 percent line in fresh's favour or trips a guardrail.
+
+### Final verdict
+
+continue, model claude-haiku-5-5, effort medium, pieces 1 (serial). Exact next action: continue in this session; apply the 40 reviewed edits, run the project's check script after the batch, fix any failure it reports, then commit locally. Nothing leaves the machine, so no human approval step is needed. After the commit, write the stage handoff as the project's protocol requires.
+
+Meanwhile questions: none for the operator. If the 8,000-token cap was in fact exceeded, as estimated, the overrun is recorded and the default coincides with the verdict.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 90,000 tokens | Usage tool figure in the situation (the subject session's own start) |
+| Context at end | about 103,300 tokens | Estimate: start plus input read plus output written; not measured |
+| Input tokens read | about 9,800 | Estimate by characters / 4: SKILL.md about 6,400, price table about 1,800, record template about 1,100, folder listing about 500 |
+| Output tokens | about 3,500 | Estimate by characters / 4: this record |
+| Wall clock | about 6 minutes | Estimate, not measured |
+| Priced | 0.0030 USD (input 9,800 x 0.125 per million = 0.00123; output 3,500 x 0.50 per million = 0.00175) | table `pricing/2026-10-29.json`, claude-haiku-5-5 base rates |
+
+The decision costs 0.003 USD against a stage of 0.248 USD, about 1.2 percent. It is worth running for a 20-turn stage.
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-haiku-5-5",
+    "target": "claude-haiku-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 90000,
+    "T": 20,
+    "F": 3000,
+    "O": 1500,
+    "B": 86450,
+    "R": 10000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": null,
+    "Ra": null,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "0.2482",
+    "cost_fresh": "0.2768",
+    "cost_split": null,
+    "t_star": "never"
+  },
+  "draft": {
+    "side": "continue",
+    "by": "cost"
+  },
+  "guardrails_triggered": [7],
+  "final": {
+    "outcome": "continue",
+    "model": "claude-haiku-5-5",
+    "effort": "medium",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 9800,
+    "output_tokens": 3500,
+    "minutes": 6,
+    "usd": "0.0030"
+  }
+}
+```

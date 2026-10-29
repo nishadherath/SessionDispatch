@@ -1,0 +1,58 @@
+{
+  "scenario": "15-null-price",
+  "subject": "haiku",
+  "arm": "hand",
+  "outcome_expected": "incomplete",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "continue",
+  "final_ok": false,
+  "draft_ok": null,
+  "guardrails_ok": false,
+  "bound": [
+    5
+  ],
+  "bound_failed": [
+    5
+  ],
+  "g4_ok": true,
+  "false_alarms": [
+    7
+  ],
+  "arithmetic": {
+    "scored": false,
+    "reason": "a price is null",
+    "stated": 0,
+    "correct": 0,
+    "missing": 0,
+    "max_error_usd": null,
+    "rule_ok": null,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 14,
+    "matched": 13,
+    "misses": [
+      "target"
+    ]
+  },
+  "decide": {
+    "reported_tokens": 11000,
+    "reported_minutes": 8,
+    "measured_tokens": 104077,
+    "measured_minutes": 2.5334166666666667,
+    "usd_to_decide": 0.0025,
+    "usd_measured": null,
+    "over_cap": true,
+    "report_ratio": 0.106
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "note": "first failed check: final.outcome"
+}

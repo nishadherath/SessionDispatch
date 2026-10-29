@@ -1,0 +1,144 @@
+## Session dispatch decision
+
+Date: 2026-10-30. Decided by: claude-sonnet-5-5, effort medium, in Claude Code (desktop app).
+Price table: `pricing/2026-10-29.json` (age 1 day, max 14).
+
+### Budget check (step 0 and the decision cap)
+
+The skill runs: the coming stage is 15 turns, over the 10-turn trigger (step 0, item 1).
+
+The cap is 8,000 tokens of reading and writing for the decision. By the
+cost-of-deciding definition ("everything you read for the decision"), the
+reading is about 9,000 tokens (SKILL.md about 6,800, the decision template
+about 1,000, the price table about 1,000, plus the listing about 200; all
+estimates at 1 token per 4 characters of prose and 1 per 3.5 of JSON). Reading
+alone is over the cap, and this happened before step 4 was complete. Under
+guardrail 7 and step 1.1's budget rule, the default applies: continue, keep the
+current model and effort, and record the overrun. The steps 1 to 5 arithmetic is
+therefore not run. No totals or draft verdict are written below.
+
+The overrun is recorded for the operator. The skill's own text is most of the
+reading, so the cap may be too small for a first-time read of this skill. A
+re-run with the cap raised, or with the skill already read, would need the
+steps below.
+
+### Inputs gathered (not used in arithmetic)
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as of that date |
+| Current model | claude-sonnet-5-5, effort medium | Harness report (situation) |
+| Target model | not chosen (step 3.1 not reached) | n/a |
+| Window W | 1,000,000 | Measured: session usage tool `contextWindow` |
+| Compaction point K | 970,000 | Measured: `autoCompactsAtPercent` 97 times W |
+| Current context C0 | 400,000 | Measured: usage tool `tokensUsed` |
+| Compacted already | no | Situation: not compacted |
+| Unrecorded context | none | Situation: everything the next stage needs is on disk |
+| Expected turns T | 15 | Plan estimate (situation) |
+| Fresh input per turn F | 2,000 | Measured on a similar chore last week (situation) |
+| Output per turn O | 1,000 | Measured on a similar chore last week. Effort of that chore not stated; treat as an estimate at high effort |
+| Fresh baseline B | 86,450 | Measured: usage tool total less its Messages category (situation) |
+| Re-read set R | 8,000 | Situation: handoff and patch |
+| Handoff size H | 2,500 | Step 1.2 default for a handoff under 120 lines (situation: about 60 lines) |
+| Cache misses M | 0 | No measurement; no review pauses expected (situation) |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta, re-read Ra | not used | Split not reached |
+| Task type | mechanical (apply reviewed patch, run check script) with an outward-facing push and tag | Step 3.1 row 1, not yet applied |
+| Design-heavy | no | Situation |
+| Irreversible or outward-facing steps | push of branch main to origin; create and push tag v1.4.0 on origin | Situation. No standing approval in this project |
+
+Price table age: 2026-10-30 less 2026-10-29 is 1 day. No null price is
+needed for the two classes in play (sonnet and haiku rows are filled).
+
+### Not computed
+
+Step A (cost_continue, cost_fresh, T*), step B, the split, and the adversarial pass
+are not run, because the decision cap was exceeded before step 4. The default
+verdict below stands on the cap, not on arithmetic.
+
+Note for a re-run: the matrix row for this stage is mechanical, so the target
+would be Haiku at high effort (one step up for the outward-facing push and the
+release). B = 86,450 is near Haiku's 100,000 long-context threshold, so every
+turn past the threshold would pay the tier price, and the Haiku advantage would
+narrow. The re-run must price turn by turn, not on the average.
+
+### Verdict
+
+Draft verdict: none. The default applies (step 1.1 and guardrail 7).
+
+Final verdict: continue, model claude-sonnet-5-5, effort medium, pieces 1
+(serial). Exact next action: apply the reviewed patch to the four files, run
+`node scripts/check.mjs` and quote its counts. Do not push or create tag
+v1.4.0 until the operator says yes.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 15.
+2. Design-heavy across a compaction: not design-heavy; no compaction.
+3. Irreversible steps and their approval step: the push to origin and the tag v1.4.0 are outward-facing. Approval step: the operator's yes in chat, given for these two steps specifically. No standing approval exists in this project.
+4. Model chosen from the table, not memory: the model is the current one, from the harness report.
+5. Table age and nulls: age 1 day; no null needed.
+6. Acceptance one class above the author: no acceptance piece.
+7. Decision budget: exceeded (see the budget check). Default taken; overrun recorded.
+8. Class and effort match the harness: yes, the current session is sonnet-5-5 at medium. No change.
+
+### Adversarial pass
+
+Not run, for the reason above.
+
+### Operator asks (not answered in this run)
+
+1. Approve the push of branch main to origin and the creation and push of tag v1.4.0 on origin, after the check script exits zero. Meanwhile: do not push or tag.
+2. Decide whether the 8,000-token decision cap should cover the reading of this skill. Meanwhile: take the default (continue).
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 400,000 | Measured: usage tool, when step 1 began |
+| Context at end | about 413,000 | Estimate: 400,000 plus about 9,000 read plus about 4,000 written |
+| Input tokens read | about 9,000 | Estimate, 1 token per 4 characters (prose) and 1 per 3.5 (JSON) |
+| Output tokens | about 4,000 | Estimate: characters divided by 4, including reasoning |
+| Wall clock | about 4 minutes | Estimate |
+| Priced | about 0.06 USD | Estimate: input 9,000 at the Sonnet cache-write rate of 2.5 per million, plus output 4,000 at 10 per million; table `pricing/2026-10-29.json` |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-sonnet-5-5",
+    "target": null,
+    "W": 1000000,
+    "K": 970000,
+    "C0": 400000,
+    "T": 15,
+    "F": 2000,
+    "O": 1000,
+    "B": 86450,
+    "R": 8000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": null,
+    "Ra": null,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": null,
+  "draft": null,
+  "guardrails_triggered": [7],
+  "final": {
+    "outcome": "continue",
+    "model": "claude-sonnet-5-5",
+    "effort": "medium",
+    "approval_step": "Operator's yes in chat before the push of branch main to origin and before creating and pushing tag v1.4.0 on origin"
+  },
+  "cost_of_deciding": {
+    "input_tokens": 9000,
+    "output_tokens": 4000,
+    "minutes": 4,
+    "usd": "0.06"
+  }
+}
+```

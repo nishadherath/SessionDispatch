@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, eleventh update, by the Fable coordinating session (claude-fable-5-1, xhigh) after the operator answered D7.
+Last updated: 2026-10-30, twelfth update, by the H1 session (claude-sonnet-5-5, medium) at the close of Stage H1.
 
 ## Done
 
@@ -21,12 +21,13 @@ Last updated: 2026-10-30, eleventh update, by the Fable coordinating session (cl
 | Stage F1: adversarial acceptance of Stage O1 | 2026-10-29 | `docs/acceptance-2026-10-29-stage-o1.md`: step 2 derived by hand, every figure recomputed without the shared module, guardrails re-read, calculator probed, four gate mutations caught. Fourteen claims accepted, none rejected. Six findings handed on (fresh-side fixed cost understated by 2 to 11 percent of the smaller side; reasoning retention unmeasured; the gate's recompute stops at totals; three effort rules for acceptance; two sentences for step 2.1; one claim's wording). Commit `17c9526`. Gate 59 files, 0 findings. About 25 minutes; about 5 USD counting visible output, about 7.4 with reasoning (estimate). |
 | Stage O2: evaluation design | 2026-10-30 | `eval/`: 20 scenarios the calculator scores (every matrix row, every final outcome, guardrails 1 to 3 and 5 to 8 binding, a stale fixture table, a null price, the cap, the band, growth F plus visible output), `rubric.md` (four measures scored from a result block, no model in the loop), `subject-prompt.md`, an index. The gate's `checkEval` reruns the calculator on each scenario; `scripts/eval.test.mjs` seeds three faults. The scorer's recompute path reproduces all 18 computable scenarios. Gate 87 files, 0 findings; 24 tests pass. S2 handoff written. About 40 minutes. |
 | Stage S2: evaluation runner and scorer | 2026-10-30 | `eval/score.mjs` (the four measures, Wilson intervals, the report), `eval/run.mjs` (`prepare`, `usage`, `collect`, `score`), `scripts/eval-score.test.mjs` (a perfect block on all 20 scenarios, seven mutations, the Wilson values, sandbox dating). Dry run, scenario 03 on a Haiku and a Sonnet sub-agent, calculator arm: both continue, 3 of 3 figures correct, 14 of 14 inputs matched (`eval/results-2026-10-30.md`). Four open facts settled in the H1 handoff. Gate 89 files, 0 findings; 31 tests pass. About 40 minutes; about 2.4 USD by the calculator at T 45 (estimate), subjects' split unreported. H1 handoff written. |
+| Stage H1: evaluation runs | 2026-10-30 | 80 sub-agent runs scored (D7 = B; Haiku failed by hand, so the Sonnet hand arm ran): `eval/results-2026-10-30.md`. Final agreement, n = 20 per cell: Sonnet 20/20 with the calculator and 17/20 by hand; Haiku 11/20 and 10/20. Haiku fails with or without the calculator (mostly `continue` for `fresh`). Cap exceeded in 11 to 19 of 20 runs per cell; two runs unscorable (null `target`); sub-agents load `AGENTS.md` and `MEMORY.md` (validity threat). Commits `60a87f2` and the one after it. Gate 90 files, 0 findings; 31 tests pass. About 33 minutes wall clock (session created 14:07 UTC, last usage read about 14:40 UTC); about 6.3 USD (estimate: orchestration 4.0, subjects 2.3 on the harness token totals). F2 handoff written. |
 
 ## In progress
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| H1: evaluation runs | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-h1-eval-runs.md`; session `local_e0fdc95a`, name `stage-h1`, sharing this checkout; S2's commit `00b6b6d` pushed. Runs the 40 calculator-arm runs first, then under D7 = B the Haiku hand arm (20), and the Sonnet hand arm only if Haiku fails by hand | Sonnet, medium | this checkout, `main` | 30 to 60 min; 6 to 20 USD by D7 (estimate) |
+| F2: reassessment on the evaluation results | to be started by the coordinating session from `docs/handoffs/2026-10-30-stage-f2-reassessment.md` (status ready) | Fable, high | this checkout, `main` | 60 to 120 min; about 17.7 USD at T 60 (calculator) |
 
 Stage S1 is merged into `main` (`73393b8`): the installer ships `scripts/`,
 has `--check` and `--seed`, and `npm test` runs 22 tests; the gate takes

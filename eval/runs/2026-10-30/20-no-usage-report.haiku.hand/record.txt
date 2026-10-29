@@ -1,0 +1,95 @@
+## Session dispatch decision
+
+Date: 2026-10-30. Decided by: claude-haiku-5-5, effort not stated, in a generic agent harness. The session being decided is on claude-sonnet-5-5, effort medium, in the same harness.
+Price table: `pricing/2026-10-29.json` (age 1 day).
+
+Step 0: the skill runs. Trigger 1 holds: the coming stage is expected to take 30 turns, more than 10.
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as of that date |
+| Current model | claude-sonnet-5-5, effort medium | Harness report (measured) |
+| Target model | claude-sonnet-5-5 | Step 3.1 row "scoped module work with a stated test" gives Sonnet, medium. The table's sonnet row is claude-sonnet-5-5. |
+| Window W | 200,000 | Model documentation (documented, not a usage report) |
+| Compaction point K | 180,000 | Estimated. The harness documents no compaction point, so step 1.1 gives 0.9 W. |
+| Current context C0 | 115,000 | Estimated from characters (no usage report): system prompt and tools 80,000 prose characters / 4 = 20,000; messages and tool results 220,000 prose characters / 4 = 55,000 and 140,000 code characters / 3.5 = 40,000. Sum 115,000. |
+| Compacted already | no | The situation says the session has not been compacted. |
+| Unrecorded context | none | The situation says everything the next stage needs is already in files on disk. |
+| Expected turns T | 30 | Plan estimate in the situation (no per-turn measurement). |
+| Fresh input per turn F | 3,000 | Default for an unmeasured stage (estimated). |
+| Output per turn O | 1,500 | Default for an unmeasured stage at medium effort (estimated). |
+| Fresh baseline B | 25,000 | Default, no baseline measured for this harness and project (estimated). |
+| Re-read set R | 22,500 | Handoff 10,000 prose characters / 4 = 2,500; module files 70,000 code characters / 3.5 = 20,000. Total 22,500 (estimated). Project instruction files are not in the situation and are not counted. |
+| Handoff size H | 2,500 | Default for a handoff under 120 lines; the planned handoff is about 80 lines (estimated). |
+| Cache misses M | 0 | No review pauses expected and no miss measurement exists. |
+| Rediscovery turns L | 0 | The unrecorded list is empty. |
+| Acceptance turns Ta, re-read Ra | not applicable | Split only; the target is not Opus or Fable. |
+| Task type | Scoped module refactor with a test-suite oracle (matrix row 2) | Situation |
+| Design-heavy | no | A refactor within one module; no design choice or cross-module change is stated. |
+| Irreversible or outward-facing steps | none | Local writes and local commits only; nothing leaves the machine. |
+
+### Why the procedure stops at this point
+
+The decision has a budget of 8,000 tokens of reading and writing (step 0, guardrail 7). Reading alone used:
+
+- `SKILL.md`, 24,727 bytes;
+- `pricing/2026-10-29.json`, 4,146 bytes;
+- `templates/decision-record.md`, 3,689 bytes.
+
+At 4 characters per token, that is about 8,100 tokens (estimate, not measured), before any working or writing. The cap is passed before step 2 can begin. Step 0 says to stop, take the default (continue the current session, keep the current model and effort) and record the overrun. Steps 2 to 5 are therefore not carried out.
+
+Two further points for the operator. The copy of the skill in this run has no `scripts/` folder, so `dispatch.mjs` could not run and the arithmetic would have had to be done by hand. The `templates/` folder and `examples/` folder were not needed for the stop.
+
+### Draft verdict
+
+Draft verdict: continue (default, budget overrun), by null. Margin: not computed.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 30.
+2. Design-heavy across a compaction: not applicable, the stage is not design-heavy.
+3. Irreversible steps and their approval step: none. Local commits only, so no approval step is named.
+4. Model chosen from the table, not memory: claude-sonnet-5-5, from the sonnet row of `pricing/2026-10-29.json`.
+5. Table age and nulls: 1 day old, under the 14-day limit. The sonnet row has no null.
+6. Acceptance one class above the author: not applicable, no acceptance piece in the plan.
+7. Decision budget: BINDING. Reading alone was about 8,100 tokens (estimate) against a cap of 8,000. The default was taken and the overrun recorded.
+8. Class and effort match the harness: the plan keeps claude-sonnet-5-5 at medium, which matches the session's reported model and effort.
+
+### Adversarial pass
+
+Not performed. The procedure stopped at the budget before step 4. The one open question found is in the formula, not in the inputs: `penalty_compaction` is priced only on the continue side. A fresh session would end at about B + R + T * G, which may also pass K. The skill owner should say whether the fresh side pays that penalty too. A harness usage report would also settle C0 and B, the two inputs that depend most on estimation.
+
+### Step B: plan (default, one piece)
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Refactor within the module | Sonnet | claude-sonnet-5-5 | medium | the module's test suite | serial | not computed |
+
+Serial chain and its wall clock: the 30 turns of this session, duration not estimated. Operator review time: none expected.
+Effort raised or lowered because: no change. No irreversible step, and a repository writer never goes below medium.
+Split (step 2.1): not an option. The target is not Opus.
+
+### Final verdict
+
+continue, model claude-sonnet-5-5, effort medium, pieces 1 (serial). Exact next action: continue the refactor in this session against the module's test suite, commit locally once the tests pass, and write the handoff at the stage end.
+
+### Operator question (not asked, nobody answers in this run)
+
+I would ask: "Can the harness supply a usage report (measured W, K, C0 and a fresh-session baseline B), or should the 8,000-token cap be raised for this harness?" Meanwhile the verdict is the default: continue, same model, same effort.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | not reported | Harness reports no token usage. The 115,000 in the inputs is the session's context, not this decision's. |
+| Context at end | not reported | As above. |
+| Input tokens read | about 8,200 | Estimate: the three files read, sized at 4 characters per token, plus the folder listing. |
+| Output tokens | about 2,500 (record only) | Estimate: the record characters / 4. Reasoning is not counted and is probably larger, so this figure is low. |
+| Wall clock | about 6 minutes | Estimate, not measured. |
+| Priced | USD 0.0023 | Input 8,200 tokens at the Haiku cache-write rate of 0.125 per million (USD 0.0010), plus output 2,500 tokens at the Haiku output rate of 0.5 per million (USD 0.0013). Table `pricing/2026-10-29.json`. |
+
+```json dispatch-result
+{"skill_ran": true, "inputs": {"current": "claude-sonnet-5-5", "target": "claude-sonnet-5-5", "W": 200000, "K": 180000, "C0": 115000, "T": 30, "F": 3000, "O": 1500, "B": 25000, "R": 22500, "H": 2500, "M": 0, "L": 0, "compacted": false, "Ta": null, "Ra": null, "G": null}, "table_age_days": 1, "totals": null, "draft": {"side": "continue", "by": null}, "guardrails_triggered": [7], "final": {"outcome": "continue", "model": "claude-sonnet-5-5", "effort": "medium", "approval_step": null}, "cost_of_deciding": {"input_tokens": 8200, "output_tokens": 2500, "minutes": 6, "usd": "0.0023"}}
+```

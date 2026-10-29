@@ -1,0 +1,54 @@
+{
+  "scenario": "14-stale-table",
+  "subject": "sonnet",
+  "arm": "hand",
+  "outcome_expected": "continue",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "continue",
+  "final_ok": true,
+  "draft_ok": null,
+  "guardrails_ok": true,
+  "bound": [
+    5
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [
+    7
+  ],
+  "arithmetic": {
+    "scored": false,
+    "reason": "stale table (29 days old)",
+    "stated": 0,
+    "correct": 0,
+    "missing": 0,
+    "max_error_usd": null,
+    "rule_ok": null,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 0,
+    "matched": 0,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 10100,
+    "reported_minutes": 3,
+    "measured_tokens": 82567,
+    "measured_minutes": 1.709,
+    "usd_to_decide": 0.0365,
+    "usd_measured": null,
+    "over_cap": true,
+    "report_ratio": 0.122
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "note": ""
+}

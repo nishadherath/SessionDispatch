@@ -1,0 +1,171 @@
+## Session dispatch decision
+
+Date: 2026-10-30. Decided by: claude-haiku-5-5, effort not set by the harness (default), in an evaluation subagent. Session being dispatched: claude-fable-5-1 at effort high, Claude Code desktop app.
+Price table: `pricing/2026-10-29.json` (age 1 day, max 14).
+
+### Step 0: does the skill run
+
+Runs. Triggers: the stage is 50 turns (over 10), the model class changes (fable to opus or sonnet), and work is delegated to other sessions (trigger 4).
+
+Decision budget (8,000 tokens, 10 minutes): the decision's own reading (the price table, the record template, the situation) and writing come to about 3,500 tokens (estimate). The procedure text itself (about 6,500 tokens, estimate) is the instrument and is not counted here. See the question below. Wall clock about 8 minutes (estimate).
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as in force (G = F + O, cache-miss term) |
+| Current model | claude-fable-5-1, effort high | Measured: harness report for the session |
+| Target model | claude-opus-5-5 (class opus) | Matrix row 3 (cross-module, design-heavy): opus. Split run: claude-sonnet-5-5. Split acceptance: claude-opus-5-5 |
+| Window W | 1,000,000 | Measured: usage tool `contextWindow` |
+| Compaction point K | 970,000 | Measured: `autoCompactsAtPercent` 97 times W |
+| Current context C0 | 350,000 | Measured: usage tool `tokensUsed` |
+| Compacted already | no | Measured: the session has not been compacted |
+| Unrecorded context | none | Situation: everything the next stage needs is in files on disk |
+| Expected turns T | 50 | Plan estimate in the situation; no per-turn measurement exists |
+| Fresh input per turn F | 3,000 | Default, unmeasured (not a read-heavy stage) |
+| Output per turn O | 3,000 | Writing-heavy default (the stage writes code), estimate, assumes high effort; tested at 6,000 and 1,500 in step 5 |
+| Fresh baseline B | 86,450 | Measured: a fresh session starts at this figure (situation) |
+| Re-read set R | 30,000 | Situation: design note, handoff and modules a fresh session reads |
+| Handoff size H | 2,500 | Default for a handoff under 120 lines (situation: about 110 lines) |
+| Cache misses M | 0 | No measurement; no review pauses expected (situation) |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta | 15 | Situation estimate |
+| Acceptance re-read Ra | 40,000 | Situation: brief, diff and test output |
+| Task type | cross-module change implementing a finished design (matrix row 3, opus); the split run is scoped module work with a stated test (row 2) | Situation: the design note states each contract and 14 tests |
+| Design-heavy | yes | Cross-module change (step 1.2 definition) |
+| Irreversible or outward-facing steps | none | Situation: local file writes and local commits only; nothing leaves the machine |
+
+Prices (USD per million tokens, table in force): claude-fable-5-1 input 10, output 50, cache read 0.25, cache write 12.5. claude-opus-5-5 input 4, output 20, cache read 0.2, cache write 5. claude-sonnet-5-5 input 2, output 10, cache read 0.1, cache write 2.5. Neither the fable, opus nor sonnet row has a long-context tier.
+
+### Step A: continue or hand off
+
+```
+G       = F + O                  = 3,000 + 3,000 = 6,000 tokens per turn
+C_end   = C0 + T * G             = 350,000 + 50 * 6,000 = 650,000
+crosses = C_end > K              = 650,000 > 970,000 is false
+C_cont  = C0 + T * G / 2         = 350,000 + 150,000 = 500,000
+C_fresh = B + R + T * G / 2      = 86,450 + 30,000 + 150,000 = 266,450
+
+cost_continue (fable prices)
+  = 50 * 500,000 * 0.25 / 1e6    = 6.25
+  + 50 * 6,000 * 12.5 / 1e6      = 3.75
+  + 50 * 3,000 * 50 / 1e6        = 7.50
+  + M term 0, penalty 0
+  = 17.50 USD
+
+cost_fresh (H at fable output 50; the rest at opus prices)
+  = 2,500 * 50 / 1e6             = 0.125   (brief written here)
+  + 116,450 * 5 / 1e6            = 0.582   ((B+R) cache write)
+  + 50 * 266,450 * 0.2 / 1e6     = 2.665   (cache reads)
+  + 50 * 6,000 * 5 / 1e6         = 1.50    (growth written)
+  + 50 * 3,000 * 20 / 1e6        = 3.00    (output)
+  + penalty_loss 0
+  = 7.87 USD
+
+T* = n/a: the model changes (fable to opus), so the break-even short path does not apply.
+```
+
+Target class opus is below the current fable class, so the rule "fresh by class" does not apply. Continue costs 17.50 USD and fresh costs 7.87 USD. Fresh is lower by 9.63 USD, which is 122 percent of the smaller side, so fresh wins on cost.
+
+Draft verdict: fresh, by cost, margin 9.63 USD, 122 percent of 7.87 USD.
+
+### Step A, split comparison (step 2.1)
+
+The target class is opus, so the split is priced. The brief can carry the contract for each changed function, the 14 tests and the observable definition of done, and no module touched handles auth, payments, storage formats or a public interface. The split is therefore an option.
+
+```
+cost_split = brief                                              0.125
+           + run at sonnet (in 2, out 10, cr 0.1, cw 2.5):
+               (B+R) * 2.5 / 1e6                                0.291
+             + 50 * 266,450 * 0.1 / 1e6                         1.332
+             + 50 * 6,000 * 2.5 / 1e6                           0.750
+             + 50 * 3,000 * 10 / 1e6                            1.500
+           + acceptance at opus (Ta = 15, Ra = 40,000):
+               (B+Ra) * 5 / 1e6 = 126,450 * 5 / 1e6             0.632
+             + reads: 15 * (126,450 + 15 * 6,000 / 2) * 0.2 / 1e6 0.514
+             + growth written: 15 * 6,000 * 5 / 1e6             0.450
+             + output: 15 * 3,000 * 20 / 1e6                    0.900
+           = 6.49 USD
+```
+
+Split (6.49 USD) against fresh (7.87 USD): split is 1.38 USD lower, 21.2 percent of the split figure. That is more than 10 percent, so the split is the plan.
+
+Time for the split: writing the brief and committing it takes about 10 minutes; each fresh session takes about 5 minutes to read. The operator starts each fresh session (no autonomy answer is recorded in this run, so the sessions are proposed as cards, not started here).
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (table) | Effort | Oracle | Serial or parallel | Cost (USD) |
+|---|---|---|---|---|---|---|
+| 1. Brief: contract per changed function, 14 tests, definition of done, model id and effort on the first lines | (this session) | claude-fable-5-1 | high | The brief file is on disk and committed | First | 0.125 |
+| 2. Run: implement the design in the changed modules | Sonnet (matrix row 2) | claude-sonnet-5-5 | medium | `node scripts/check.mjs` exits 0 and the 14 listed tests pass | After 1 | 3.87 |
+| 3. Acceptance: review the diff against the design note and the brief | Opus, one class above the author (guardrail 6) | claude-opus-5-5 | high | Verdict on the diff, the test output and the contract of each changed function | After 2 | 2.50 |
+
+Serial chain: 1, then 2, then 3. Wall clock: brief 10 minutes, then a fresh session start and read of 5 minutes, then the run over 50 turns (not measured: no per-turn measurement), then an acceptance read of 5 minutes, then 15 turns (not measured). Operator review time: none expected during the stage.
+
+Effort: piece 2 stays at medium, since no module touches auth, payments, storage or a public interface, and a repository write is never lowered below medium. Piece 3 stays at high, since the stage is a local commit, not a merge or release (xhigh is for those). No change from the matrix.
+
+Split (step 2.1): an option and the plan, cheaper than fresh by 21.2 percent.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 50. Does not bind.
+2. Design-heavy across a compaction: design-heavy yes; crosses is false (C_end 650,000 under K 970,000); not compacted. Does not bind.
+3. Irreversible steps and approval: none. Local commits only. No approval step is needed. Does not bind.
+4. Model from the table, not memory: claude-fable-5-1, claude-opus-5-5 and claude-sonnet-5-5 all come from `pricing/2026-10-29.json`. Does not bind.
+5. Table age and nulls: 1 day old (limit 14); no null in the rows used. Does not bind.
+6. Acceptance one class above the author: the author is Sonnet, so acceptance is Opus at high. Binds: it sets piece 3 and needs its own line in the plan.
+7. Decision budget: about 3,500 tokens and about 8 minutes on the decision's own reading and writing, within the cap. Does not bind (see the question below).
+8. Class and effort match the harness: the harness reports claude-fable-5-1 at high. Each fresh session states its model id and effort on its first lines and stops on a mismatch. Binds: this needs a line in the brief and the plan.
+
+### Adversarial pass
+
+The opposite verdict, argued: continue on the current model. The design context lives in this session and the brief must rebuild part of it, so the split adds two cold starts, two handoffs that can each be wrong, and a Sonnet run whose failure costs the split plus a full Opus run. The saving is 1.38 USD on a 6.49 USD plan, and the stage is cross-module, so the matrix puts it at opus. Continuing costs 17.50 USD, which the operator may accept for one fewer handoff.
+
+Each input, the way it could be wrong:
+
+- C0: measured (350,000). If 30 percent high (455,000), continue rises to 18.81 USD and fresh is unchanged. Holds.
+- T: plan estimate. If it doubles to 100 turns, continue 38.75, fresh 18.04, split 11.58 (C_end 950,000 is still under K). Holds, and the margin grows.
+- F and O: defaults. At O 6,000 (xhigh-like reasoning): continue 27.81, fresh 12.42, split 9.93. At O 1,500: continue 12.34, fresh 5.62, split 4.77. Holds in both.
+- B and R: B is measured, R is from the situation. Doubling R to 60,000 adds 0.58 USD to fresh and 0.29 USD to the run. Holds.
+- M (review pauses): none expected. One forced miss adds 6.13 USD to continue (500,000 * 12.25 / 1e6), 1.28 USD to fresh and 0.64 USD to the run. Holds, and the margin widens.
+- Task type: the largest risk. The split assumes the Sonnet run succeeds. If it fails on reasoning, the fresh opus run (about 7.87 USD) is paid on top of the split (6.49 USD). The break-even failure rate is about 18 percent (estimate, no measured failure rate exists). The brief's contract and tests lower this risk, and the brief's escalation rule covers it (below).
+- Prices: 1 day old; no long-context tier applies to these rows. Holds.
+- Unrecorded context: the list is empty per the situation. If the run needed 5 turns of rediscovery, the run adds 0.36 USD. Holds.
+
+Recomputed with the input that moves the arithmetic most, T at 100:
+
+```
+cost_continue = 38.75
+cost_fresh    = 18.04
+cost_split    = 11.58
+```
+
+The verdict holds: split is still the plan. The split's real flip point is a failed Sonnet run (about 18 percent, estimate), which is a risk, not an arithmetic input. The verdict does not change on it. The plan states the escalation rule instead: if piece 2 fails on reasoning rather than on a typo, stop, and run the work as a fresh opus session at high, with the cost noted as the fresh side plus the wasted split.
+
+Verdict holds: yes, on the arithmetic. No input flips it.
+
+### Final verdict
+
+Split, three pieces, serial: model claude-sonnet-5-5, effort medium for the run (piece 2), then claude-opus-5-5 at high for acceptance (piece 3). Exact next action: this session writes the brief (about 110 lines) from the design note with the model id and effort on its first lines, the contract of each changed function, the 14 tests, the check-script oracle and the escalation rule, then commits it locally (no push). The operator then starts piece 2 at claude-sonnet-5-5, medium, with the brief path.
+
+No approval step is named, because the stage has no irreversible or outward step.
+
+### Questions for the operator (not answered in this run)
+
+1. Does the procedure text count toward the 8,000-token decision cap? This record counts the decision's own reading and writing (about 3,500 tokens) and not the procedure text (about 6,500 tokens, estimate). Meanwhile the verdict above stands. If the operator counts the procedure text, the decision is about 10,000 tokens, past the cap, and guardrail 7 gives the default: continue on claude-fable-5-1 at high, with the overrun recorded.
+2. Are fresh sessions started by this session? No autonomy answer is recorded. Meanwhile the two fresh sessions are proposed as cards for the operator to start.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | not measured (this subagent has no usage tool) | Estimate |
+| Context at end | not measured | Estimate: about 8,500 read plus 2,000 written |
+| Input tokens read | 8,500 | Estimate by characters divided by 4: procedure about 6,500, price table about 1,000, template about 1,000 |
+| Output tokens | 2,000 | Estimate by characters divided by 4: this record and its block |
+| Wall clock | 8 minutes | Estimate |
+| Priced | 0.0021 USD | Haiku 5.5 rates from table `pricing/2026-10-29.json`: 8,500 input at 0.125 per million plus 2,000 output at 0.5 per million |
+
+```json dispatch-result
+{"skill_ran": true, "inputs": {"current": "claude-fable-5-1", "target": "claude-opus-5-5", "W": 1000000, "K": 970000, "C0": 350000, "T": 50, "F": 3000, "O": 3000, "B": 86450, "R": 30000, "H": 2500, "M": 0, "L": 0, "compacted": false, "Ta": 15, "Ra": 40000, "G": null}, "table_age_days": 1, "totals": {"cost_continue": "17.50", "cost_fresh": "7.87", "cost_split": "6.49", "t_star": null}, "draft": {"side": "fresh", "by": "cost"}, "guardrails_triggered": [6, 8], "final": {"outcome": "split", "model": "claude-sonnet-5-5", "effort": "medium", "approval_step": null}, "cost_of_deciding": {"input_tokens": 8500, "output_tokens": 2000, "minutes": 8, "usd": "0.0021"}}
+```

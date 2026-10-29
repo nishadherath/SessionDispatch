@@ -1,0 +1,61 @@
+{
+  "scenario": "09-accept-fable-work",
+  "subject": "haiku",
+  "arm": "hand",
+  "outcome_expected": "fresh",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "continue",
+  "final_ok": false,
+  "draft_ok": true,
+  "guardrails_ok": false,
+  "bound": [
+    6
+  ],
+  "bound_failed": [
+    6
+  ],
+  "g4_ok": true,
+  "false_alarms": [
+    7
+  ],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 4,
+    "correct": 3,
+    "missing": 0,
+    "max_error_usd": 0.004,
+    "rule_ok": true,
+    "errors": [
+      {
+        "figure": "t_star",
+        "why": "too few decimal places (0)"
+      }
+    ]
+  },
+  "inputs": {
+    "scored": 16,
+    "matched": 16,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 11500,
+    "reported_minutes": 6,
+    "measured_tokens": 119228,
+    "measured_minutes": 3.60435,
+    "usd_to_decide": 0.0024,
+    "usd_measured": null,
+    "over_cap": true,
+    "report_ratio": 0.096
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "note": "first failed check: final.outcome"
+}

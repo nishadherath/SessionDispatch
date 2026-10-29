@@ -1,0 +1,52 @@
+{
+  "scenario": "19-handoff-model-mismatch",
+  "subject": "sonnet",
+  "arm": "hand",
+  "outcome_expected": "stop",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "stop",
+  "final_ok": true,
+  "draft_ok": null,
+  "guardrails_ok": true,
+  "bound": [
+    8
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 2,
+    "correct": 2,
+    "missing": 0,
+    "max_error_usd": 0.0015,
+    "rule_ok": true,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 14,
+    "matched": 14,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 10150,
+    "reported_minutes": 5,
+    "measured_tokens": 87457,
+    "measured_minutes": 2.3792166666666668,
+    "usd_to_decide": 0.0404,
+    "usd_measured": null,
+    "over_cap": true,
+    "report_ratio": 0.116
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "note": ""
+}

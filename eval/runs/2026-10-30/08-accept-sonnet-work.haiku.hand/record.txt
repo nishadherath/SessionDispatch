@@ -1,0 +1,136 @@
+## Session dispatch decision
+
+Date: 2026-10-30. Decided by: claude-haiku-5-5 (the evaluator running this procedure), for the session that the harness reports as claude-sonnet-5-5 at effort medium, in Claude Code desktop.
+Price table: `pricing/2026-10-29.json` (age 1 day, limit 14).
+
+Step 0: the procedure runs. The coming stage is 15 turns (over 10), and the model class changes (acceptance one class above the Sonnet author, so Opus).
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | SKILL.md step 2 as of that date (growth G = F + O) |
+| Current model | claude-sonnet-5-5, effort medium | Measured: harness report for this session |
+| Target model | claude-opus-5-5 | Matrix row 4 (adversarial acceptance, one class above the author), then the table's opus row |
+| Window W | 1,000,000 | Measured: session usage tool `contextWindow` |
+| Compaction point K | 970,000 | Measured: `autoCompactsAtPercent` 97 times W |
+| Current context C0 | 300,000 | Measured: session usage tool `tokensUsed` |
+| Compacted already | no | Measured: session has not been compacted |
+| Unrecorded context | none | Per the situation, everything the next stage needs is in files on disk |
+| Expected turns T | 15 | Estimated: the plan figure in the situation |
+| Fresh input per turn F | 5,000 | Estimated: the situation's expected figure, from the diff size and the last acceptance |
+| Output per turn O | 3,000 | Estimated: the situation's expected figure; effort assumed high on Opus, so O may be higher (see adversarial pass) |
+| Fresh baseline B | 86,450 | Measured: usage tool total less its Messages category (per the situation) |
+| Re-read set R | 30,000 | Estimated: the situation's figure for what a fresh session reads (brief, diff, test output) |
+| Handoff size H | 2,500 | Estimated: the default for a handoff under 120 lines (the situation says about 80 lines) |
+| Cache misses M | 0 | Unmeasured; no review pauses expected in the stage |
+| Rediscovery turns L | 0 | The unrecorded list is empty |
+| Acceptance turns Ta | 15 | Estimated: the situation's figure for an acceptance session |
+| Acceptance re-read Ra | 30,000 | Estimated: the situation's figure |
+| Task type | adversarial acceptance of another agent's work (matrix row 4) | The stage re-derives claims, re-runs tests and tries to break the change |
+| Design-heavy | no | Refactor and test suite acceptance, no design choice, no compaction |
+| Irreversible or outward-facing steps | none | The stage writes files and commits locally; nothing leaves the machine |
+
+Note on the calculator: this copy of the skill has no `scripts/` folder, so every figure below is computed by hand from the formulas in step 2.
+
+### Step A: continue or hand off
+
+Growth and context:
+
+G = F + O = 5,000 + 3,000 = 8,000 tokens per turn
+C_end = C0 + T * G = 300,000 + 15 * 8,000 = 420,000 (below K = 970,000, so crosses = no)
+C_cont = C0 + T * G / 2 = 360,000
+C_fresh = B + R + T * G / 2 = 86,450 + 30,000 + 60,000 = 176,450
+
+Prices used (USD per million tokens: input, output, cache_read, cache_write):
+- claude-sonnet-5-5 (current): 2, 10, 0.10, 2.50
+- claude-opus-5-5 (target): 4, 20, 0.20, 5.00
+- claude-haiku-5-5 (used only for the cost of deciding): 0.10, 0.50, 0.01, 0.125
+
+cost_continue at Sonnet:
+- T * C_cont * p_cr = 15 * 360,000 * 0.10 / 1e6 = 0.54
+- T * G * p_cw = 120,000 * 2.50 / 1e6 = 0.30
+- T * O * p_out = 45,000 * 10 / 1e6 = 0.45
+- M term = 0, compaction penalty = 0
+- cost_continue = 1.29 USD
+
+cost_fresh at Opus, with H priced at the Sonnet output rate:
+- H * p_out[current] = 2,500 * 10 / 1e6 = 0.025
+- (B + R) * p_cw = 116,450 * 5.00 / 1e6 = 0.58225
+- T * C_fresh * p_cr = 2,646,750 * 0.20 / 1e6 = 0.52935
+- T * G * p_cw = 120,000 * 5.00 / 1e6 = 0.60
+- T * O * p_out = 45,000 * 20 / 1e6 = 0.90
+- M term = 0, loss penalty = 0 (L = 0)
+- cost_fresh = 2.6366, shown as 2.64 USD
+
+T* (break-even): not computed. The model changes, so the short path does not apply.
+
+cost_split: not computed. It is not an option: the run piece the split needs (a Sonnet run) already exists as the work under acceptance, so there is nothing left for a Sonnet session to do.
+
+Draft verdict: fresh, by class. Fresh is on the Opus class, one class above the current Sonnet, so rule 1 of the verdict rule decides before cost. Margin on cost: fresh 2.64 against continue 1.29, a difference of 1.35 USD, which is 104 percent of the smaller figure.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Adversarial acceptance of the refactor and its test suite | opus (matrix row 4) | claude-opus-5-5 | high (no raise or lower trigger: no release, merge, security or money step, and no failed earlier attempt) | Re-run the test suite and the check the author recorded; re-derive each claim from the diff | Serial, after the author's commit | 2.64 USD (fresh side, estimated inputs above) |
+
+Serial chain and wall clock: 15 turns, estimated at about 1 minute each, so about 15 minutes; plus about 15 minutes for writing and reading the handoff (estimate, not measured). Operator review time: none expected in the stage.
+
+Effort raised or lowered because: no change from the matrix value (high).
+
+Split (step 2.1): not an option, for the reason given under Step A.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 15. Does not bind.
+2. Design-heavy across a compaction: not design-heavy and no compaction. Does not bind.
+3. Irreversible steps and their approval step: none in this stage; it commits locally and pushes nothing. Does not bind.
+4. Model chosen from the table, not memory: claude-opus-5-5 from the opus row of `pricing/2026-10-29.json`. Checked.
+5. Table age and nulls: table age 1 day, within 14. The rows used have no null figure. Checked.
+6. Acceptance one class above the author: binds. The author is Sonnet, so the acceptor is Opus. Continuing in the Sonnet session would run acceptance at the author's own class, which this guardrail forbids. This rules out the continue verdict.
+7. Decision budget: binds. The reading for this decision is estimated at about 7,500 tokens before any writing (SKILL.md about 7,000, pricing table about 700, decision template about 900, folder listing and misc a few hundred), and the record adds about 2,000 more. The total is over the 8,000 token cap. The overrun is recorded here. The default (continue, same model, same effort) is the reversible choice, but it breaks guardrails 6 and 8, so it cannot be taken as the verdict.
+8. Class and effort match the harness: binds. The harness reports sonnet at medium, and the acceptance needs opus at high. A session never assesses its own class, so the Sonnet session must not run its own acceptance. The verdict names the value to pick.
+
+### Adversarial pass
+
+The opposite verdict, argued: Continuing at Sonnet costs 1.29 USD against 2.64 USD for a fresh Opus session, a gap of 104 percent. It avoids a handoff of about 15 minutes and a cold start, and the session already holds the refactor history and the test output, so it reads less. The test suite is the oracle, and a Sonnet session can run it. This is the best case, and it fails on rule 1 of the verdict rule and on guardrails 6 and 8: the acceptor cannot be the author's own class, however cheap.
+
+Each input, the way it could be wrong:
+- C0: measured by the usage tool. If it were 30 percent off, both sides move together and the class rule still decides.
+- T: 15 is the plan figure. If it doubles to 30, continue becomes 2.76 USD and fresh 5.03 USD, so the cost gap grows to 82 percent. The verdict does not change.
+- F and O: O at high effort on Opus may exceed 3,000. At O = 6,000 fresh would cost about 3.54 USD and continue about 1.74 USD. The class rule still decides.
+- B and R: R may be 50,000 if the acceptance also reads the project instruction files. Fresh rises by about 0.16 USD. Does not change the verdict.
+- M (review pauses): none expected. One pause adds about 0.86 USD to continue and about 0.85 USD to fresh. The order does not change.
+- Task type: adversarial acceptance is the matrix row, not mechanical work, so the class is Opus, not Sonnet.
+- Prices: the table is 1 day old. The long-context tier appears only on the haiku row, so no tier applies to the Sonnet or Opus figures used.
+- Unrecorded context: the situation says none. If the acceptor needs the author's reasoning, the 80-line handoff already carries it.
+
+Recomputed with the adverse value that moves the result most (T doubled to 30):
+cost_continue = 2.76 USD
+cost_fresh = 5.03 USD
+
+Verdict holds: yes. The class rule and guardrails 6 and 8 do not depend on cost, and the cost gap moves further toward continue, which those rules forbid. The figures above were computed before the budget overrun was judged; they are shown so the operator can see what the fresh choice costs. They do not change the verdict.
+
+### Final verdict
+
+stop. Do not run the acceptance in the Sonnet session. The value to pick is claude-opus-5-5 at effort high, in a fresh session, as one serial piece. No outward-facing step is in the plan, so no approval step is named.
+
+Question I would ask the operator (not answered in this run): "Start the acceptance in a fresh claude-opus-5-5 session at high effort?" Verdict meanwhile: stop. The Sonnet session does not accept its own work, and no acceptance result is recorded.
+
+Exact next action: the operator starts a fresh session on claude-opus-5-5 at high effort with the handoff path. That session checks its own model and effort on its first lines and stops on a mismatch.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | not measured (no usage tool in this run) | Not available to this evaluator |
+| Context at end | not measured (no usage tool in this run) | Not available to this evaluator |
+| Input tokens read | about 9,000 | Estimated: SKILL.md about 7,000, pricing table about 700, decision template about 900, folder listing and misc about 400 |
+| Output tokens | about 6,000 | Estimated: reasoning and this record, characters divided by 4 |
+| Wall clock | about 6 minutes | Estimated |
+| Priced | 0.0041 USD | Input 9,000 at the cache-write rate 0.125 per million, plus output 6,000 at 0.50 per million, for claude-haiku-5-5; table `pricing/2026-10-29.json` |
+
+```json dispatch-result
+{"skill_ran": true, "inputs": {"current": "claude-sonnet-5-5", "target": "claude-opus-5-5", "W": 1000000, "K": 970000, "C0": 300000, "T": 15, "F": 5000, "O": 3000, "B": 86450, "R": 30000, "H": 2500, "M": 0, "L": 0, "compacted": false, "Ta": 15, "Ra": 30000, "G": null}, "table_age_days": 1, "totals": {"cost_continue": "1.29", "cost_fresh": "2.64", "cost_split": null, "t_star": null}, "draft": {"side": "fresh", "by": "class"}, "guardrails_triggered": [6, 7, 8], "final": {"outcome": "stop", "model": "claude-opus-5-5", "effort": "high", "approval_step": null}, "cost_of_deciding": {"input_tokens": 9000, "output_tokens": 6000, "minutes": 6, "usd": "0.0041"}}
+```
