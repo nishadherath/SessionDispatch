@@ -1,0 +1,98 @@
+## Session dispatch decision
+
+Date: 2026-10-30. Decided by: claude-sonnet-5-5, effort medium, in Claude Code desktop app.
+Price table: `pricing/2026-10-01.json` (age 29 days; max_age_days 14). STALE.
+
+Step 0: the skill runs (T = 30 turns, more than 10).
+
+### Inputs (gathered; no cost arithmetic was done)
+
+| Input | Value | Source |
+|---|---|---|
+| Formula | 2026-10-29 | SKILL.md step 2 |
+| Current model | claude-sonnet-5-5 | harness report (measured) |
+| Target model | claude-sonnet-5-5 (class sonnet) | matrix row 2: refactor within one module, test suite as oracle |
+| W | 1,000,000 | usage tool (measured) |
+| K | 970,000 | 0.97 x W, usage tool (measured) |
+| C0 | 400,000 | usage tool (measured) |
+| Compacted | no | situation |
+| Unrecorded context | none | everything is on disk |
+| T | 30 | plan estimate |
+| F | 3,000 | default, unmeasured |
+| O | 1,500 | default, unmeasured |
+| B | 86,450 | measured (total less Messages) |
+| R | 15,000 | handoff plus module |
+| H | 2,500 | default for under 120 lines (estimate) |
+| M | 0 | default, no measurement, no review pauses expected |
+| L | 0 | unrecorded list is empty |
+| Task type | Scoped module work, sonnet, medium | step 3.1 |
+| Design-heavy | no | |
+| Outward-facing steps | none (local commit only) | |
+
+### Step A: continue or hand off
+
+Not computed. Step 1.4 rule 2: the newest table is dated 2026-10-01, 29 days old, over the 14-day limit. A verdict from a stale price is a guess, so no cost_continue, cost_fresh, cost_split or T* is computed. Guardrail 5 binds.
+
+Draft verdict: incomplete on cost; the default applies: continue, same model (claude-sonnet-5-5), same effort (medium). Staleness recorded.
+
+Message to the operator: the price table is stale (29 days old, limit 14). Refresh it with `node scripts/pricing-new.mjs`, then re-run this skill if you want a cost-based verdict. Until then, continue.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Refactor within one module | sonnet | claude-sonnet-5-5 (the session's own model; matches the matrix) | medium | module test suite | serial, single piece | not computed (stale table) |
+
+Serial chain: 30 turns, one piece. Operator review time: none expected.
+Effort: no change. Split (step 2.1): not applicable, the target is below opus.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 30.
+2. Design-heavy across a compaction: not design-heavy; 400,000 + 30 x 4,500 = 535,000 is under K 970,000, so no crossing.
+3. Irreversible steps: none; local commit only.
+4. Model from the table: claude-sonnet-5-5 is the table's sonnet row and the session's model.
+5. Table age: 29 days, over 14. BINDS: no computation, default taken.
+6. Acceptance: not part of this stage.
+7. Decision budget: roughly at the 8,000-token cap (estimate); see below.
+8. Class and effort match the harness: sonnet, medium. Yes.
+
+### Adversarial pass
+
+The opposite verdict, argued: fresh would cut the context from 400,000 to about 101,450 tokens, and cache reads dominate a 30-turn stage, so a fresh session might save money. The rough scale (C0 - B - R about 298,550 tokens of context saved) suggests a break-even of a few turns, so fresh may well win on cost.
+
+Each input, the way it could be wrong:
+
+- C0: measured. If 30 percent off, the direction is unchanged.
+- T: if 60 turns, still no compaction crossing (670,000 under 970,000).
+- F and O: defaults, unmeasured; estimates.
+- B and R: B measured; R is an estimate.
+- M: 0 by default; no review pauses expected.
+- Task type: a refactor with a test oracle; could hide a design choice, not indicated.
+- Prices: the table is stale. This is the input that blocks the arithmetic.
+- Unrecorded context: none.
+
+Recomputed with the adverse value: not possible. Step 1.4 forbids computing from the stale table. The verdict is a default, not a cost result, so no number can cross the 10 percent line.
+
+Verdict holds: yes. Only a refreshed table can change it, by arithmetic.
+
+### Final verdict
+
+Continue, model claude-sonnet-5-5, effort medium, pieces 1 (serial). Exact next action: run `node scripts/pricing-new.mjs` to refresh the table (operator step); meanwhile continue the refactor in this session. Approval step: none needed, nothing leaves the machine.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 400,000 tokens | usage tool, from the situation |
+| Context at end | about 408,300 tokens | estimate |
+| Input tokens read | 7,400 | estimate: characters / 4 (SKILL.md, table, template) |
+| Output tokens | 900 | estimate: characters / 4 |
+| Wall clock | 3 minutes | estimate |
+| Priced | 0.03 USD | input at 2.50 per million cache-write plus output at 10 per million, sonnet row of `pricing/2026-10-01.json` (stale; indicative only) |
+
+Reading plus writing is about 8,300 tokens, marginally over the 8,000 cap on this estimate. Overrun recorded; the default was the verdict anyway.
+
+```json dispatch-result
+{"skill_ran": true, "inputs": {"current": "claude-sonnet-5-5", "target": "claude-sonnet-5-5", "W": 1000000, "K": 970000, "C0": 400000, "T": 30, "F": 3000, "O": 1500, "B": 86450, "R": 15000, "H": 2500, "M": 0, "L": 0, "compacted": false, "Ta": null, "Ra": null, "G": null}, "table_age_days": 29, "totals": {"cost_continue": null, "cost_fresh": null, "cost_split": null, "t_star": null}, "draft": {"side": "incomplete", "by": null}, "guardrails_triggered": [5], "final": {"outcome": "continue", "model": "claude-sonnet-5-5", "effort": "medium", "approval_step": null}, "cost_of_deciding": {"input_tokens": 7400, "output_tokens": 900, "minutes": 3, "usd": "0.03"}}
+```

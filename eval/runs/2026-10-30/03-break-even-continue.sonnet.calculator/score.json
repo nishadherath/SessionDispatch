@@ -16,7 +16,9 @@
   "bound": [],
   "bound_failed": [],
   "g4_ok": true,
-  "false_alarms": [],
+  "false_alarms": [
+    7
+  ],
   "arithmetic": {
     "scored": true,
     "reason": null,
@@ -33,14 +35,14 @@
     "misses": []
   },
   "decide": {
-    "reported_tokens": 28500,
+    "reported_tokens": 13500,
     "reported_minutes": 4,
-    "measured_tokens": 84281,
-    "measured_minutes": 1.0286,
-    "usd_to_decide": 0.0975,
+    "measured_tokens": 86557,
+    "measured_minutes": 1.3784166666666666,
+    "usd_to_decide": 0.0525,
     "usd_measured": null,
     "over_cap": true,
-    "report_ratio": 0.338
+    "report_ratio": 0.156
   },
   "consistency": {
     "draft_line_ok": true,

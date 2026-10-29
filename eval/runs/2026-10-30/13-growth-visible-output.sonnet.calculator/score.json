@@ -1,0 +1,50 @@
+{
+  "scenario": "13-growth-visible-output",
+  "subject": "sonnet",
+  "arm": "calculator",
+  "outcome_expected": "fresh",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "fresh",
+  "final_ok": true,
+  "draft_ok": true,
+  "guardrails_ok": true,
+  "bound": [],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 2,
+    "correct": 2,
+    "missing": 0,
+    "max_error_usd": 0.002,
+    "rule_ok": true,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 14,
+    "matched": 14,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 7600,
+    "reported_minutes": 5,
+    "measured_tokens": 90804,
+    "measured_minutes": 2.3513,
+    "usd_to_decide": 0.04,
+    "usd_measured": null,
+    "over_cap": false,
+    "report_ratio": 0.084
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "note": ""
+}

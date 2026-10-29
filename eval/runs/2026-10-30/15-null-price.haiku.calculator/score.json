@@ -1,0 +1,58 @@
+{
+  "scenario": "15-null-price",
+  "subject": "haiku",
+  "arm": "calculator",
+  "outcome_expected": "incomplete",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "incomplete",
+  "final_ok": true,
+  "draft_ok": null,
+  "guardrails_ok": false,
+  "bound": [
+    5
+  ],
+  "bound_failed": [],
+  "g4_ok": false,
+  "false_alarms": [
+    4,
+    7,
+    8
+  ],
+  "arithmetic": {
+    "scored": false,
+    "reason": "target model not in the table",
+    "stated": 0,
+    "correct": 0,
+    "missing": 0,
+    "max_error_usd": null,
+    "rule_ok": null,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 14,
+    "matched": 13,
+    "misses": [
+      "target"
+    ]
+  },
+  "decide": {
+    "reported_tokens": 11150,
+    "reported_minutes": 6,
+    "measured_tokens": 103669,
+    "measured_minutes": 2.82945,
+    "usd_to_decide": 0.0025,
+    "usd_measured": null,
+    "over_cap": true,
+    "report_ratio": 0.108
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "note": "first failed check: guardrail 4 (model id not in the table)"
+}

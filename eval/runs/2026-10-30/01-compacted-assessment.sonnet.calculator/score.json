@@ -1,0 +1,52 @@
+{
+  "scenario": "01-compacted-assessment",
+  "subject": "sonnet",
+  "arm": "calculator",
+  "outcome_expected": "fresh",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "fresh",
+  "final_ok": true,
+  "draft_ok": true,
+  "guardrails_ok": true,
+  "bound": [
+    2
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 4,
+    "correct": 4,
+    "missing": 0,
+    "max_error_usd": 0.0038,
+    "rule_ok": true,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 16,
+    "matched": 16,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 19500,
+    "reported_minutes": 6,
+    "measured_tokens": 86604,
+    "measured_minutes": 1.3153833333333333,
+    "usd_to_decide": 0.075,
+    "usd_measured": null,
+    "over_cap": true,
+    "report_ratio": 0.225
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "note": ""
+}

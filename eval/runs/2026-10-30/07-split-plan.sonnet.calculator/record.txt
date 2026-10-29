@@ -1,0 +1,174 @@
+## Session dispatch decision
+
+Date: 2026-10-30. Decided by: claude-fable-5-1, effort high, in Claude Code desktop app.
+Price table: `pricing/2026-10-29.json` (age 1 day of 14).
+
+Step 0: the skill runs. T = 50 turns is over 10, and delegation to a fresh session is in question.
+
+### Inputs
+
+| Input | Value | Source |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 |
+| Current model | claude-fable-5-1 (fable), effort high | Harness report in the situation (measured) |
+| Target model | claude-opus-5-5 (opus) | Matrix row 3 (cross-module change), then the table's opus model. Split run piece: claude-sonnet-5-5 |
+| Window W | 1,000,000 | Usage tool contextWindow (measured) |
+| Compaction point K | 970,000 | 97 percent of W, usage tool autoCompactsAtPercent (measured) |
+| Current context C0 | 350,000 | Usage tool tokensUsed (measured) |
+| Compacted already | no | Situation (measured) |
+| Unrecorded context | none | Situation: everything the next stage needs is on disk |
+| Expected turns T | 50 | Plan estimate |
+| Fresh input per turn F | 3,000 | Default, no per-turn measurement (estimated) |
+| Output per turn O | 1,500 | Default, assumes high effort (estimated) |
+| Fresh baseline B | 86,450 | Measured: usage total less Messages category |
+| Re-read set R | 30,000 (design note, handoff, modules) | Situation |
+| Handoff size H | 2,500 | Default for a handoff under 120 lines (brief about 110 lines) |
+| Cache misses M | 0 | Unmeasured, default 0; no review pauses expected |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta | 15 | Situation |
+| Acceptance re-read Ra | 40,000 | Situation (brief, diff, test output) |
+| Task type | Cross-module work (matrix row 3, Opus high); with the brief below it becomes row 2 (scoped work with a stated test) | Situation |
+| Design-heavy | yes (cross-module change); the design itself is finished | Step 1.2 |
+| Irreversible or outward-facing steps | none: writes files, commits locally, nothing leaves the machine | Situation |
+
+### Step A: continue or hand off
+
+Calculator output (`node scripts/dispatch.mjs`):
+
+```
+G       = F + O                 = 4,500
+C_end   = C0 + T * G            = 575,000
+crosses = C_end > K             = false (K 970,000)
+C_cont  = C0 + T * G / 2        = 462,500
+C_fresh = B + R + T * G / 2     = 228,950
+
+cost_continue (fable) = 5.781 + 2.813 + 3.750 + 0 + 0 = 12.34 USD
+cost_fresh (opus)     = 0.125 + 0.582 + 2.290 + 1.125 + 1.500 + 0 + 0 = 5.62 USD
+T* = n/a: the model changes
+cost_split = 0.125 (brief) + 2.748 (run, sonnet, T 50, R 30,000) + 1.900 (acceptance, opus, Ta 15, Ra 40,000)
+           = 4.77 USD
+```
+
+Prices used (per million): claude-fable-5-1 cache_read 0.25, cache_write 12.50, output 50.00. claude-opus-5-5 cache_read 0.20, cache_write 5.00, output 20.00. claude-sonnet-5-5 input 2, output 10, cache_read 0.10, cache_write 2.50.
+
+Draft verdict: fresh, by cost, margin 6.72 USD (119.6 percent of the smaller, 5.62). Continue at fable is dearer than fresh at opus.
+
+Split (step 2.1): an option. The brief can carry the contract (the design note states every changed function's contract), the oracle (the 14 tests and the check script) and an observable definition of done (check script exits 0, 14 tests pass), and everything the stage needs is already in files, so the brief would not retell this session. The run therefore becomes matrix row 2 work. Split 4.77 USD against fresh 5.62 USD: cheaper by 0.85 USD, 17.8 percent of the smaller, over the 10 percent band. The split is the plan, with three pieces.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| 1. Write the brief (about 110 lines: contract per function, the 14 tests, definition of done, prose rules, five-line escalation) and commit | fable (this session) | claude-fable-5-1 | high (no change) | The brief names the design note path, the check script and the 14 tests | Serial, first | 0.125 USD (H at output rate) |
+| 2. Implement the design | sonnet | claude-sonnet-5-5 | medium | `node scripts/check.mjs` exits 0 and the 14 tests pass | Serial, second | 2.748 USD (fresh session, B 86,450 + R 30,000, T 50) |
+| 3. Adversarial acceptance of the diff | opus (one class above the Sonnet author) | claude-opus-5-5 | high | Re-run check script and the 14 tests; read the diff against each contract | Serial, third | 1.900 USD (fresh session, B + Ra 40,000, Ta 15) |
+
+Total 4.77 USD at API list price. Assumptions: F 3,000, O 1,500, M 0, B the same for every fresh session. Figures from the defaults are estimates.
+
+Serial chain and its wall clock: brief and commit about 10 minutes, then the Sonnet run (50 turns, wall clock not measured; estimate not given in the situation, so not stated), then acceptance (15 turns, not measured), plus about 5 minutes for each new session to read. Operator review time: none expected; the operator clicks to start each fresh session unless the autonomy yes is on record.
+
+Effort raised or lowered because: no change. No irreversible step, no auth, payments, storage format or public interface, not a merge or release, and no failed attempt. Effort is not lowered because it is not a repeatable, cheap-to-redo job. Sonnet therefore stays at medium and Opus acceptance at high (not xhigh: not a release or merge).
+
+Concurrency: the three pieces share the same files and branch, so they run in series. No parallel pieces.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 50. Does not bind.
+2. Design-heavy across a compaction: design-heavy is yes, but crosses is false and the session has not compacted, so it does not bind. The design is finished and on disk.
+3. Irreversible steps and their approval step: none. Writes files and commits locally; nothing leaves the machine. The approval step for the plan is the Opus acceptance session's pass on the diff before anything is pushed or merged, which the plan names (a push would be a later, separate stage needing the operator's yes).
+4. Model chosen from the table, not memory: yes. Sonnet, Opus and Fable ids are from `pricing/2026-10-29.json`.
+5. Table age and nulls: 1 day, no null among the rows used. Does not bind.
+6. Acceptance one class above the author: binds as a line in the plan. The author is Sonnet, so acceptance runs at Opus, in a fresh session, high effort.
+7. Decision budget: within 8,000 tokens and 10 minutes is not met in strict terms by input read (about 16,000 tokens of input, mostly the skill text), counted as reading; recorded as an estimate in the cost table below. Note for the operator: the decision costs about 0.38 USD against a 4.77 USD stage, which is under 10 percent.
+8. Class and effort match the harness: this session is fable at high, as the harness reports; it does not change its own class. The pieces run in new sessions started at their own class.
+
+### Adversarial pass
+
+The opposite verdict, argued: continue in this session. It holds all the context, needs no brief, has no cold start, and the context stays far under K (575,000 against 970,000), so there is no compaction risk. A brief is work, and a cheaper session might misread the contract.
+
+Each input, the way it could be wrong:
+
+- C0: measured. If it is 30 percent lower (245,000), continue gets cheaper but stays dearer than a Sonnet run, because the fable rates are 2.5 to 5 times higher.
+- T: a plan estimate. If it doubles to 100, see the recomputation below.
+- F and O: unmeasured defaults. Higher F and O raise every side; the rate gap remains, so the order holds.
+- B and R: B measured. R covers the design note, handoff and modules; if the modules are larger, run and fresh costs rise a little. A larger R barely moves the gap to continue.
+- M (review pauses): none expected. If the operator reviews often, misses hit the larger context harder, which favours the smaller-context fresh sessions. Tested with M = 10 below.
+- Task type: the risk is that the stage hides a design choice. The design is finished and the contract, tests and done definition are stated, so the brief can carry it. If the Sonnet run found the contract wrong, the escalation line returns it to a higher class; acceptance by Opus catches an error that slips through.
+- Prices: table 1 day old, no tier in play for these models. The Sonnet and Opus cache_write figures are derived as 1.25 times input (table note).
+- Unrecorded context: none. If something were unrecorded, L turns would add to fresh and split, so the brief must be checked to hold everything.
+
+Recomputed with the adverse value that moves the result most (T doubled to 100, Ta doubled to 30, and separately M = 10):
+
+```
+T = 100, Ta = 30: cost_continue = 27.50 USD, cost_fresh = 12.79 USD, cost_split = 9.83 USD
+                  split cheaper than fresh by 2.96 USD (30.1 percent)
+M = 10 (T 50):    cost_continue = 69.00 USD, cost_fresh = 16.61 USD, cost_split = 10.27 USD
+                  split cheaper than fresh by 6.34 USD (61.8 percent)
+```
+
+Verdict holds: yes. Neither adverse value crosses the 10 percent line or a guardrail; the split stays more than 10 percent below fresh and far below continue.
+
+### Final verdict
+
+Split, three pieces in series: brief written and committed by this session (claude-fable-5-1, high); run by claude-sonnet-5-5 at medium; acceptance by claude-opus-5-5 at high in a fresh session. Human approval step: the operator starts each fresh session (or the autonomy yes is on record), and the Opus acceptance pass is the gate before any outward step; nothing in this stage leaves the machine.
+
+Exact next action: write the brief (about 110 lines) with the design note path, each function's contract, the 14 tests, the definition of done (check script exits 0 and 14 tests pass), the prose rules and the five-line escalation; run the gate; commit; then start a fresh Sonnet session at medium effort (model claude-sonnet-5-5 stated on the brief's first lines) with the brief path.
+
+If the brief cannot be written to carry the contract and the oracle, the fallback is fresh at claude-opus-5-5, high, 5.62 USD.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 350,000 tokens | Situation (usage tool) |
+| Context at end | about 370,000 tokens | Estimate: C0 plus input and output below |
+| Input tokens read | 16,000 | Estimate: SKILL.md, template, price table, calculator output (characters divided by 4) |
+| Output tokens | 3,500 | Estimate: this record (characters divided by 4) |
+| Wall clock | 6 minutes | Estimate |
+| Priced | 0.38 USD | Input 16,000 at 12.50 per million = 0.200, plus output 3,500 at 50.00 per million = 0.175, claude-fable-5-1, table `pricing/2026-10-29.json` |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-fable-5-1",
+    "target": "claude-opus-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 350000,
+    "T": 50,
+    "F": 3000,
+    "O": 1500,
+    "B": 86450,
+    "R": 30000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": 15,
+    "Ra": 40000,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "12.34",
+    "cost_fresh": "5.62",
+    "cost_split": "4.77",
+    "t_star": "never"
+  },
+  "draft": { "side": "fresh", "by": "cost" },
+  "guardrails_triggered": [6],
+  "final": {
+    "outcome": "split",
+    "model": "claude-sonnet-5-5",
+    "effort": "medium",
+    "approval_step": "Operator starts each fresh session; Opus acceptance session reviews the diff before any outward step"
+  },
+  "cost_of_deciding": {
+    "input_tokens": 16000,
+    "output_tokens": 3500,
+    "minutes": 6,
+    "usd": "0.38"
+  }
+}
+```

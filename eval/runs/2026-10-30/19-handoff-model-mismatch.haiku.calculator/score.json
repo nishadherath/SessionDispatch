@@ -1,0 +1,52 @@
+{
+  "scenario": "19-handoff-model-mismatch",
+  "subject": "haiku",
+  "arm": "calculator",
+  "outcome_expected": "stop",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "stop",
+  "final_ok": true,
+  "draft_ok": null,
+  "guardrails_ok": true,
+  "bound": [
+    8
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 2,
+    "correct": 2,
+    "missing": 0,
+    "max_error_usd": 0.0015,
+    "rule_ok": true,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 14,
+    "matched": 14,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 13500,
+    "reported_minutes": 5,
+    "measured_tokens": 94258,
+    "measured_minutes": 2.416333333333333,
+    "usd_to_decide": 0.003,
+    "usd_measured": null,
+    "over_cap": true,
+    "report_ratio": 0.143
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "note": ""
+}

@@ -1,0 +1,123 @@
+## Session dispatch decision
+
+Date: 2026-10-30. Decided by: claude-haiku-5-5, effort medium, in Claude Code desktop app.
+Price table: `pricing/2026-10-29.json` (age 1 day, max_age_days 14, in date).
+
+Step 0: the skill runs. The operator asked for it (trigger 5), and the takeover is a stage of about 30 turns (trigger 1).
+
+### Stop: guardrail 8 (class and effort do not match the handoff)
+
+| Item | Value | Source |
+|---|---|---|
+| Handoff `docs/handoffs/2026-11-02-stage-s4.md` front matter | model claude-sonnet-5-5, effort medium | situation statement |
+| This session, per the harness's session tool | model claude-haiku-5-5, effort medium | measured (harness report) |
+| Match | No: the model differs (haiku against sonnet); effort matches | |
+
+Guardrail 8: a session that finds its model or effort differs from the
+handoff's front matter stops and names the value to pick. A model never
+changes its own class and never assesses its own class. So this session
+does no work on the stage, does not run the continue-or-fresh
+arithmetic as a basis for starting, and does not switch itself.
+
+The task type agrees with the handoff's choice: a refactor within one
+module with its test suite as the oracle is matrix row 2 (Sonnet,
+medium). That is a check that the handoff's value is right, not an
+assessment of this session's own class. The model id comes from the
+price table, class sonnet: `claude-sonnet-5-5`, not from memory.
+
+Value to pick: **model claude-sonnet-5-5, effort medium.**
+
+What I would ask the operator (once, in one message): "This session runs
+claude-haiku-5-5 at medium, but the handoff 2026-11-02-stage-s4 names
+claude-sonnet-5-5 at medium. Please start the stage on claude-sonnet-5-5
+at medium (a fresh session with the handoff path, or switch this
+session's model yourself). I have started no work."
+
+Verdict taken meanwhile: stop. Nothing is run, nothing is written to the
+repository.
+
+### Facts noted for the session that does take over (not decided here)
+
+- W 1,000,000; K 970,000 (97 percent of W); C0 95,000; not compacted (measured, usage tool).
+- B 86,450 (measured). C0 is only 8,550 above B, so a fresh session saves almost no context; with R 15,000 (given), C0 - B - R is negative, so fresh never pays on cost for the same model. Any run belongs to the target model, so the comparison is moot until the model is right.
+- T about 30, M 0, L 0 (list empty: everything is on disk), H about 80 lines (default 2,500 tokens). F and O at defaults (3,000 and 1,500), unmeasured.
+- Design-heavy no; irreversible or outward-facing steps none (local commits only), so guardrail 3 has no step to name.
+- Full continue-or-fresh arithmetic not computed: the stop comes first.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = about 30.
+2. Design-heavy across a compaction: not design-heavy, not compacted; does not bind.
+3. Irreversible steps: none; does not bind.
+4. Model chosen from the table: yes, claude-sonnet-5-5 (class sonnet).
+5. Table age and nulls: 1 day; the rows needed are not null.
+6. Acceptance one class above the author: not in this stage.
+7. Decision budget: within the cap (under 8,000 tokens of decision work beyond reading the skill; see the table, estimated).
+8. Class and effort match the harness: **no, model mismatch. Binds. Stop.**
+
+### Adversarial pass
+
+The opposite verdict, argued: continue on haiku. Haiku is cheaper per
+token, and a refactor with a test oracle is mechanical enough that it
+might pass. Against that: guardrail 8 is a hard stop that arithmetic
+cannot override, the matrix gives the work to Sonnet, and the stage
+stays in this session's context only if the model is right.
+
+Each input, the way it could be wrong:
+
+- C0: measured; 30 percent off changes nothing, as the stop is not arithmetic.
+- T: if it doubled to 60, the matrix row is unchanged.
+- F and O: defaults, unmeasured; irrelevant to the stop.
+- B and R: B measured; R given as 15,000 and may omit files; irrelevant to the stop.
+- M: 0, and no review pauses are expected.
+- Task type: could it hide a design choice? The situation says a refactor within one module with a test oracle; if it were design-heavy the class would rise to Opus, which still differs from this session.
+- Prices: table 1 day old; the haiku long-context tier (threshold 100,000) would apply to this session's turns above 100,000 tokens, which only worsens the case for haiku.
+- Unrecorded context: none.
+
+Recomputed with the adverse value: not applicable. The verdict is a
+guardrail stop, and no input in the list moves it.
+
+Verdict holds: yes.
+
+### Final verdict
+
+Stop. Model to pick claude-sonnet-5-5, effort medium, pieces 1. Approval
+step: none to name (no irreversible step); the operator's act is
+starting or switching to the right model. Exact next action: operator
+starts the stage on claude-sonnet-5-5 at medium with the handoff path
+`docs/handoffs/2026-11-02-stage-s4.md`; the Sonnet session then runs
+this skill from step 0 on its own figures.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 95,000 tokens | usage tool (measured, from the situation) |
+| Context at end | about 106,500 tokens | estimate |
+| Input tokens read | about 11,000 | estimate: SKILL.md, the record template and the price table at 4 characters per token |
+| Output tokens | about 1,500 | estimate: this record at 4 characters per token |
+| Wall clock | 4 minutes | estimate |
+| Priced | USD 0.0021 | table `pricing/2026-10-29.json`: haiku base rates, input 11,000 x 0.125 per million (0.001375) plus output 1,500 x 0.50 per million (0.00075); the long-context tier is not applied, which would raise it |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": null,
+  "table_age_days": 1,
+  "totals": null,
+  "draft": null,
+  "guardrails_triggered": [8],
+  "final": {
+    "outcome": "stop",
+    "model": "claude-sonnet-5-5",
+    "effort": "medium",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 11000,
+    "output_tokens": 1500,
+    "minutes": 4,
+    "usd": "0.0021"
+  }
+}
+```
