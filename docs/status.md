@@ -24,7 +24,7 @@ Last updated: 2026-10-29, fourth update, by the Fable coordinating session (clau
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| O2: evaluation design (scenario set, rubric, runner brief) | not started: the app allows a start only from a message typed in the desktop app (the operator is on Remote Control), so the coordinating session has proposed it as a card and starts it on the operator's next desktop message; F1's card was withdrawn | Opus, high | this checkout, `main` | 30 to 60 min, 5 to 10 USD (6.17 by the calculator) |
+| O2: evaluation design (scenario set, rubric, runner brief) | not started: while the operator works over Remote Control the app allows neither a start nor a card from a session, so the coordinating session starts O2 on the operator's next message typed in the desktop app; F1's card was withdrawn | Opus, high | this checkout, `main` | 30 to 60 min, 5 to 10 USD (6.17 by the calculator) |
 
 O2's brief is `docs/handoffs/2026-10-29-stage-o2-eval-design.md`; it writes
 `eval/` and the S2 handoff, and the coordinating session starts S2 from it.
