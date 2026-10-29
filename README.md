@@ -125,6 +125,16 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-10-30: reassessment on the evaluation results (Stage F2),
+  `docs/assessment-2026-10-30-f2.md`. Sonnet runs the skill with or
+  without the calculator (20/20 and 17/20, not separable at n = 20);
+  all 19 Haiku misses took guardrail 7's default after a correct draft
+  in 14 of 17, so the 8,000-token cap is the defect. Verdicts on the
+  cap, the guardrail order, the adverse-value rule, the acceptance
+  effort rule, a null target and the rerun; roadmap re-priced from
+  `docs/dispatch/2026-10-30-f2-roadmap.json`. No change to the skill;
+  Stage O3 writes the verdicts in from
+  `docs/handoffs/2026-10-30-stage-o3-skill-text-revision.md`.
 - 2026-10-30: evaluation runs (Stage H1). 80 sub-agent runs (20 scenarios,
   Haiku and Sonnet, calculator and hand arms) scored into
   `eval/results-2026-10-30.md`: final agreement Sonnet 20/20 with the
