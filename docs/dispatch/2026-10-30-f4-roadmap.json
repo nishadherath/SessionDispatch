@@ -1,0 +1,30 @@
+{
+  "_note": "Stage F4 (2026-10-30): the session dispatch decision for the next stage (S4, Sonnet) and the cost of every remaining roadmap stage as a fresh session, by SKILL.md step 2 and 3.3. Run: node scripts/dispatch.mjs --json docs/dispatch/2026-10-30-f4-roadmap.json --today 2026-10-30. C0 and B measured by get_usage self in the F4 session before the roadmap was priced (258,108 total, 170,994 Messages); T, F, O, R and H are estimates. R for S4: its handoff 4,000, eval/run.mjs 8,000, eval/score.mjs 6,000, eval/rubric.md 3,500, eval/subject-prompt.md 1,500, the F4 assessment's S4 section 4,000. The pieces C1, F6 and O4 are priced for the record only: F4 stages none of them (assessment section 3 and decision D10).",
+  "formula": "2026-10-29",
+  "table": "pricing/2026-10-29.json",
+  "today": "2026-10-30",
+  "current": "claude-fable-5-1",
+  "target": "sonnet",
+  "W": 1000000,
+  "K": 970000,
+  "C0": 258108,
+  "compacted": false,
+  "T": 50,
+  "F": 3000,
+  "O": 2000,
+  "B": 87114,
+  "R": 27000,
+  "H": 4000,
+  "M": 0,
+  "L": 0,
+  "pieces": [
+    { "name": "S4 harness hardening and evaluation contract", "model": "claude-sonnet-5-5", "effort": "medium", "T": 50, "F": 3000, "O": 2000, "R": 27000 },
+    { "name": "S5 skill text: class floor and two sentences", "model": "claude-sonnet-5-5", "effort": "medium", "T": 15, "F": 3000, "O": 1500, "R": 15000 },
+    { "name": "H3 clean-harness regression, 42 runs, orchestration", "model": "claude-sonnet-5-5", "effort": "medium", "T": 15, "F": 3000, "O": 1500, "R": 15000 },
+    { "name": "S3 adapter verification", "model": "claude-sonnet-5-5", "effort": "medium", "T": 25, "F": 3000, "O": 1500, "R": 15000 },
+    { "name": "F5 closing assessment on H3", "model": "claude-fable-5-1", "effort": "high", "T": 15, "F": 4000, "O": 2500, "R": 30000 },
+    { "name": "C1 variant C rewrite (not staged; D10)", "model": "claude-opus-5-5", "effort": "high", "T": 40, "F": 3000, "O": 3000, "R": 25000 },
+    { "name": "F6 acceptance of C1 (not staged; D10)", "model": "claude-fable-5-1", "effort": "high", "T": 20, "F": 3000, "O": 2500, "R": 35000 },
+    { "name": "O4 fresh-side fixed-cost terms (declined)", "model": "claude-opus-5-5", "effort": "high", "T": 40, "F": 3000, "O": 2500, "R": 30000 }
+  ]
+}
