@@ -1,0 +1,21 @@
+{
+  "model": "claude-haiku-5-5",
+  "model_source": "reported by claude -p (modelUsage)",
+  "total_tokens": 1078360,
+  "tool_uses": null,
+  "num_turns": 11,
+  "duration_ms": 148335,
+  "input_tokens": 56235,
+  "output_tokens": 26159,
+  "cache_creation_input_tokens": 56221,
+  "cache_read_input_tokens": 995966,
+  "uncached_input_tokens": 14,
+  "usd_cli": 3.0648245000000003,
+  "cost_basis": "unknown",
+  "usd_priced": 0.0301,
+  "price_basis": "table in force, standard rates on the aggregate usage",
+  "long_context_possible": false,
+  "is_error": false,
+  "stop_reason": "end_turn",
+  "terminal_reason": "completed"
+}

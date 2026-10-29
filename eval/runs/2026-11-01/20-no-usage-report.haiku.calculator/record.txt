@@ -1,0 +1,125 @@
+## Session dispatch decision
+
+Date: 2026-11-01. Decided by: claude-haiku-5-5, effort not stated by harness, in Claude Code.
+Price table: `pricing/2026-10-31.json` (age 1 day).
+
+Step 0: stage is 30 turns, over 10, so the skill runs. Context estimated at 115,000 tokens (57.5% of W), under the 60% trigger.
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as of that date |
+| Current model | claude-sonnet-5-5, effort medium | Harness report for this session |
+| Target model | claude-sonnet-5-5, effort medium | Matrix row 2 (scoped module refactor with a test oracle), sonnet class from the table |
+| Window W | 200,000 | Documented |
+| Compaction point K | 180,000 | Estimated at 0.9 W; no harness compaction point given |
+| Current context C0 | 115,000 | Estimated from characters: 80k/4 + 220k/4 + 140k/3.5 |
+| Compacted already | no | Harness |
+| Unrecorded context | none | All stage context is on disk |
+| Expected turns T | 30 | Plan estimate; no range given |
+| Fresh input per turn F | 3,000 | Default, unmeasured |
+| Output per turn O | 1,500 | Default, unmeasured; assumes medium effort |
+| Fresh baseline B | 25,000 | Default, unmeasured |
+| Re-read set R | 20,000 | Handoff 10,000 chars/4 = 2,500, plus module files 70,000 chars/4 = 17,500; no project instruction files |
+| Handoff size H | 2,500 | Default for an 80-line handoff |
+| Cache misses M | 0 | No review pauses expected |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta, re-read Ra | not split | Target is not opus |
+| Task type | matrix row 2 | Scoped module refactor with test oracle |
+| Design-heavy | no | |
+| Irreversible or outward-facing steps | none | Local commits only |
+
+### Step A: continue or hand off
+
+```
+G       = F + O                 = 4,500
+C_end   = C0 + T * G            = 250,000
+crosses = C_end > K             = true   (K 180,000)
+C_cont  = C0 + T * G / 2        = 182,500
+C_fresh = B + R + T * G / 2     = 112,500
+
+cost_continue = 0.548 + 0.338 + 0.450 + 0.000 + 0.075 (compaction penalty) = 1.41 USD
+cost_fresh    = 0.025 + 0.113 + 0.338 + 0.338 + 0.450 + 0.000 + 0.000     = 1.26 USD
+T* = 19.6 turns (short path does not apply, since crosses is true)
+cost_split    = not computed: target is below opus
+```
+
+Prices used (per million): claude-sonnet-5-5 for both current and target. Input 2, output 10, cache_read 0.1, cache_write 2.5.
+
+Draft verdict: fresh, by cost (and by quality rule 3, since the stage crosses K), margin 0.15 USD, 11.7% of the smaller side. The margin is near the 10% line; adding the omitted handoff-turn read (about 0.012) to fresh brings it to about 10.7%, inside the 2 to 11% fragile band.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| The stage (module refactor) | sonnet | claude-sonnet-5-5 | medium | Test suite | Serial | 1.24 USD |
+
+Serial chain and its wall clock: one session, about 30 turns; wall clock not estimated. Operator review time: none planned.
+
+Effort raised or lowered because: no change. No security, money, merge or release; never below medium for repo writes.
+
+Split (step 2.1): none. Target is not opus, so no acceptance split.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 30.
+2. Design-heavy across a compaction: not design-heavy, not binding.
+3. Irreversible steps and their approval step: none; local commits only, no approval step named.
+4. Model chosen from the table, not memory: yes, claude-sonnet-5-5 from the sonnet row.
+5. Table age and nulls: 1 day old, under 14; no null prices used.
+6. Acceptance at matrix row 4's class and effort: no acceptance step planned.
+7. Decision budget: record kept under 4,000 tokens; decision made in about 8 minutes, under 10.
+8. Class and effort match the harness: yes, sonnet medium.
+
+### Adversarial pass
+
+The opposite verdict, argued: continue is cheaper if the stage is shorter than expected or if C0 is smaller than estimated. Continuing keeps the working state in the same session with no handoff write or re-read. The margin is small enough that a modest error in T, C0 or R could flip the cost comparison, and the handoff can lose detail that a long session keeps.
+
+Each input, the way it could be wrong:
+
+- C0: estimated from characters; could be off by 30% either way.
+- T: plan estimate with no range; continue wins below about 14 turns.
+- F and O (and the effort O assumes): unmeasured defaults; O could be higher at medium effort.
+- B and R: defaults for B; R depends on module sizes that may grow.
+- M (review pauses): none expected; a pause longer than the cache lifetime would add cache writes to continue.
+- Task type: matrix row 2 assumes a test oracle exists for the refactor.
+- Prices: table is 1 day old; no reason to expect a change.
+- Unrecorded context: none; rediscovery of about 4 turns would flip the cost.
+
+Recomputed with the adverse value that moves the result most (C0 down 30%):
+
+```
+cost_continue = 1.31 USD
+cost_fresh    = 1.26 USD
+```
+
+Verdict holds: yes, fragile. Margin shrinks to 3.5% under the adverse C0. Fresh still holds by quality rule 3, since the stage crosses K. Flips to continue at T of 14 or fewer, or at rediscovery L of about 4 turns.
+
+### Final verdict
+
+fresh, model claude-sonnet-5-5, effort medium, pieces 1 (serial). Exact next action: write the 80-line handoff with model id and effort on its first lines, commit it, and have the operator start a fresh claude-sonnet-5-5 medium session. That session checks its model and effort against the front matter (guardrail 8). About 15 minutes added for handoff write and read.
+
+### Cost of deciding
+
+| Row | Value | Source (measured, naming the harness report, or self-estimate) |
+|---|---|---|
+| Context at start | 115,000 | Estimated from characters |
+| Context at end | 127,500 | Self-estimate |
+| Input tokens read | 10,000 | Self-estimate |
+| Output tokens | 2,500 | Self-estimate |
+| Wall clock | about 8 minutes | Self-estimate |
+| Priced | 0.05 USD | table `pricing/2026-10-31.json`; self-estimate (the harness reports no usage) |
+
+```json dispatch-result
+{
+  "verdict": "fresh",
+  "model": "claude-sonnet-5-5",
+  "effort": "medium",
+  "pieces": 1,
+  "margin_usd": 0.15,
+  "margin_pct": 11.7,
+  "break_even_turns": 19.6,
+  "record": "record.md"
+}
+```

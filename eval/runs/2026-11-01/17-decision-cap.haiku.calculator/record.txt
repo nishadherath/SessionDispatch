@@ -1,0 +1,187 @@
+## Session dispatch decision
+
+Date: 2026-11-01. Decided by: claude-haiku-5-5 per the environment block (the brief says claude-fable-5-1, effort xhigh), in Claude Code on Windows. The model conflict is unresolved, see guardrail 8.
+Price table: `pricing/2026-10-31.json` (age 1 day).
+Calculator: not run, because Bash was denied in this session. Figures are by hand under step 2, which the skill allows.
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as of that date |
+| Current model | claude-fable-5-1 | Brief. The harness environment block reports claude-haiku-5-5. Conflict, see guardrail 8 |
+| Target model | claude-opus-5-5 | Matrix row 3 (writing-heavy design brief, cross-module), class opus. The only opus row in the table |
+| Window W | 1,000,000 tokens | Measured, brief |
+| Compaction point K | 970,000 tokens | Measured, brief (autocompact at 97 percent) |
+| Current context C0 | 420,000 tokens | Measured, brief |
+| Compacted already | no | Brief |
+| Unrecorded context | none listed, L = 0 | Brief lists none. Not checked against files |
+| Expected turns T | 40 | Plan, brief |
+| Fresh input per turn F | 3,000 tokens | Estimated, default (unmeasured) |
+| Output per turn O | 3,000 tokens | Estimated, row 3 writing default, effort assumed high. At xhigh output may be larger, tested at 6,000 in the adversarial pass |
+| Fresh baseline B | 86,450 tokens | Measured, brief |
+| Re-read set R | 25,000 tokens total | Estimated from brief. No per-file list |
+| Handoff size H | 2,500 tokens | Estimated, default for a handoff under 120 lines (brief: about 100) |
+| Cache misses M | 0 | Brief expects no review pauses. Unmeasured |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta | 15 | Brief, split only |
+| Acceptance re-read Ra | 30,000 tokens | Brief, split only |
+| Task type | row 3 | Writing-heavy design brief |
+| Design-heavy | yes | Design choice across modules |
+| Irreversible or outward-facing steps | none | Local-only writes, per brief |
+
+### Step A: continue or hand off
+
+```
+G       = F + O                 = 3,000 + 3,000 = 6,000 tokens per turn
+C_end   = C0 + T * G            = 420,000 + 40 * 6,000 = 660,000
+crosses = C_end > K             = 660,000 > 970,000 = false
+C_cont  = C0 + T * G / 2        = 420,000 + 120,000 = 540,000
+C_fresh = B + R + T * G / 2     = 86,450 + 25,000 + 120,000 = 231,450
+
+cost_continue = 5.40 + 3.00 + 6.00 + 0 + 0 = 14.40 USD
+  (cache reads 21.6 M tokens at 0.25; cache writes 0.24 M at 12.5; output 0.12 M at 50; no misses, no penalty)
+cost_fresh    = 0.125 + 0.557 + 1.852 + 1.200 + 2.400 = 6.13 USD
+  (H at fable output 50; (B+R) at opus cache write 5; T*C_fresh at opus cache read 0.2; T*G at 5; T*O at opus output 20)
+T* = n/a: the model changes (fable to opus). For reference, the same-model break-even at fable prices is 19.7 turns, under T = 40
+cost_split    = 0.125 + 3.004 (run at sonnet, H excluded) + 2.417 (acceptance at opus, Ta 15, Ra 30,000) = 5.55 USD
+```
+
+Prices used (per million tokens, input / output / cache_read / cache_write):
+- claude-fable-5-1 (current): 10 / 50 / 0.25 / 12.5
+- claude-opus-5-5 (target): 4 / 20 / 0.2 / 5
+- claude-sonnet-5-5 (split run only): 2 / 10 / 0.1 / 2.5
+
+Draft verdict: fresh, by cost, margin 8.27 USD (135 percent of the fresh side at 6.13 USD). The target class is below the current one, so the class rule does not decide. Rule 2 applies: the cost is lower by more than 10 percent of the smaller side.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Design stage, 40 turns | Opus | claude-opus-5-5 | high | The design note's acceptance list. Acceptance is not priced here | serial | 6.13 USD |
+
+Serial chain and its wall clock: one chain of 40 turns. Add about 10 minutes to write and commit the handoff and about 5 minutes for the new session to read it. The operator must start the new session by hand. Operator review time: not stated in the brief.
+
+Effort raised or lowered because: no change from row 3's high. No raise rule applies (no irreversible step, no security or money, not a merge), and no lower rule applies (not a repeatable, checked task). The current session's xhigh is not carried over.
+
+Split (step 2.1): not an option. Design work has no test or check script to serve as an oracle, so the brief cannot carry a contract and a definition of done. The split figure of 5.55 USD is recorded only to show what a sharper brief might save. Note that the split's acceptance is Opus over a Sonnet run. Under row 4, acceptance of an Opus author would be Fable at high. That acceptance is not priced in this record.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 40.
+2. Design-heavy across a compaction: design-heavy yes, crosses no, not compacted. Not triggered.
+3. Irreversible steps and their approval step: none. No approval step needed.
+4. Model chosen from the table, not memory: claude-opus-5-5 is the only opus-class row in `pricing/2026-10-31.json`. The current model id is taken from the brief, which conflicts with the harness report (guardrail 8).
+5. Table age and nulls: table dated 2026-10-31, age 1 day against the brief's date of 2026-11-01, limit 14. The environment reports 2026-10-30, which would make the table one day ahead. No effect on the verdict. The fable, opus and sonnet rows have no nulls.
+6. Acceptance at matrix row 4's class and effort: the fresh plan is not priced with acceptance. Under row 4 the acceptance of this Opus stage is Fable at high, in a fresh session. The split figure uses Opus and is not a plan.
+7. Decision budget: record about 2,200 tokens (self-estimate, characters divided by 4), under 4,000. Minutes: under 10 by estimate. The harness gave no timestamps.
+8. Class and effort match the harness: NOT MET, UNRESOLVED. The brief states current model claude-fable-5-1 at xhigh. The harness environment block in this session reports claude-haiku-5-5. The operator must confirm which model is running before the handoff is started. If the harness is haiku, target opus is above it, so the verdict stays fresh, by class (rule 1). The cost figures above would then change and must be recomputed at haiku prices, which I have not done. Separately, the skill's class floor says a Haiku-class decider's machine-readable block needs a parser check.
+
+### Adversarial pass
+
+The opposite verdict, argued: continue on the current model. The stage is design-heavy, and a handoff loses the reasons behind earlier choices, which the 2,500-token handoff estimate does not fully capture. Keeping the work in one context avoids a colder start. Continue costs 8.27 USD more, so this is a quality argument, and the rules allow quality to decide only when the costs are within 10 percent. On the figures here it does not.
+
+Each input, the way it could be wrong:
+
+- C0: measured at 420,000. At 30 percent lower, cost_continue falls to 13.14 USD, still above 6.13. At 30 percent higher, it rises to 15.66 USD.
+- T: plan of 40. Doubled to 80, cost_continue becomes 31.20 USD and cost_fresh 13.51 USD. Fresh wins by more.
+- F and O: O at xhigh could double to 6,000. Recomputed below. Margin grows to 12.89 USD.
+- B and R: R may be understated. At 50,000, cost_fresh rises by 0.33 USD to 6.46 USD. Still well below continue.
+- M (review pauses): none expected. One miss adds 6.62 USD to continue and 1.11 USD to fresh. Two misses favour fresh more.
+- Task type: the stage could be Fable-class (matrix row 6). See the recompute below.
+- Prices: the table is 1 day old, and the Anthropic rows were read live on 2026-10-29 per the table's notes. The long-context tier does not apply, since no turn exceeds 100,000 tokens on the target side.
+- Unrecorded context: none listed. If five turns of rediscovery were needed (L = 5), fresh rises by about 0.68 USD to 6.81 USD. Still below continue.
+
+Recomputed with the adverse value that moves the result most (task type: the stage is Fable-class, so the target equals the current model; fresh is then priced at fable):
+
+```
+cost_continue = 14.40 USD
+cost_fresh    = 12.83 USD (fable, same class; margin 1.57 USD, 12.2 percent of the smaller side)
+```
+
+Recomputed with O = 6,000 (xhigh):
+
+```
+cost_continue = 22.50 USD
+cost_fresh    = 9.61 USD
+```
+
+Verdict holds: yes. The Fable-class reading shrinks the margin to 12.2 percent, still above the 10 percent line, so it is recorded as thin on that reading. The omitted fresh-side terms (2 to 11 percent of the smaller side) are inside that margin's range only on the Fable reading, and the verdict still holds there.
+
+### Final verdict
+
+fresh, model claude-opus-5-5, effort high, pieces 1 (serial). Exact next action: the operator confirms which model the harness is running (the brief says claude-fable-5-1, the environment says claude-haiku-5-5). If the confirmed model is fable, start a fresh session on claude-opus-5-5 at high effort, with the handoff's first lines stating the model id and effort. Acceptance of the finished stage is Fable at high under row 4, in a fresh session.
+
+### Cost of deciding
+
+| Row | Value | Source (measured, naming the harness report, or self-estimate) |
+|---|---|---|
+| Context at start | unmeasured | No usage tool was called, Bash was denied. Self-estimate not made |
+| Context at end | unmeasured | As above |
+| Input tokens read | about 11,000 | Self-estimate: skill, price table, record template, inputs |
+| Output tokens | about 2,200 | Self-estimate: characters divided by 4 |
+| Wall clock | unmeasured | No timestamps from the harness. Under 10 minutes by estimate |
+| Priced | about 0.003 USD | Self-estimate at claude-haiku-5-5 rates (input 0.125 cache write, output 0.5), table `pricing/2026-10-31.json` |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current_model": "claude-fable-5-1",
+    "current_model_harness_report": "claude-haiku-5-5",
+    "target_model": "claude-opus-5-5",
+    "target_effort": "high",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 420000,
+    "compacted": false,
+    "T": 40,
+    "F": 3000,
+    "O": 3000,
+    "B": 86450,
+    "R": 25000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "Ta": 15,
+    "Ra": 30000
+  },
+  "table_age_days": 1,
+  "totals": {
+    "G": 6000,
+    "C_end": 660000,
+    "crosses": false,
+    "C_cont": 540000,
+    "C_fresh": 231450,
+    "cost_continue_usd": 14.40,
+    "cost_fresh_usd": 6.13,
+    "cost_split_usd": 5.55,
+    "T_star": null
+  },
+  "draft": {
+    "verdict": "fresh",
+    "by": "cost",
+    "margin_usd": 8.27,
+    "margin_pct_of_smaller": 135
+  },
+  "guardrails_triggered": [
+    "8: brief states claude-fable-5-1, harness reports claude-haiku-5-5; unresolved, operator to confirm"
+  ],
+  "final": {
+    "verdict": "fresh",
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "pieces": 1,
+    "serial_or_parallel": "serial",
+    "next_action": "Operator confirms the harness model, then starts a fresh session on claude-opus-5-5 with the model id and effort on the handoff's first lines."
+  },
+  "cost_of_deciding": {
+    "context_start": "unmeasured",
+    "context_end": "unmeasured",
+    "input_tokens_read": "self-estimate about 11000",
+    "output_tokens": "self-estimate about 2200",
+    "wall_clock": "unmeasured, under 10 minutes by estimate",
+    "priced_usd": "self-estimate about 0.003 at claude-haiku-5-5 rates, table 2026-10-31"
+  }
+}
+```

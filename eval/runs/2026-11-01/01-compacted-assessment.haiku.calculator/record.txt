@@ -1,0 +1,180 @@
+## Session dispatch decision
+
+Date: 2026-11-01. Decided by: claude-haiku-5-5 per the runtime environment block (see guardrail 8); the stage states claude-fable-5-1 at effort high. Harness: Claude Code desktop.
+Price table: `pricing/2026-10-31.json` (age 1 day as of 2026-11-01; the system clock reads 2026-10-30, which puts the table one day ahead of it, still inside max_age_days 14).
+
+Calculator: `scripts/dispatch.mjs` was not run because the Bash tool was denied in this session. All figures below are hand-computed from the same formulas in the template and must be re-checked with the script.
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as of that date |
+| Current model | claude-fable-5-1, effort high | Stage description. Conflicts with the runtime environment block (claude-haiku-5-5); unresolved, see guardrail 8 |
+| Target model | claude-fable-5-1 | Matrix row 6 (whole-project assessment and roadmap), Fable class at high effort |
+| Window W | 200,000 | Stage description |
+| Compaction point K | 190,000 | 0.95 × W (auto-compact at 95 percent) |
+| Current context C0 | 100,000 | Status line, approximate |
+| Compacted already | yes | Once earlier today |
+| Unrecorded context | none | Everything needed is on disk |
+| Expected turns T | 60 | Stage description |
+| Fresh input per turn F | 3,000 | Measured on the previous assessment; read-heavy stages suggest 5,000 to 8,000 (adverse case, see adversarial pass) |
+| Output per turn O | 1,500 | Measured at high effort |
+| Fresh baseline B | 25,000 | Unmeasured default, an estimate |
+| Re-read set R | 30,000 | 1,000 + 12,000 + 6,000 + 9,000 + 2,000, estimated per file group |
+| Handoff size H | 2,500 | Default; handoff about 60 lines |
+| Cache misses M | 0 | No measurement; no review pauses expected |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta | 15 | Split only |
+| Acceptance re-read Ra | 40,000 | Split only |
+| Task type | Matrix row 6, whole-project assessment and roadmap | |
+| Design-heavy | yes | |
+| Irreversible or outward-facing steps | none | Local writes and commits only |
+
+### Step A: continue or hand off
+
+```
+G       = F + O                 = 3,000 + 1,500 = 4,500
+C_end   = C0 + T * G            = 100,000 + 270,000 = 370,000
+crosses = C_end > K             = true (370,000 > 190,000)
+C_cont  = C0 + T * G / 2        = 235,000
+C_fresh = B + R + T * G / 2     = 25,000 + 30,000 + 135,000 = 190,000
+
+cost_continue = T*C_cont*p_cr + T*G*p_cw + T*O*p_out + M*C_cont*(p_cw - p_cr) + penalty_compaction
+              = 3.525 + 3.375 + 4.5 + 0 + 0.5 = 11.90 USD
+cost_fresh    = H*p_out + (B+R)*p_cw + T*C_fresh*p_cr + T*G*p_cw + T*O*p_out + M*C_fresh*(p_cw - p_cr) + penalty_loss
+              = 0.125 + 0.6875 + 2.85 + 3.375 + 4.5 + 0 + 0 = 11.54 USD
+T* = (H*p_out + (B+R)*p_cw) / ((C0 - B - R) * p_cr) = 0.8125 / 0.01125 = 72.2 turns
+cost_split    = H*p_out + run at sonnet + acceptance at opus (Ta, Ra)
+              ≈ 0.125 + 2.85 + 1.21 = 4.19 USD (hand-computed, not in the draft verdict)
+```
+
+penalty_compaction (continue) = R*p_cw + H*p_out = 0.375 + 0.125 = 0.5 USD.
+
+Prices used (per million): claude-fable-5-1 input 10, output 50, cache_read 0.25, cache_write 12.5.
+
+Draft verdict: fresh, by quality, margin 0.36 USD (3.1 percent of the smaller side, inside the 10 percent band, so cost does not decide). The session has already compacted once, which is the quality loss that decides it. T* is 72.2, above T = 60, so the break-even reading alone would also favour continuing on cost; the short path does not apply because crosses is true and the session has compacted.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Whole-project assessment, fresh session | fable | claude-fable-5-1 | high | Assessment rubric in the stage brief | Serial | 11.54 USD |
+
+Serial chain and its wall clock: not measured. Operator review time: none stated.
+
+Effort raised or lowered because: no change (target effort matches the harness, high).
+
+Split (step 2.1): priced, not chosen. Brief by the current model, run at sonnet, acceptance at opus gives about 4.19 USD, cheaper than either side. It is not the plan because this stage is an assessment rather than matrix row 1 or 2 work, and the brief cannot carry a clean oracle, so the split's acceptance pass would not have a reliable check. This is the weakest point of the verdict on cost and should be reviewed.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 60. Not binding.
+2. Design-heavy across a compaction: yes, design-heavy and compacted once. Binding; requires fresh.
+3. Irreversible steps and their approval step: none. Not binding.
+4. Model chosen from the table, not memory: claude-fable-5-1 from the Anthropic family of `pricing/2026-10-31.json`, fetched 2026-10-29. Complete row.
+5. Table age and nulls: age 1 day (within 14). The Anthropic rows used are complete. Non-Anthropic nulls not needed.
+6. Acceptance at matrix row 4's class and effort: if an acceptance pass is used, it runs in a fresh session at the row 4 class and effort.
+7. Decision budget: record kept under 4,000 tokens; minutes not measured.
+8. Class and effort match the harness: target is fable at high, matching the stage description. The runtime environment block reports claude-haiku-5-5, which does not match. If the harness model is haiku, the current-model prices and the handoff cost would change, and this record would need redoing. Unresolved.
+
+### Adversarial pass
+
+The opposite verdict, argued: Continuing keeps the 100,000 tokens of context already built up, and the costs are close (11.90 against 11.54). The session has compacted only once and the context is still well inside the window. Rebuilding from a handoff risks the same rediscovery loss that continuing avoids, and the quality penalty of the compaction is not priced here.
+
+Each input, the way it could be wrong:
+
+- C0: the status line is approximate; a higher C0 widens the gap between the two sides and makes continue more expensive.
+- T: 60 turns is a stage description; a longer stage pushes T past T* of 72.2 and favours continue on cost.
+- F and O (and the effort O assumes): F at 5,000 to 8,000 raises G and both sides; O assumes high effort.
+- B and R: B at 25,000 is an estimate; R is summed from per-file estimates.
+- M (review pauses): none expected; any pause past the cache lifetime adds cache writes to both sides and to continue most.
+- Task type: matrix row 6 is an assessment; a row 1 or 2 classification would change the split analysis.
+- Prices: the table is 1 day old and the Fable row is complete.
+- Unrecorded context: none listed. Any unrecorded context would add to L and to the fresh side.
+
+Recomputed with the adverse value that moves the result most (F at 8,000, so G = 9,500):
+
+```
+C_end   = 100,000 + 60 * 9,500 = 670,000
+C_cont  = 100,000 + 60 * 9,500 / 2 = 385,000
+C_fresh = 25,000 + 30,000 + 285,000 = 340,000
+cost_continue = 60*385,000*0.25e-6 + 60*9,500*12.5e-6 + 90,000*50e-6 + 0.5 = 5.775 + 7.125 + 4.5 + 0.5 = 17.90
+cost_fresh    = 0.125 + 0.6875 + 60*340,000*0.25e-6 + 7.125 + 4.5 = 0.125 + 0.6875 + 5.1 + 7.125 + 4.5 = 17.54
+```
+
+Verdict holds: yes, fragile. Cost gap stays inside 10 percent at F 8,000 (the fresh side is still lower by about 2 percent), and it flips in favour of continue at a T above 72.2 or a B well below 25,000. Under guardrail 2 the verdict is fresh regardless of cost. The unresolved model-identity conflict is the input most likely to change the record.
+
+### Final verdict
+
+fresh, model claude-fable-5-1, effort high, pieces 1 (serial). Exact next action: open a fresh session on claude-fable-5-1 at high effort, load `templates/handoff.md` (about 2,500 tokens) plus the re-read set, and start the whole-project assessment. Before starting, confirm the harness model; if it is claude-haiku-5-5, redo this record.
+
+### Cost of deciding
+
+| Row | Value | Source (measured, naming the harness report, or self-estimate) |
+|---|---|---|
+| Context at start | 100,000 tokens | Status line, approximate |
+| Context at end | about 100,000 tokens | Self-estimate; decision used no further context |
+| Input tokens read | not measured | Self-estimate; skill files, table and template read |
+| Output tokens | not measured | Self-estimate; this record and reasoning |
+| Wall clock | not measured | No timing available |
+| Priced | not priced; the decision itself adds no cost beyond the above | table `pricing/2026-10-31.json`; self-estimate |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "calculator_run": false,
+  "calculator_note": "dispatch.mjs denied by permission; figures hand-computed from the same formulas",
+  "inputs": {
+    "current": "claude-fable-5-1",
+    "target": "claude-fable-5-1",
+    "W": 200000,
+    "K": 190000,
+    "C0": 100000,
+    "T": 60,
+    "F": 3000,
+    "O": 1500,
+    "B": 25000,
+    "R": 30000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": true,
+    "Ta": 15,
+    "Ra": 40000,
+    "G": 4500
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "11.90",
+    "cost_fresh": "11.54",
+    "cost_split": "4.19",
+    "t_star": "72.2"
+  },
+  "draft": {
+    "side": "fresh",
+    "by": "quality"
+  },
+  "guardrails_triggered": [2],
+  "final": {
+    "outcome": "fresh",
+    "model": "claude-fable-5-1",
+    "effort": "high",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "context_at_start": "100000",
+    "context_at_end": "about 100000",
+    "input_tokens_read": "not measured",
+    "output_tokens": "not measured",
+    "wall_clock": "not measured",
+    "priced": "self-estimate, no extra cost",
+    "table": "pricing/2026-10-31.json"
+  },
+  "open_issues": [
+    "harness model conflict: stage says claude-fable-5-1 at high, runtime environment says claude-haiku-5-5",
+    "table date 2026-10-31 is one day after the system clock date 2026-10-30",
+    "split priced at 4.19 USD but ruled out by step 2.1 (no clean oracle); review"
+  ]
+}
+```

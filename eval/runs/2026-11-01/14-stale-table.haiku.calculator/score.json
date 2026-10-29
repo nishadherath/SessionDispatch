@@ -1,0 +1,54 @@
+{
+  "scenario": "14-stale-table",
+  "subject": "haiku",
+  "arm": "calculator",
+  "outcome_expected": "continue",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "continue",
+  "final_ok": true,
+  "draft_ok": null,
+  "guardrails_ok": true,
+  "bound": [
+    5
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": false,
+    "reason": "stale table (29 days old)",
+    "stated": 0,
+    "correct": 0,
+    "missing": 0,
+    "max_error_usd": null,
+    "rule_ok": null,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 14,
+    "matched": 14,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 10000,
+    "reported_minutes": 4,
+    "measured_tokens": 1223745,
+    "measured_minutes": 1.9605333333333332,
+    "record_tokens": 2019,
+    "usd_to_decide": 0.0022,
+    "usd_measured": 0.0161,
+    "over_cap": false,
+    "report_ratio": 0.008
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": ""
+}

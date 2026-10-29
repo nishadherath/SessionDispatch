@@ -1,0 +1,138 @@
+{
+  "duration_api_ms": 142653,
+  "stop_reason": "end_turn",
+  "session_id": "97c65f8c-3094-4d9b-9c9d-29b88ff65873",
+  "total_cost_usd": 2.8084814999999996,
+  "usage": {
+    "input_tokens": 16,
+    "cache_creation_input_tokens": 48048,
+    "cache_read_input_tokens": 1167646,
+    "output_tokens": 26603,
+    "output_tokens_details": {
+      "thinking_tokens": 21130
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 48048,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 1700,
+        "cache_read_input_tokens": 134581,
+        "cache_creation_input_tokens": 17839,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 17839
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "claude-haiku-5-5": {
+      "inputTokens": 2264,
+      "outputTokens": 29798,
+      "cacheReadInputTokens": 1326776,
+      "cacheCreationInputTokens": 48311,
+      "webSearchRequests": 0,
+      "costUSD": 2.8084814999999996,
+      "contextWindow": 200000,
+      "maxOutputTokens": 128000,
+      "thinkingTokens": 21130,
+      "canonicalModel": "claude-haiku-5-5",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_012K5nQFEeEUPiHNJzPpUxuL",
+      "tool_input": {
+        "command": "cd \"C:\\Users\\Bob\\AppData\\Local\\Temp\\sd-eval\\2026-11-01\\16-outward-release.haiku.calculator\\skill\" && node scripts/dispatch.mjs --current claude-sonnet-5-5 --target haiku --W 1000000 --K 970000 --C0 400000 --T 15 --F 2000 --O 1000 --B 86450 --R 8000 --H 2500 --M 0 --L 0 --compacted no --today 2026-11-01; echo \"EXIT $?\"",
+        "description": "Run the dispatch calculator with the stage inputs"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "is_error": false,
+  "num_turns": 10,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "done",
+  "ttft_ms": 2600,
+  "type": "result",
+  "duration_ms": 151959,
+  "uuid": "913a7dfd-a50d-4996-9253-bc00527db083",
+  "ttft_stream_ms": 2301,
+  "time_to_request_ms": 475,
+  "time_to_request_phases_ms": {
+    "other": 51,
+    "system_prompt": 44,
+    "resume_other": 0,
+    "process_user_input": 9,
+    "input_attachments": 29,
+    "input_hooks": 8,
+    "tool_pool_refresh": 26,
+    "init_message": 110,
+    "engine_pickup": 2,
+    "message_prep": 1,
+    "model_config_wait": 3,
+    "autocompact": 4,
+    "query_setup": 2,
+    "model_gates": 2,
+    "tool_schema_build": 53,
+    "message_normalization": 4,
+    "client_creation": 26,
+    "request_build": 101
+  },
+  "turn_start_resume_kind": "none",
+  "process_turn_index": 0,
+  "time_to_request_loop_lag_ms": 219,
+  "time_to_request_cpu_ms": 422,
+  "time_to_request_major_faults": 4380,
+  "input_attachments_detail": {
+    "slowest_producer": "queued_commands",
+    "slowest_producer_ms": 18,
+    "cpu_ms": 46,
+    "major_faults": 236
+  },
+  "first_content_frame_ms": 2302,
+  "queued_turn_count": 0,
+  "result_index": 0
+}

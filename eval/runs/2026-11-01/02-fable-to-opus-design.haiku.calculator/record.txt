@@ -1,0 +1,171 @@
+## Session dispatch decision
+
+Date: 2026-11-01. Decided by: claude-haiku-5-5, effort not stated, in the Claude Code desktop harness.
+Price table: `pricing/2026-10-31.json` (age 1 day).
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as of that date |
+| Current model | claude-fable-5-1, xhigh | Harness report of this session's model and effort |
+| Target model | claude-opus-5-5 | Matrix row 3 (cross-module specification plus implementation), class opus, id from the table |
+| Window W | 1,000,000 | Harness contextWindow |
+| Compaction point K | 970,000 | 0.97 x W, harness autoCompactsAtPercent 97 |
+| Current context C0 | 254,081 | Harness tokensUsed |
+| Compacted already | no | Harness report |
+| Unrecorded context | none | Session summary carries the stage state; no unrecorded items listed |
+| Expected turns T | 60 | Plan estimate for the stage |
+| Fresh input per turn F | 3,000 | Default, unmeasured estimate |
+| Output per turn O | 3,000 | Self-estimate for a writing-heavy stage at high effort |
+| Fresh baseline B | 86,450 | Measured by the situation (fresh session baseline) |
+| Re-read set R | 20,000 | Files re-read on a fresh start: 7,000 + 4,700 + 2,800 + 2,300 + 700 + 2,500 |
+| Handoff size H | 2,500 | Self-estimate, about 100 lines |
+| Cache misses M | 0 | No review pauses expected beyond the cache lifetime |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta | 15 | Split only, plan estimate |
+| Acceptance re-read Ra | 30,000 | Split only, plan estimate |
+| Task type | Matrix row 3 | Cross-module decision procedure revision |
+| Design-heavy | yes | |
+| Irreversible or outward-facing steps | none | File writes are local and reversible; no git repository |
+
+### Step A: continue or hand off
+
+Output of `node scripts/dispatch.mjs` (formula 2026-10-29, target claude-opus-5-5):
+
+```
+G       = F + O                 = 6,000
+C_end   = C0 + T * G            = 614,081
+crosses = C_end > K             = false (K 970,000)
+C_cont  = C0 + T * G / 2        = 434,081
+C_fresh = B + R + T * G / 2     = 286,450
+
+cost_continue = 6.511 + 4.500 + 9.000 + 0 + 0 = 20.01 USD (claude-fable-5-1)
+cost_fresh    = 0.125 + 0.532 + 3.437 + 1.800 + 3.600 + 0 + 0 = 9.49 USD (claude-opus-5-5)
+T* = n/a: the model changes
+cost_split    = 0.125 + run at claude-sonnet-5-5 (4.685) + acceptance at claude-opus-5-5 (2.417) = 7.23 USD
+```
+
+Prices used (per million): claude-fable-5-1 input 10, output 50, cache_read 0.25, cache_write 12.50; claude-opus-5-5 input 4, output 20, cache_read 0.20, cache_write 5.00.
+
+Draft verdict: fresh, by cost, margin 10.52 USD (110.8 percent of the smaller side; band 10 percent).
+
+A same-model check (target claude-fable-5-1) gives fresh 19.25 against continue 20.01, so the draft would read continue by quality. The target model is what decides the outcome, and the matrix row fixes it at opus.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| The stage | opus | claude-opus-5-5 | high | none recorded | serial | 9.37 USD, plus the handoff 0.125 |
+
+Serial chain and its wall clock: one piece, wall clock not measured. Operator review time: not stated.
+
+Effort raised or lowered because: lowered from the harness xhigh to high for a writing-heavy stage under the row 3 rule, as planned.
+
+Split (step 2.1): not adopted. The split costs 7.23 USD, 2.27 USD under fresh, but it applies only when the brief carries a contract, an oracle and a definition of done. This stage is an ambiguous cross-module design with none of these, so the split is recorded as a figure only.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 60.
+2. Design-heavy across a compaction: no compaction; C_end 614,081 does not cross K 970,000.
+3. Irreversible steps and their approval step: none.
+4. Model chosen from the table, not memory: claude-opus-5-5 is the table's opus id; claude-fable-5-1 is the table's fable id.
+5. Table age and nulls: table 1 day old, within 14; no null prices on the models used.
+6. Acceptance at matrix row 4's class and effort: the split is not adopted, so no separate acceptance session. The acceptance in this stage runs at opus, high.
+7. Decision budget: this record is about 1,800 tokens by self-estimate, against 4,000. Minutes not measured against 10.
+8. Class and effort match the harness: no. The harness runs fable at xhigh; the handoff names claude-fable-5-1 xhigh as the source and claude-opus-5-5 high as the target on its first lines.
+
+### Adversarial pass
+
+The opposite verdict, argued: continue keeps the 254,081 tokens already in context, so the design reasoning stays intact and no handoff is written. A fresh session pays for re-reading 106,450 tokens and writing a handoff, and it can lose the nuance held in the current thread. Against that, the cost gap is 10.52 USD and the quality loss from a clean handoff is small for a stage whose inputs are recorded.
+
+Each input, the way it could be wrong:
+
+- C0: a harness figure, unlikely to be wrong by more than a few thousand tokens.
+- T: if the stage runs 120 turns, the continue side grows faster and the verdict strengthens.
+- F and O: O at 6,000 per turn raises both sides; see below.
+- B and R: if R is 40,000, fresh rises by about 0.2 USD at opus, which does not flip the verdict.
+- M (review pauses): unmeasured; a cache expiry during review would raise continue, so this moves toward fresh.
+- Task type: if the stage is a simple edit (row 1), the target could drop to sonnet and the gap would change; the row 3 classification stands.
+- Prices: the table is 1 day old; a change of up to 2 percent in opus rates would not flip the verdict.
+- Unrecorded context: none listed; if context lived only in the thread, L would rise and favour continue.
+
+Recomputed with the adverse value that moves the result most (O at 6,000, both sides rise):
+
+```
+cost_continue = 32.61 USD (claude-fable-5-1)
+cost_fresh    = 15.07 USD (claude-opus-5-5)
+```
+
+Verdict holds: yes. The margin widens to about 17.5 USD. Doubling T to 120 at base O gives continue 45.42 against fresh 22.65, so the verdict holds there too.
+
+### Final verdict
+
+Fresh, model claude-opus-5-5, effort high, pieces 1 (serial). Exact next action: write the handoff (about 100 lines, naming claude-fable-5-1 at xhigh as the source and claude-opus-5-5 at high as the target on its first lines), then start a fresh session at claude-opus-5-5 high with that handoff. Keep claude-fable-5-1 for the assessment-type tiering decision.
+
+### Cost of deciding
+
+| Row | Value | Source (measured, naming the harness report, or self-estimate) |
+|---|---|---|
+| Context at start | 254,081 | Measured: harness tokensUsed |
+| Context at end | not measured | Not reported by the harness |
+| Input tokens read | not measured | Not reported by the harness |
+| Output tokens | not measured | Not reported by the harness |
+| Wall clock | not measured | Not reported by the harness |
+| Priced | not measured | Table `pricing/2026-10-31.json`; cost of deciding not priced |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "formula": "2026-10-29",
+    "current_model": "claude-fable-5-1",
+    "current_effort": "xhigh",
+    "target_model": "claude-opus-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 254081,
+    "compacted": false,
+    "unrecorded_context": [],
+    "T": 60,
+    "F": 3000,
+    "O": 3000,
+    "B": 86450,
+    "R": 20000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "Ta": 15,
+    "Ra": 30000,
+    "task_type": "matrix row 3",
+    "design_heavy": true,
+    "irreversible_steps": []
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "20.01",
+    "cost_fresh": "9.49",
+    "cost_split": "7.23",
+    "t_star": null
+  },
+  "draft": {
+    "side": "fresh",
+    "by": "cost"
+  },
+  "guardrails_triggered": [7, 8],
+  "final": {
+    "outcome": "fresh",
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "context_at_start": 254081,
+    "context_at_end": null,
+    "input_tokens_read": null,
+    "output_tokens": null,
+    "wall_clock": null,
+    "priced": null
+  }
+}
+```

@@ -1,0 +1,138 @@
+{
+  "duration_api_ms": 100939,
+  "stop_reason": "end_turn",
+  "session_id": "16f093bb-77dc-4ac1-89ba-1bd9006d3c97",
+  "total_cost_usd": 4.89576425,
+  "usage": {
+    "input_tokens": 18,
+    "cache_creation_input_tokens": 176432,
+    "cache_read_input_tokens": 1180636,
+    "output_tokens": 17635,
+    "output_tokens_details": {
+      "thinking_tokens": 15678
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 176432,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 1001,
+        "cache_read_input_tokens": 156171,
+        "cache_creation_input_tokens": 344,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 344
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "claude-haiku-5-5": {
+      "inputTokens": 3849,
+      "outputTokens": 19878,
+      "cacheReadInputTokens": 1333187,
+      "cacheCreationInputTokens": 176547,
+      "webSearchRequests": 0,
+      "costUSD": 4.89576425,
+      "contextWindow": 200000,
+      "maxOutputTokens": 128000,
+      "thinkingTokens": 15678,
+      "canonicalModel": "claude-haiku-5-5",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01KSCs4J8r6BDKe4WSpT4Rt5",
+      "tool_input": {
+        "command": "powershell -NoProfile -Command \"Get-Content -LiteralPath 'C:\\Users\\Bob\\.claude\\projects\\C--Users-Bob-AppData-Local-Temp-sd-eval-2026-11-01-03-break-even-continue-haiku-calculator\\16f093bb-77dc-4ac1-89ba-1bd9006d3c97.jsonl' | Select-Object -First 3 | ForEach-Object { \\$_.Substring(0, [Math]::Min(3000, \\$_.Length)) }\"",
+        "description": "Show the start of the saved transcript"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "is_error": false,
+  "num_turns": 11,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "I haven't written `record.md` yet, because the stage figures are missing and I can't compute the verdict without them.\n\n- **Ready:** The skill, its decision-record template and the price table (`pricing/2026-10-31.json`) are all read. The table is one day old, inside its 14-day limit. Sonnet is priced at $2 input, $10 output, $0.10 cache read and $2.50 cache write per million tokens. Opus is $4, $20, $0.20 and $5.\n- **Missing:** The stage situation from your original request (window W, compaction point K, current context C0, expected turns T, fresh input F, output O, baseline B, re-read set R, handoff size H, current model, and task type). That request was lost when the session was summarised. The saved transcript isn't at the path the summary gave, and shell access was denied, so I couldn't search for it.\n\nCould you paste the stage figures, or the stage description with the numbers you have? Once I have them I'll run the calculator if it can be run, do the guardrail and adversarial checks, write `record.md`, and reply \"done\".\n\nSeparately, four claude.ai connectors need authorising before they work here: ElevenLabs, Gmail, Google Calendar and Shopify. Authorise them in your claude.ai connector settings. This session can't run that login. None of them is needed for this task.",
+  "ttft_ms": 3367,
+  "type": "result",
+  "duration_ms": 114825,
+  "uuid": "c3714ab8-c4c9-42bf-808e-68b7e99f6814",
+  "ttft_stream_ms": 2987,
+  "time_to_request_ms": 646,
+  "time_to_request_phases_ms": {
+    "other": 115,
+    "system_prompt": 161,
+    "resume_other": 1,
+    "process_user_input": 5,
+    "input_attachments": 28,
+    "input_hooks": 4,
+    "tool_pool_refresh": 27,
+    "init_message": 100,
+    "engine_pickup": 2,
+    "message_prep": 1,
+    "model_config_wait": 32,
+    "autocompact": 5,
+    "query_setup": 18,
+    "model_gates": 2,
+    "tool_schema_build": 61,
+    "message_normalization": 8,
+    "client_creation": 15,
+    "request_build": 61
+  },
+  "turn_start_resume_kind": "none",
+  "process_turn_index": 0,
+  "time_to_request_loop_lag_ms": 412,
+  "time_to_request_cpu_ms": 422,
+  "time_to_request_major_faults": 5541,
+  "input_attachments_detail": {
+    "slowest_producer": "queued_commands",
+    "slowest_producer_ms": 17,
+    "cpu_ms": 47,
+    "major_faults": 334
+  },
+  "first_content_frame_ms": 2988,
+  "queued_turn_count": 0,
+  "result_index": 0
+}
