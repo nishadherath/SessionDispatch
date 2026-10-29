@@ -75,8 +75,10 @@ pull request if the operator asks for it, approval step named.
 Continue on Fable: C_cont = 188k + 37.5k = 225.5k; reads 25 x 225.5k x 0.25e-6 = 1.41; fresh input
 25 x 3k x 12.5e-6 = 0.94; output 25 x 1.5k x 50e-6 = 1.88; no compaction (C_end 263k < K): 4.22 USD.
 Fresh on Sonnet: handoff 2.5k x 10e-6 = 0.03; first read 100k x 2.5e-6 = 0.25; reads 25 x 137.7k x
-0.1e-6 = 0.34; fresh input 25 x 3k x 2.5e-6 = 0.19; output 25 x 1.5k x 10e-6 = 0.38; loss 0: 1.19 USD.
-Draft verdict: fresh, by cost, margin 3.03 USD (255 percent of the smaller). The class change alone
+0.1e-6 = 0.34; fresh input 25 x 3k x 2.5e-6 = 0.19; output 25 x 1.5k x 10e-6 = 0.38; loss 0: 1.18 USD
+(corrected 2026-10-29 by Stage F1: the original added the five terms after rounding each to the cent; the
+exact sum is 1.1825, and the margin below was 3.03 USD, 255 percent, by the same cent).
+Draft verdict: fresh, by cost, margin 3.04 USD (257 percent of the smaller). The class change alone
 would force it (guardrail 8).
 
 ### Step B: model, effort and concurrency
