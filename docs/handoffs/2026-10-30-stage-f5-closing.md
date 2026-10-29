@@ -2,7 +2,7 @@
 stage: "Stage F5: closing assessment on H3"
 model: claude-fable-5-1
 effort: high
-status: ready
+status: done
 created: 2026-10-30
 from: "Session local_e1d2c989 (Sonnet 5.5, medium): Stage H3, clean-harness regression"
 ---
@@ -35,6 +35,8 @@ Read H3's results, rule on the two thresholds and on D10, update the class floor
 ## Work completed
 - H3: `prepare` (42 runs, one manifest), the Bash grant test, 21 Haiku runs, 20 Sonnet runs, `collect`, `score`, the results file with its Notes. Interim commit `cbd0f26`; closing commit in `git log`.
 - Not done: S3 (adapter verification, operator present); the scorer header line "Skill commit: efdb2ef" does not match S5's `c1890f7` (guess: a stale ref in the scorer; not touched, `eval/score.mjs` was out of scope).
+
+- F5 done 2026-10-30 by session local_9e9ec94a (Fable 5.1, high): `docs/assessment-2026-10-30-f5.md`, the floor edited, D10 ruled A, D11 raised, S3 handoff written. Gate 106 files, 0 findings; 48 tests pass; `install --check` 0 files behind. Commit "docs(assessment): Stage F5" in `git log`.
 
 ## Unresolved questions
 - F5: is the Haiku miss the subject or the contract? The 8 misses are all format or no-record, never a wrong verdict, and the failure types differ from H2's; the harness also changed, so attribution is open. State a ruling and its confidence, and say what the class floor in `SKILL.md` should read (Haiku reaches the right verdict on every scorable run but writes a machine-unreadable block in 7 of 21 and no record in 1).

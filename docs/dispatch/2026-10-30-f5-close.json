@@ -1,0 +1,24 @@
+{
+  "_note": "Stage F5 close (2026-10-30): the session dispatch decision of claude-fable-5-1 at high for the stages that follow F5, priced as fresh Sonnet sessions by SKILL.md step 2 and 3.3. Run: node scripts/dispatch.mjs --json docs/dispatch/2026-10-30-f5-close.json --today 2026-10-30. C0 and B measured by get_usage self in the F5 session after the reading phase (214,240 total, 127,077 Messages, so B 87,163). T, F, O, R and H are estimates. S3 as F4 priced it (T 25, R 15,000: its handoff 4,000, the adapters 7,000, the installer's output 4,000). H4 (conditional on decision D11) as H3's orchestration was priced (T 15, R 15,000) plus 21 Haiku subject runs at H3's measured mean of 0.0344 USD (0.72 USD), not in the calculator's figure.",
+  "formula": "2026-10-29",
+  "table": "pricing/2026-10-29.json",
+  "today": "2026-10-30",
+  "current": "claude-fable-5-1",
+  "target": "sonnet",
+  "W": 1000000,
+  "K": 970000,
+  "C0": 214240,
+  "compacted": false,
+  "T": 25,
+  "F": 3000,
+  "O": 1500,
+  "B": 87163,
+  "R": 15000,
+  "H": 4000,
+  "M": 0,
+  "L": 0,
+  "pieces": [
+    { "name": "S3 adapter verification, operator present", "model": "claude-sonnet-5-5", "effort": "medium", "T": 25, "F": 3000, "O": 1500, "R": 15000 },
+    { "name": "H4 Haiku cell rerun on the fixed harness (conditional, D11)", "model": "claude-sonnet-5-5", "effort": "medium", "T": 15, "F": 3000, "O": 1500, "R": 15000 }
+  ]
+}
