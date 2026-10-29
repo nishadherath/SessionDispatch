@@ -92,3 +92,5 @@ Fresh session, `claude-fable-5-1`, xhigh, one piece, serial. Exact next action: 
 | Output tokens | about 3,600 | this file, characters divided by 4; estimate |
 | Wall clock | about 6 minutes | session clock, 11:09 to 11:15 UTC |
 | Priced | 3,000 x 5e-6 + 3,600 x 20e-6 = 0.09 USD | table `pricing/2026-10-29.json`, opus row |
+
+Stage O1 docs commit: `bd3fd2a` (this line added by the follow-up commit).
