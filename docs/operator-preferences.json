@@ -15,10 +15,10 @@
     },
     "autonomy": {
       "question": "May sessions work autonomously: start the next session themselves with the model and effort set, keep docs/status.md current, and report rather than ask?",
-      "answer": null,
+      "answer": true,
       "asked": "2026-10-29",
-      "recorded": null,
-      "note": null
+      "recorded": "2026-10-29",
+      "note": "Answered yes on 2026-10-29 in the assessment session. Stages O1, S1 and H0 had already been started by the operator from their cards. A finishing session starts the next stage itself where the class is at or below its own; a higher class is started by the Fable coordinating session or by the operator."
     }
   }
 }
