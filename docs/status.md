@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, nineteenth update, by the Stage F4 session (claude-fable-5-1, high) at its close.
+Last updated: 2026-10-30, nineteenth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after pushing F4 and starting Stage S4, with S5 queued behind it.
 
 ## Done
 
@@ -32,7 +32,8 @@ Last updated: 2026-10-30, nineteenth update, by the Stage F4 session (claude-fab
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| none started | S4 and S5 are ready to start from their handoffs (`docs/handoffs/2026-10-30-stage-s4-harness-and-contract.md`, `docs/handoffs/2026-10-30-stage-s5-skill-text.md`); the coordinating session starts them, side by side (disjoint files except one changelog line each) | Sonnet, medium | worktrees or this checkout | S4 45 to 60 min, 2.5 to 5 USD; S5 15 to 25 min, 0.7 to 1.5 USD |
+| S4: harness hardening and evaluation contract | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-s4-harness-and-contract.md`; session `local_ddab9c5b`, name `stage-s4`, sharing this checkout; F4's commit `4cb1597` pushed | Sonnet, medium | this checkout, `main` | 45 to 60 min, 2.5 to 5 USD (3.11 by the calculator) |
+| S5: skill text, the class floor and two definitions | queued: starts in this checkout when S4's note arrives, from `docs/handoffs/2026-10-30-stage-s5-skill-text.md`. The coordinating session chose one after the other rather than side by side: two writers in one working tree would share `README.md` and the gate runs, and a worktree for S5 would need a merge step; the cost is S5's 15 to 25 minutes on the chain | Sonnet, medium | this checkout, `main` | 15 to 25 min, 0.7 to 1.5 USD (0.85 by the calculator) |
 
 The three installed copies (claude, codex, opencode) were refreshed with
 `node scripts/install.mjs` on 2026-10-30 after O3; `--check` reports 0
