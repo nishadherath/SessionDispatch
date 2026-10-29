@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-29, fourth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after merging Stage S1.
+Last updated: 2026-10-30, fifth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after pushing `main` and recording the standing push approval.
 
 ## Done
 
@@ -69,6 +69,7 @@ D5 below.
 - D3 How price refreshes are filled: the operator chose live reads (option b) on 2026-10-29, for the Anthropic family first. Other families stay null until the operator names them.
 - D4 Stage order: settled on 2026-10-29 by the operator starting O1, S1 and H0 together.
 - D5 Acceptance of O2's design, below.
+- D6 Pushes to origin: standing yes given by the operator on 2026-10-30 ("Push, standing yes"), recorded under `approvals.push_origin` in `docs/operator-preferences.json`; `main` was pushed to origin at `f84cc82` the same day, so every stage above is on the remote.
 - Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`.
 
 ```

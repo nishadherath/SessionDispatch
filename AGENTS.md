@@ -44,10 +44,14 @@ records the decision and the token cost of making it in the handoff.
    overrun.
 6. **Windows is the primary platform.** Paths through `path.join` and
    `os.homedir()`; copies, never links; nothing assumes a POSIX shell.
-7. **Outward-facing steps need a yes.** Creating or pushing to a remote
-   and opening a pull request go through the REST API with the stored
-   credential (no `gh` CLI here), only after the operator says so in
-   the session that does it, and the token is never printed.
+7. **Outward-facing steps need a yes.** Creating a remote and opening a
+   pull request go through the REST API with the stored credential (no
+   `gh` CLI here), only after the operator says so in the session that
+   does it, and the token is never printed. A push to `origin` carries
+   the operator's standing yes of 2026-10-30, recorded under
+   `approvals.push_origin` in `docs/operator-preferences.json`: push
+   after a green gate and a clean commit, and name the push in the
+   stage report (protocol section 1.3).
 8. **Keep the shape.** A changelog line in `README.md` per user-visible
    change; a new adapter only after its harness's folder layout is
    checked on a machine; a new worked example for any change to the

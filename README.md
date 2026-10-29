@@ -122,6 +122,10 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-10-30: standing approvals. `docs/operator-preferences.json` gains
+  an `approvals` object the gate checks; its first entry records the
+  operator's yes of 2026-10-30 to pushes to `origin`, which AGENTS.md
+  rule 7 and protocol section 1.3 apply.
 - 2026-10-29: Stage S1 merged. The gate and the calculator judge a table's
   age by the local calendar day, as `pricing-new.mjs` names tables;
   `check.mjs` takes `--today YYYY-MM-DD` for tests and dry runs, and the
