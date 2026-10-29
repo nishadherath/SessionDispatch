@@ -47,11 +47,18 @@ trigger holds. Write one line in the handoff instead: "Session dispatch
 not run: under 10 turns remain (estimate N), no other trigger." That
 line is the whole record.
 
-Budget for the decision: at most 8,000 tokens of reading and writing
-and at most 10 minutes of wall clock, measured in step 5. If you reach
-the budget before step 4 is complete, stop, take the default (continue
-the current session, keep the current model and effort), and record
-the overrun. The default is the reversible choice.
+Budget for the decision: the record you write stays under 4,000 tokens
+(about 16,000 characters), and the decision takes at most 10 minutes of
+wall clock from the first line of step 1. Reading is not capped: the
+skill, the table and the templates cost what they cost, and step 6
+records that cost so the operator can judge the skill's size from it.
+If you pass the cap, steps 4 and 6 still run and step 5 is cut. The
+verdict is then step 2's draft where you have written it, else the
+default (continue the current session, keep the current model and
+effort), and you record the overrun. The reason: the default exists to
+be the reversible choice, and a draft that says "fresh by class"
+overridden to `continue` is not reversible in the sense that matters,
+because the work then runs below its class.
 
 ## 1. Gather the inputs
 
@@ -129,7 +136,10 @@ unmeasured, use 25,000 and say so.
    operator also says so, commit it on a branch and open a pull request
    against the project's origin. Never fill a null from memory. Until
    the null is filled, compute what you can and mark the verdict as
-   "incomplete: price of <model> unknown".
+   "incomplete: price of <model> unknown". Where the table cannot give
+   you the target model (no row for the family, or no priced row in the
+   class), write the target as null with that reason; guardrail 4
+   forbids naming one from memory.
 5. Where a table lists a long-context tier (a higher price when the
    whole prompt exceeds a threshold), use the higher price for every
    turn whose context exceeds the threshold, and only for those. An
@@ -155,7 +165,9 @@ Then price each side at the model that would run it:
 
 If the target class is above the current one, continuing would run the
 work below its class: the verdict is fresh, by class. Compute both
-sides anyway; the record shows the money.
+sides anyway; the record shows the money. Under 10 turns, fresh by
+class means a sub-agent of the target class with the brief in the
+message, not a fresh session (guardrail 1).
 
 **Run the calculator where you have it.** With the inputs of step 1 in
 a JSON file (keys as the symbols; `--help` lists them) or as flags:
@@ -258,6 +270,10 @@ cost_split = H * p_output[current]                     (the brief)
            + (B + Ra) * p_cache_write + Ta turns from B + Ra at the opus model
 ```
 
+The acceptance session is priced without cache misses: M applies to the
+run, not to the Ta turns. If the run includes an irreversible or
+outward-facing step, the brief carries guardrail 3's approval line.
+
 The split is an option only when the brief can carry a contract, the
 oracle and an observable definition of done, so that the run becomes
 matrix row 1 or 2 work (the persona's section 3.5). If it cannot, the
@@ -283,7 +299,7 @@ model in the needed class, use the next class up, never down.
 | Mechanical, fully specified text or script chores: apply a reviewed diff, rename, format, fixture cleanup, doc drift, run a checklist with the harness as oracle | Haiku | medium | The spec is the intelligence; the model executes. Where the table gives the haiku model a long-context tier and B is near its threshold (Claude Code desktop, with its tools loaded), nearly every turn pays the tier: price the stage at the tier, which narrows Haiku's advantage over Sonnet, and say so. |
 | Scoped module work with a stated test: one feature inside one module, a test suite, a refactor within a module, first-pass review | Sonnet | medium; high when the module touches auth, payments, storage formats or a public interface | The workhorse tier; the test is the oracle. |
 | Cross-module merges, evaluation design, specification of ambiguous work, diagnosis of intermittent failures, writing briefs a lower class executes | Opus | high | Long-horizon coherence and self-critique are the job. |
-| Adversarial acceptance of another agent's work | one class above the author; Fable when the author is Opus | high; xhigh for acceptance of a release or a merge | A reviewer at the author's class shares the author's blind spots. |
+| Adversarial acceptance of another agent's work | one class above the author; Fable when the author is Opus; the top class when the author is the top class | high; xhigh when the author is the top class (the acceptor shares the class, so effort is the only lever left) or when the accepted change is a release or a merge | A reviewer at the author's class shares the author's blind spots. This row is the one effort rule for acceptance; guardrail 6 points here. |
 | Whole-project assessments, roadmaps, cost models, the tiering decision itself | Fable (the top class available) | high | Mistakes here are copied into every later stage. |
 
 Raise effort one step when any of these holds: the stage contains an
@@ -338,8 +354,12 @@ review time, stated separately.
 These are hard stops. A verdict that breaks one is wrong whatever the
 arithmetic says.
 
-1. Never hand off to a fresh session for work under 10 turns. Writing
-   and reading the handoff costs more than the work.
+1. Never hand off to a fresh session for work under 10 turns at the
+   same class. Writing and reading the handoff costs more than the
+   work. Work under 10 turns that needs a higher class (step 2, rule 1)
+   goes to a sub-agent of that class with the brief in the message, not
+   to a fresh session: running work below its class is the error the
+   matrix exists to prevent, and the sub-agent avoids it at no cost.
 2. Never continue a design-heavy stage across a compaction. If the
    stage is design-heavy and `crosses` is true, or the session has
    compacted already, the verdict is "fresh".
@@ -351,15 +371,24 @@ arithmetic says.
    3.1 and the model from the price table in force.
 5. Never compute from a price table older than `max_age_days`, and
    never fill a null price from memory (step 1.4).
-6. Acceptance runs one class above the author. When the author is the
-   top class, acceptance runs at the top class in a fresh session with
-   `xhigh` effort.
-7. The decision itself is capped at 8,000 tokens and 10 minutes. Past
-   the cap, take the default and record the overrun.
+6. Acceptance runs at the class and effort of matrix row 4 (step 3.1),
+   in a fresh session.
+7. The record is capped at 4,000 tokens and the decision at 10 minutes
+   (step 0); reading is measured in step 6, never capped. Past the cap,
+   steps 4 and 6 still run, step 5 is cut, and the verdict is step 2's
+   draft where it was written, else the default. Record the overrun.
 8. A model never changes its own class or effort mid-session and never
    assesses its own class. The harness states it; a session that finds
    its model or effort differs from the handoff's front matter stops
    and names the value to pick.
+
+Order, when two guardrails give different answers: guardrails 5 and 8
+(nothing to compute from, the wrong class) come first, then 2, 3 and 6
+(quality, approval, acceptance), then 1 and 7 (the cost of handing off
+and of deciding). A cost rule never overrides a quality rule. So a
+design-heavy stage under 10 turns in a compacted session goes fresh
+(guardrail 2 over 1): the loss after a compaction is the "why", which no
+number of turns recovers.
 
 ## 5. Step D: the adversarial pass
 
@@ -378,10 +407,18 @@ has four parts and takes no more than a third of the decision budget.
    stage will have), the loss list (what else is unrecorded).
 3. **Recompute with the adverse values.** Flip the input that moves the
    result most and recompute step 2. State whether the verdict holds.
-4. **Change the verdict only on arithmetic.** If the recomputation
-   crosses the 10 percent line or a guardrail, change the verdict and
-   say which input did it. Preference, confidence or tidiness never
-   change it. Both passes stay in the record.
+4. **Change the verdict only on arithmetic from a value someone claims
+   is true.** The adverse recompute changes the verdict only when the
+   adverse value is inside the range the input was stated with (step
+   1.2 asks for T as a range when unsure) or is a measurement the draft
+   ignored, and the recomputation crosses the 10 percent line or a
+   guardrail; then change it and say which input did it. A doubled T or
+   a C0 30 percent off is a stress test: a verdict that flips under it
+   (in practice a band verdict) is recorded as "fragile: flips at T of
+   n or more" (or the input and value that flip it) and kept.
+   Preference, confidence or tidiness never change the verdict, and
+   neither does an input nobody claims is true. Both passes stay in the
+   record.
 
 ## 6. Step E: record the decision and its cost
 
@@ -390,15 +427,19 @@ under the heading "Session dispatch decision". Where the project has
 no handoff convention, write the record on its own to
 `docs/dispatch/YYYY-MM-DD-<slug>.md`.
 
-The cost of deciding is a six-row table in the record:
+The cost of deciding is a six-row table in the record. Where the
+harness reports the decision's usage (a usage tool, a sub-agent's token
+total, a CLI's cost line), each row carries the measured figure and
+names its source; a figure you estimated yourself is marked
+"self-estimate".
 
 | Row | How to fill it |
 |---|---|
-| Context at start | The usage figure when you began step 1. Source: usage tool, status line, or estimate. |
+| Context at start | The usage figure when you began step 1. Source: usage tool, status line, or self-estimate. |
 | Context at end | The usage figure after step 5. |
 | Input tokens read | Everything you read for the decision: table, templates, files sized for R. Usually the difference of the two rows above, less your output. |
-| Output tokens | What you wrote: the record, the adversarial pass, the handoff lines. From the harness's usage reporting where it has one; else characters divided by 4, marked as an estimate. |
-| Wall clock | Minutes from the first line of step 1 to the end of the record. |
+| Output tokens | What you wrote: the record, the adversarial pass, the handoff lines. From the harness's usage reporting where it has one; else characters divided by 4, marked as a self-estimate. The record's own size (characters divided by 4) is the figure guardrail 7 caps. |
+| Wall clock | Minutes from the first line of step 1 to the end of the record, from timestamps where the harness gives them. |
 | Priced | Input at the cache-write rate plus output at the output rate for the model that decided, from the table in force, with the table date. |
 
 The operator reads this row over time to judge whether the procedure

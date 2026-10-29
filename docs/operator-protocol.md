@@ -196,8 +196,8 @@ long agent session mostly pays for.
 | Fable | Assessments of this project, acceptance of Opus-class changes to `SKILL.md`, and any change to the tiering rules themselves |
 
 Effort defaults: Haiku `medium`, Sonnet `medium`, Opus `high`, Fable
-`high` (`xhigh` only for acceptance). Lower effort first; raise on
-measured failure, never pre-emptively.
+`high` (`xhigh` only where `SKILL.md` matrix row 4 says). Lower effort
+first; raise on measured failure, never pre-emptively.
 
 In the desktop app the 86,450-token baseline puts a Haiku stage past its
 100,000-token long-context threshold within a few turns, so price Haiku
