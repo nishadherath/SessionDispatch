@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, twenty-second update, by the Fable coordinating session (claude-fable-5-1, xhigh) after pushing H3's interim commit.
+Last updated: 2026-10-30, twenty-third update, by the Fable coordinating session (claude-fable-5-1, xhigh) after relaying the operator's yes on the H3 Sonnet budget.
 
 ## Done
 
@@ -34,7 +34,7 @@ Last updated: 2026-10-30, twenty-second update, by the Fable coordinating sessio
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| H3: clean-harness regression, 42 runs | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-h3-clean-harness.md`; session `local_e1d2c989`, name `stage-h3`, sharing this checkout; S5 accepted (three additions verbatim) and pushed (`c1890f7`). Interim at `cbd0f26` (pushed): the scoped Bash grant ran without refusal; the Haiku half is in at 13 of 21 (40.9 to 79.2 percent), under the 19 of 21 threshold, every scored record right and all 8 misses format or no-record failures; Haiku cost 0.72 USD measured for 21 runs, the one Sonnet run 0.47. The 20 Sonnet runs wait on the operator's budget confirmation, about 9.4 USD projected from n = 1 | Sonnet, medium; subjects Sonnet and Haiku | this checkout, `main` | 20 to 40 min; session 0.85 USD plus subjects about 10 (Haiku 0.72 measured, Sonnet about 9.4 projected from one run) |
+| H3: clean-harness regression, 42 runs | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-h3-clean-harness.md`; session `local_e1d2c989`, name `stage-h3`, sharing this checkout; S5 accepted (three additions verbatim) and pushed (`c1890f7`). Interim at `cbd0f26` (pushed): the scoped Bash grant ran without refusal; the Haiku half is in at 13 of 21 (40.9 to 79.2 percent), under the 19 of 21 threshold, every scored record right and all 8 misses format or no-record failures; Haiku cost 0.72 USD measured for 21 runs, the one Sonnet run 0.47. The operator confirmed the Sonnet budget on 2026-10-30 ("Yes, run them", about 9.4 USD projected from n = 1); relayed to the session, which is running the 20 Sonnet runs | Sonnet, medium; subjects Sonnet and Haiku | this checkout, `main` | 20 to 40 min; session 0.85 USD plus subjects about 10 (Haiku 0.72 measured, Sonnet about 9.4 projected from one run) |
 
 The three installed copies (claude, codex, opencode) were refreshed with
 `node scripts/install.mjs` on 2026-10-30 after O3; `--check` reports 0
