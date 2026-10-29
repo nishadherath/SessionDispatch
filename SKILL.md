@@ -30,6 +30,8 @@ Prose rules for everything you write under this skill: Australian
 English, no em-dashes, no AI-telltale vocabulary (the engineering
 persona's section 14.1 lists it), numbers with their units and sources.
 
+**Class floor (measured 2026-10-30).** This procedure is written for the Sonnet class and above. On the twenty-scenario evaluation in the SessionDispatch repository (`eval/results-2026-10-31.md`), a Sonnet-class subject reached the expected verdict in 40 of 40 runs with the calculator and 40 of 40 by hand. A Haiku-class subject reached it in 17 of 20 with the calculator and 19 of 20 by hand on the scorer's count; the two further calculator misses were records whose verdict was right and whose machine-readable result block (the evaluation's output contract) was malformed. A Haiku-class model therefore follows the procedure but is not relied on for the machine-readable record: where one runs it, keep the calculator on and have a parser check the handoff's front matter and the record's figures before anything acts on them.
+
 ## 0. Should this skill run at all
 
 Run it when any of these holds:
@@ -82,7 +84,7 @@ say so. Never present an estimate as a measurement.
 |---|---|---|
 | Expected turns | T | From the plan or the handoff. One turn is one model call. A stage with 20 tool calls and a final message is about 21 turns. If unsure, give a range and compute with both ends. |
 | Fresh input per turn (tokens) | F | New material entering context each turn: tool results, file reads, user messages. Default 3,000 if unmeasured. Read-heavy stages (assessment, audit): 5,000 to 8,000. |
-| Output per turn (tokens) | O | Model output including reasoning. Default 1,500. Writing-heavy stages: 3,000. The defaults were measured at high effort; at xhigh or max, reasoning is longer and billed as output, so mark O as an estimate and test a larger value in step 5. |
+| Output per turn (tokens) | O | Model output including reasoning. Default 1,500. Writing-heavy stages: 3,000, where writing-heavy means matrix row 3's writing (a specification, a brief, a design note) or a new module written from a blank file; row 2 work with a stated test, a refactor and a chore take the default. The defaults were measured at high effort; at xhigh or max, reasoning is longer and billed as output, so mark O as an estimate and test a larger value in step 5. |
 | Re-read set (tokens) | R | What a fresh session must read before it can work: the handoff, the files it names, the project's instruction files. Sum their sizes in tokens (characters divided by 4). |
 | Handoff size (tokens) | H | What you would write to hand off. Default 2,500 for a handoff under 120 lines; add the size of any unrecorded context you must write down. |
 | Cache misses over the stage | M | Turns whose prompt is no longer in cache and is written again in full. Pauses longer than the cache lifetime cause them (operator review, a long tool run), and so does any change early in the prompt. Unmeasured so far: default 0, say so, and in step 5 count one miss per review pause you expect. |
@@ -224,6 +226,8 @@ moot: the verdict is "fresh".
 handoff. Price it as L turns at the fresh session's average:
 `L * (C_fresh * p_cache_read + G * p_cache_write + O * p_output)`. If you
 cannot name the items, L is 0 and you say that the list is empty.
+
+The fresh side omits two small terms: the handoff turn's own context read at the current model, and the turns the fresh session spends reading R in. Measured on three records (acceptance of Stage O1, finding F1-1) they are 2 to 11 percent of the smaller side. A `fresh` verdict by cost whose margin is inside that range is fragile: write it so in step 5 and keep it.
 
 **Short path: the break-even.** When the model does not change, there is
 no long-context tier in play, `crosses` is false, the session has not

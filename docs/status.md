@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, twentieth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after pushing S4 and starting Stage S5.
+Last updated: 2026-10-30, twenty-first update, by the Stage S5 session (claude-sonnet-5-5, medium) at its close; H3 next.
 
 ## Done
 
@@ -28,16 +28,17 @@ Last updated: 2026-10-30, twentieth update, by the Fable coordinating session (c
 | Stage H2: rerun on the revised text, 120 runs | 2026-10-30 | `prepare --repeat <n>` (`5349fdb`), then 120 `Agent` runs scored (`c45891e`): `eval/results-2026-10-31.md`, labelled 2026-10-31 because H1 holds 2026-10-30. Final agreement: Sonnet 40/40 in both arms (n = 40), Haiku calculator 17/20 and hand 19/20 (n = 20). Pre-registered thresholds: Sonnet "a procedure" met; arms not different (p = 1.000); Haiku calculator 18 of 20 not met on the scorer's count (two unscorable format failures whose final outcomes are right, so 19/20 by hand; scenario 10 missed in both arms). Over cap 6 runs, all scenario 17. Gate 97 files, 0 findings; 35 tests pass. About 50 minutes; about 5 USD orchestration plus about 4 for subjects (estimates, split unreported). F4 handoff written. |
 | Stage F4: reassessment on the H2 results | 2026-10-30 | `docs/assessment-2026-10-30-f4.md`: the Sonnet thresholds met (40 of 40 in both arms, p = 1.000); Haiku's 18-of-20 threshold ruled not met on the pre-registered scorer's count (17 of 20), the two format failures counted as misses and the hand reading (19 of 20) recorded as a second figure; the class floor goes into the text (S5); C1 left unstaged for want of a measurable target (D10 to the operator); O4 declined for one sentence on the omitted terms; the Sonnet `t_star` misses traced to the block's encoding (S4 prompt fix); scenario 10's Haiku misses traced to the undefined "writing-heavy" (S5); scenario 21 for guardrail 7's fallback (S4); H1 to H2 compared cell by cell without scenario 17 (Haiku hand 9 of 19 to 18 of 19, p = 0.003). Roadmap re-priced (`docs/dispatch/2026-10-30-f4-roadmap.json`); S4 and S5 handoffs written. Gate 100 files, 0 findings; 35 tests pass. About 24 minutes; about 9 USD (estimate, assessment section 5). |
 | Stage S4: harness hardening and evaluation contract | 2026-10-30 | Four commits on `main`: the block contract fixes and scenario 21 (`132b778`; `t_star` null on a model change, `usd` string or null, the block on its own lines, F3-1, F3-3, F3-5, F3-6, 21 scenarios and `checkEval` green); the CLI runner `run --runner cli` with measured usage and the F2-8 probe (`4541134`: the default `claude -p` lists the installed `session-dispatch` skill and runs the user's hooks, so the runner passes `--disable-slash-commands --setting-sources project`); `prepare` merging into the day's manifest (`6c3ee4c`); the gate's term-line and Step B recompute with seeded-mutation tests (`7b179e5`). Dry run: one hand-arm run each of Sonnet (0.63 USD priced, 1.59 million tokens) and Haiku (0.04 USD priced; the CLI's own 4.47 is not credible for `claude-haiku-5-5`). The calculator arm's scoped Bash grant is untested: the auto-mode classifier refused the first attempt. Gate 102 files, 0 findings; 48 tests pass. About 50 minutes of wall clock (17:49 to 18:38 by the session tools and the clock); about 3 USD (estimate: context grew from 91,000 to 276,000 tokens over about 75 turns, priced by the formula; the subjects add the dry run's 0.67 USD priced). H3 handoff written (`docs/handoffs/2026-10-30-stage-h3-clean-harness.md`). |
+| Stage S5: skill text, the class floor and two definitions | 2026-10-30 | Three fixed additions in `SKILL.md` (F4 sections 1.4, 2.1, 2.3, matrix row 5): the class floor paragraph before step 0, writing-heavy defined by matrix row in step 1.2's O row, and the fragility sentence on the omitted fresh-side terms in step 2. No other sentence, figure, front matter, matrix row or guardrail changed. Changelog line in `README.md`; claude, codex and opencode copies reinstalled, `--check` 0 files behind. Gate 102 files, 0 findings, `checkEval` unchanged; 48 tests pass. About 15 minutes; about 0.85 USD (estimate, calculator row). H3 next, from its existing handoff. |
 
 ## In progress
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| S5: skill text, the class floor and two definitions | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-s5-skill-text.md` once S4 had landed; session `local_7b386dd8`, name `stage-s5`, sharing this checkout; S4's five commits pushed (`8b4d6b3`). H3 follows from its existing handoff, after the operator confirms its subject budget (about 14 USD measured from one run per class, against F4's 1 to 5 estimate) | Sonnet, medium | this checkout, `main` | 15 to 25 min, 0.7 to 1.5 USD (0.85 by the calculator) |
+| H3: clean-harness regression, 42 runs | not started; follows from `docs/handoffs/2026-10-30-stage-h3-clean-harness.md` once the operator confirms its subject budget (about 14 USD measured from one run per class) | Sonnet, medium | this checkout, `main` | 20 to 40 min |
 
 The three installed copies (claude, codex, opencode) were refreshed with
 `node scripts/install.mjs` on 2026-10-30 after O3; `--check` reports 0
-files behind. S5's edit puts them behind until it reruns the install.
+files behind. S5 reran the install after its edit; `--check` reports 0 files behind.
 
 ## To do
 
@@ -48,7 +49,6 @@ wall clock is the model's, operator review separate.
 
 | Stage | Class, effort | Cost (USD) | Wall clock | Depends on |
 |---|---|---|---|---|
-| S5: skill text, three fixed additions (the class floor; writing-heavy defined by matrix row; the omitted fresh-side terms as a fragility sentence) and the install refresh | Sonnet, medium | 0.85 (0.7 to 1.5) | 15 to 25 min | none; beside S4 |
 | H3: clean-harness regression, 42 runs (21 scenarios, Sonnet and Haiku, calculator arm, one run each) on the CLI runner and the S5 text; thresholds Sonnet 20 of 21, Haiku 19 of 21, fixed in F4 section 3.6 | Sonnet, medium, orchestrating; subjects Sonnet and Haiku | 0.85 plus subjects 1 to 5 (estimate; the CLI reports it) | 20 to 40 min | S4, S5 |
 | S3: adapter verification on each harness, operator present | Sonnet, medium | 1.31 (1 to 2.5) | 30 to 45 min plus installs | S5 |
 | F5: closing assessment on H3; the floor's figures updated if they moved; "done" declared or what is not named | Fable, high | 5.18 (4 to 7) | 30 to 45 min | H3, S3 |
