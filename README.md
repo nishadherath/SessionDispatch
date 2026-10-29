@@ -125,6 +125,11 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-10-30: Stage S5, three additions to `SKILL.md` under matrix row 5
+  (assessment F4): a class floor stating the measured Sonnet and Haiku
+  results, a definition of writing-heavy for the O default in step 1.2,
+  and a fragility sentence on the fresh side's two omitted terms in step 2.
+  No formula, figure, matrix row or guardrail changed.
 - 2026-10-30: Stage S4, harness hardening and the evaluation contract.
   `node eval/run.mjs run --runner cli` runs the prepared prompts through
   `claude -p` from each sandbox with measured usage and a table-priced
