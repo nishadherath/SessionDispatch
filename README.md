@@ -125,6 +125,16 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-10-30: Stage S4, harness hardening and the evaluation contract.
+  `node eval/run.mjs run --runner cli` runs the prepared prompts through
+  `claude -p` from each sandbox with measured usage and a table-priced
+  cost per run; the probe found that a default CLI subject sees the
+  installed copy of this skill and the user's hooks, so the runner turns
+  both off. `prepare` merges into the day's manifest. The gate now
+  recomputes the cost term lines and Step B's cost column of each worked
+  example. The block contract changed (`t_star` null on a model change,
+  `usd` string or null, the block on its own lines) and scenario 21
+  covers guardrail 7 with no draft, so the set is 21 scenarios.
 - 2026-10-30: reassessment on the H2 results (Stage F4),
   `docs/assessment-2026-10-30-f4.md`. The Sonnet thresholds are met
   (40 of 40 in both arms, arms not different); Haiku's 18-of-20

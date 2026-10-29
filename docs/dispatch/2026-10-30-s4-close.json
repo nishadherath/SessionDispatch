@@ -1,0 +1,20 @@
+{
+  "_note": "Stage S4 close (2026-10-30): the session dispatch decision of claude-sonnet-5-5 at medium for Stage H3 (42 CLI runs, orchestration and scoring). Run: node scripts/dispatch.mjs --json docs/dispatch/2026-10-30-s4-close.json --today 2026-10-30. C0 and B measured by get_usage self at the end of S4 (262,605 total less Messages 177,365). T, F, O, R and H are estimates; R: the H3 handoff 4,000, eval/README.md 4,500, eval/run.mjs run and usage code 5,000, the results file format 1,500. M is 0 (unmeasured).",
+  "formula": "2026-10-29",
+  "table": "pricing/2026-10-29.json",
+  "today": "2026-10-30",
+  "current": "claude-sonnet-5-5",
+  "target": "claude-sonnet-5-5",
+  "W": 1000000,
+  "K": 970000,
+  "C0": 262605,
+  "compacted": false,
+  "T": 15,
+  "F": 3000,
+  "O": 1500,
+  "B": 85240,
+  "R": 15000,
+  "H": 3500,
+  "M": 0,
+  "L": 0
+}
