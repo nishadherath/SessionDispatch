@@ -270,6 +270,10 @@ says "fresh by class" overridden to `continue` is not reversible in the
 sense that matters, since the work then runs below its class. Scenario
 17's brief (8,400 tokens and 11 minutes already spent) still binds the
 guardrail on its time clause, so no expectation moves.
+Correction, 2026-10-30 (Stage O3, ruled by the coordinating session): the
+guardrail binds, but its consequence moved. Scenario 17's record covers
+steps 1 to 3, so a draft exists and the rule keeps it: the expected final
+is now fresh on claude-opus-5-5 at high. H1's rows stay as scored.
 
 **A null `target`, and the two unscorable runs** (F2-4). `inputs.target`
 becomes string or null in the rubric, the prompt and the scorer; a null

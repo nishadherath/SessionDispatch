@@ -139,6 +139,57 @@ test("a block that breaks a type is unscorable and the last block wins", () => {
   assert.equal(extractBlock(text).block.inputs.W, 1000000);
 });
 
+test("a null target is legal: scored, matched where the table has no priced row, a miss elsewhere", () => {
+  let s = byId("15"), b = perfectBlock(s);
+  b.inputs.target = null;
+  let r = score(s, b);
+  assert.deepEqual([r.unscorable, r.final_ok, r.guardrails_ok, r.g4_ok], [false, true, true, true]);
+  assert.equal(r.inputs.matched, r.inputs.scored);
+  s = byId("03"); b = perfectBlock(s);
+  b.inputs.target = null;
+  r = score(s, b);
+  assert.deepEqual([r.unscorable, r.final_ok, r.arithmetic.scored], [false, true, false]);
+  assert.match(r.arithmetic.reason, /target not named/);
+  assert.deepEqual(r.inputs.misses, ["target"]);
+  b.inputs.current = null;
+  assert.match(score(s, b).reason, /inputs\.current must be a string/);
+});
+
+test("the cap is on the record's measured size and the minutes, not on reported reading", () => {
+  const s = byId("03"), b = perfectBlock(s);
+  b.cost_of_deciding = { input_tokens: 20000, output_tokens: 3000, minutes: 5, usd: "0.10" };
+  let r = score(s, b);
+  assert.equal(r.decide.over_cap, false);
+  assert.ok(r.decide.record_tokens < 4000, String(r.decide.record_tokens));
+  const long = recordOf(s, b).replace("# Session dispatch record", `# Session dispatch record\n\n${"x".repeat(16100)}`);
+  r = scoreRun({ scenario: s, table: tableOf(s), record: long, subject: "sonnet", arm: "calculator" });
+  assert.deepEqual([r.decide.over_cap, r.final_ok], [true, true]);
+  b.cost_of_deciding.minutes = 11;
+  assert.equal(score(s, b).decide.over_cap, true);
+});
+
+test("guardrail 7 keeps the draft past the cap, else continue at the current model and effort", () => {
+  const s = byId("17");
+  const block = (draft, outcome, model, effort) => ({ ...perfectBlock(s), draft, guardrails_triggered: [7], final: { outcome, model, effort, approval_step: null } });
+  const fresh = { side: "fresh", by: "cost" };
+  let r = score(s, block(null, "continue", s.current, s.current_effort));
+  assert.deepEqual([r.bound_failed, r.overrun_default_not_taken], [[], false]);
+  r = score(s, block(null, "continue", "claude-opus-5-5", "high"));
+  assert.deepEqual(r.bound_failed, [7]);
+  r = score(s, block(fresh, "fresh", "claude-opus-5-5", "high"));
+  assert.deepEqual([r.bound_failed, r.overrun_default_not_taken], [[], false]);
+  r = score(s, block(fresh, "split", "claude-sonnet-5-5", "medium"));
+  assert.deepEqual(r.bound_failed, []);
+  // The H1 pattern: a fresh draft dropped for continue at the cap.
+  r = score(s, block(fresh, "continue", s.current, s.current_effort));
+  assert.deepEqual([r.bound_failed, r.overrun_default_not_taken], [[7], true]);
+  // The diagnostic on a scenario that does not bind guardrail 7.
+  const s2 = byId("02"), b2 = { ...perfectBlock(byId("02")), guardrails_triggered: [7] };
+  b2.final = { ...b2.final, outcome: "continue", model: s2.current, effort: s2.current_effort };
+  r = score(s2, b2);
+  assert.deepEqual([r.final_ok, r.overrun_default_not_taken, r.false_alarms], [false, true, [7]]);
+});
+
 test("the Wilson 95 percent interval matches the rubric's values", () => {
   const pct = (k, n) => { const w = wilson(k, n); return [w.lo.toFixed(1), w.hi.toFixed(1)]; };
   assert.deepEqual(pct(18, 20), ["69.9", "97.2"]);

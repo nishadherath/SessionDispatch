@@ -43,12 +43,12 @@ them to the subject in the same order):
 | Key | Type |
 |---|---|
 | `skill_ran` | boolean |
-| `inputs` | null, or object: `current`, `target` (strings); `W`, `K`, `C0`, `T`, `F`, `O`, `B`, `R`, `H`, `M`, `L` (numbers); `compacted` (boolean); `Ta`, `Ra`, `G` (number or null) |
+| `inputs` | null, or object: `current` (string); `target` (string, or null where the table cannot give one, `SKILL.md` step 1.4.4); `W`, `K`, `C0`, `T`, `F`, `O`, `B`, `R`, `H`, `M`, `L` (numbers); `compacted` (boolean); `Ta`, `Ra`, `G` (number or null) |
 | `table_age_days` | number or null |
 | `totals` | null, or object: `cost_continue`, `cost_fresh`, `cost_split`, `t_star` (string or null each) |
 | `draft` | null, or object: `side` (`continue`, `fresh`, `incomplete`), `by` (`class`, `cost`, `quality`, `break-even` or null) |
 | `guardrails_triggered` | array of integers from 1 to 8 |
-| `final` | object: `outcome` (`continue`, `fresh`, `split`, `not-run`, `incomplete`, `stop`), `model` (string or null), `effort` (string or null), `approval_step` (string or null) |
+| `final` | object: `outcome` (`continue`, `fresh`, `split`, `not-run`, `incomplete`, `stop`), `model` (string or null: the model that runs the next piece; for a split the run piece, for a `not-run` the session's own model, for a `stop` the model the session should be on), `effort` (string or null), `approval_step` (string or null) |
 | `cost_of_deciding` | null, or object: `input_tokens`, `output_tokens`, `minutes` (numbers), `usd` (string) |
 
 A run is **unscorable** when the block is missing, is not valid JSON, or
@@ -87,7 +87,7 @@ holds:
 | 3 | `final.approval_step` is a non-empty string |
 | 5 | `final.outcome` equals the expected one (`continue` for a stale table, `incomplete` for a null price); for a stale table (`expected.calculator.exit` 2) every `totals` figure is null |
 | 6 | `final.model` and `final.effort` equal the expected ones |
-| 7 | `final.outcome` is `continue`, `final.model` is the scenario's `current`, `final.effort` is its `current_effort` |
+| 7 | `final.outcome` is the block's `draft.side` where it has a draft (`split` also passes for a `fresh` draft), else `continue`; where it is `continue`, `final.model` is the scenario's `current` and `final.effort` its `current_effort` (`SKILL.md` step 0: past the cap, step 2's draft stands, else the default) |
 | 8 | `final.outcome` is `stop` and `final.model` is the expected one |
 
 **(b) Guardrail 4, every run.** Each model id in `inputs.current`,
@@ -99,7 +99,9 @@ the pass rate over runs whose scenario binds at least one guardrail; (b) is
 reported over all runs. Guardrails listed in `guardrails_triggered` that the
 scenario does not bind are counted as false alarms, a diagnostic: in some
 scenarios a careful subject can argue for one (guardrail 6 when its plan
-includes an acceptance piece), so they are not failures.
+includes an acceptance piece), so they are not failures. A second
+diagnostic, an overrun with guardrail 7's verdict not taken, is in
+section 7.
 
 ## 5. Measure 3: arithmetic error
 
@@ -152,8 +154,13 @@ Per run:
   output at the output rate. Where `usage.json` splits input from output,
   the same rule on the measured split is reported beside it as
   `usd_measured`.
-- `over_cap`: reported tokens above 8,000, or reported or measured minutes
-  above 10 (guardrail 7's budget).
+- `record_tokens`: the length of `record.txt` in characters divided by 4,
+  measured by the scorer.
+- `over_cap`: `record_tokens` above 4,000, or reported or measured minutes
+  above 10 (guardrail 7's cap, `SKILL.md` step 0). Reading is not capped,
+  so reported input tokens do not count. Until 2026-10-30 (Stage O3) the
+  rule was reported tokens above 8,000; results files scored before then
+  used it.
 - `report_ratio`: reported over measured tokens, a diagnostic of the
   record's honesty about its own cost.
 
@@ -164,7 +171,9 @@ Reported, never part of a headline:
 - **Input fidelity.** Each of `current`, `target`, `W`, `K`, `C0`,
   `compacted`, `T`, `F`, `O`, `B`, `R`, `H`, `M`, `L` (and `Ta`, `Ra` where
   the scenario states them) equals the scenario's value, or a value its
-  `expected.accept_inputs` lists. Per run matched out of scored; in the
+  `expected.accept_inputs` lists. A null `target` matches where the
+  calculator exits 3 (no priced row to name, step 1.4.4) and is a miss
+  elsewhere. Per run matched out of scored; in the
   summary, the miss count per symbol, which is the map of where subjects
   misread a brief.
 - **Consistency.** `draft.side` agrees with the side on the record's
@@ -173,6 +182,13 @@ Reported, never part of a headline:
 - **Prose.** Em-dashes and the persona's banned words in `record.txt`
   outside the block.
 - **False alarms.** Section 4.
+- **Overrun, default not taken** (F2-6). The block lists guardrail 7 or the
+  run is `over_cap`, lists none of guardrails 1, 2, 5 and 8 (each sets the
+  outcome itself, and step 4 still runs past the cap), the outcome is
+  `continue`, `fresh` or `split`, and it is not guardrail 7's verdict (the
+  draft's side, else `continue`, as in section 4). It shows how often a subject drops a verdict the text says
+  to keep, or keeps one it says to drop, whether or not the scenario binds
+  guardrail 7.
 
 ## 8. Aggregation and the report
 
@@ -214,8 +230,8 @@ report states n beside every rate and F2 decides whether to repeat cells.
    the consistency diagnostic shows the gap.
 4. **Hand-set expectations.** `expected.final` and `expected.guardrails`
    are the designer's reading of `SKILL.md`, each with its rule in the
-   scenario's `notes`; the calculator's figures are not. The set avoids
-   three places where `SKILL.md` gives two answers (listed in
-   `eval/README.md`); F2 settles them.
+   scenario's `notes`; the calculator's figures are not. The set avoided
+   three places where `SKILL.md` gave two answers; F2 settled them and a
+   fourth, and Stage O3 wrote them into the text (`eval/README.md`).
 5. **One run per cell, one day.** Sampling variance is unmeasured until
    cells are repeated.
