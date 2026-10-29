@@ -2,7 +2,7 @@
 stage: "Stage O1: formula revision, dispatch calculator, gate recompute, new worked example"
 model: claude-opus-5-5
 effort: high
-status: ready
+status: done
 created: 2026-10-29
 from: "Session local_af23607d (Fable 5.1, xhigh): Stage 0b, first assessment and protocol revision"
 ---
@@ -99,3 +99,5 @@ Fresh session, `claude-opus-5-5`, high, one piece, serial, with Fable xhigh acce
 Whole Stage 0b session, for the record: context 86,450 to about 258,500 over about 34 turns; cache reads about 5.9M tokens x 0.25e-6 = 1.47; cache writes about 172k x 12.5e-6 = 2.15; output between 25k and 100k tokens x 50e-6 = 1.25 to 5.00 (the usage tool does not say whether reasoning tokens are in its Messages category): 4.9 to 8.6 USD, estimate. Wall clock 10:02 to about 10:45 UTC.
 
 Stage 0b commit: `876e493` (this line added by the follow-up docs commit).
+
+Stage O1 done 2026-10-29 by `local_0988c077` (Opus 5.5, high): commit `0cc7d52`; gate 57 files read, 0 findings, exit 0. Next: `docs/handoffs/2026-10-29-stage-f1-acceptance.md`.
