@@ -23,6 +23,7 @@ the model's confidence.
 | `templates/` | `decision-record.md` (the section pasted into a handoff) and `handoff.md`. |
 | `examples/` | Filled records. The first is the fork_graft decision of 2026-10-27 that this skill generalises. |
 | `scripts/` | `check.mjs` (the gate), `install.mjs` (installs the skill, checks installed copies, seeds a new project), `pricing-new.mjs` (starts a refresh), `dispatch.mjs` (the step 2 and 3.3 calculator) with `dispatch-core.mjs` (its arithmetic, shared with the gate), `*.test.mjs` with `fixtures/` (tests for the three). |
+| `eval/` | The skill's evaluation: 20 scenarios the calculator scores, each with the brief a subject sees and the expected verdict and guardrails; the rubric; the subject prompt. See `eval/README.md`. |
 | `docs/` | `operator-protocol.md` (the operator's standing instructions), `handoffs/`, `status.md` (the live status), `operator-preferences.json` (the two questions asked once) and the dated assessments. |
 | `ENGINEERING_PERSONA.*.md`, `ENGINEERING_PERSONA_LANGUAGES/` | The engineering persona, one edition per model class, copied from the operator's Orchestrator repository. |
 
@@ -109,7 +110,9 @@ node scripts/check.mjs
 ```
 
 Exit 0 is green. Exit 2 means only that the table is past its 14 days.
-Exit 1 names each finding and its fix.
+Exit 1 names each finding and its fix. The gate also runs the calculator
+on every scenario under `eval/scenarios/` and fails on any figure that
+differs from the scenario's stated expectation.
 
 The scripts have tests (`node:test`, Node 21 or later for the glob):
 
@@ -122,6 +125,16 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-10-30: evaluation design (Stage O2). New `eval/`: 20 scenarios in
+  the calculator's input shape, each with a brief, the calculator's figures
+  and the expected verdict and binding guardrails after them; a stale
+  fixture table; `eval/rubric.md` (verdict agreement, guardrail
+  compliance, arithmetic error, tokens and dollars to decide, each scored
+  from a result block without a model); the subject prompt. The gate's new
+  `checkEval` step reruns the calculator on every scenario;
+  `scripts/eval.test.mjs` seeds three faults and checks the gate names
+  them. Stage S2 builds the runner from
+  `docs/handoffs/2026-10-30-stage-s2-eval-runner.md`.
 - 2026-10-30: standing approvals. `docs/operator-preferences.json` gains
   an `approvals` object the gate checks; its first entry records the
   operator's yes of 2026-10-30 to pushes to `origin`, which AGENTS.md

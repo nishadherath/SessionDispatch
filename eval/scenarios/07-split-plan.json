@@ -1,0 +1,71 @@
+{
+  "id": "07-split-plan",
+  "title": "A design is written; the implementation can run as a split",
+  "covers": [
+    "matrix row 3",
+    "split as the plan",
+    "draft fresh by cost"
+  ],
+  "brief": [
+    "Today is {{TODAY}}. Harness: Claude Code desktop app. The harness reports this session's model as claude-fable-5-1 at effort high.",
+    "The session usage tool reports tokensUsed 350,000, contextWindow 1,000,000 and autoCompactsAtPercent 97. This session has not been compacted.",
+    "A fresh session in this harness and project starts at 86,450 tokens (measured: the usage tool's total less its Messages category).",
+    "Next stage: a cross-module change implementing a design this session has finished. The design note on disk states the contract of every changed function, lists the 14 tests that must pass, and gives the observable definition of done (the check script exits 0 and the 14 tests pass). A brief can carry the contract, the tests and the definition of done without retelling this session. No module touched handles authentication, payments, storage formats or a public interface. Plan estimate: 50 turns. No per-turn measurement exists.",
+    "A fresh session would read 30,000 tokens: the design note, the handoff and the modules.",
+    "A handoff or brief for this stage would be about 110 lines. An acceptance session would take about 15 turns and read about 40,000 tokens (the brief, the diff and the test output).",
+    "Everything this session knows that the next stage needs is already written in files on disk.",
+    "No cache-miss measurement exists, and no review pauses are expected during the stage.",
+    "The stage writes files and commits locally; nothing leaves the machine."
+  ],
+  "table": "pricing/2026-10-29.json",
+  "today": "2026-10-30",
+  "formula": "2026-10-29",
+  "current": "claude-fable-5-1",
+  "target": "claude-opus-5-5",
+  "W": 1000000,
+  "K": 970000,
+  "B": 86450,
+  "H": 2500,
+  "M": 0,
+  "L": 0,
+  "C0": 350000,
+  "compacted": false,
+  "T": 50,
+  "F": 3000,
+  "O": 1500,
+  "R": 30000,
+  "Ta": 15,
+  "Ra": 40000,
+  "current_effort": "high",
+  "task_row": 3,
+  "design_heavy": false,
+  "outward": [],
+  "expected": {
+    "calculator": {
+      "exit": 0,
+      "draft": {
+        "side": "fresh",
+        "by": "cost"
+      },
+      "percent": "119.6",
+      "cost_continue": "12.34",
+      "cost_fresh": "5.62",
+      "cost_split": "4.77",
+      "t_star": null,
+      "crosses": false
+    },
+    "skill_runs": true,
+    "draft_required": true,
+    "final": {
+      "outcome": "split",
+      "model": "claude-sonnet-5-5",
+      "effort": "medium",
+      "approval_step": false
+    },
+    "guardrails": []
+  },
+  "notes": [
+    "Cross-module merges are matrix row 3 (Opus). The brief carries contract, oracle and done, so step 2.1 makes the split an option; it is cheaper than fresh by more than 10 percent, so it is the plan.",
+    "final.model and final.effort name the run piece: a Sonnet session at medium (matrix row 2 once the brief makes the work scoped). The acceptance piece runs on claude-opus-5-5 at high."
+  ]
+}
