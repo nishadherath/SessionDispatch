@@ -2,7 +2,7 @@
 stage: "Stage F2: reassessment of the session-dispatch skill on the evaluation results"
 model: claude-fable-5-1
 effort: high
-status: ready
+status: done
 created: 2026-10-30
 from: "Session local_e0fdc95a (Sonnet 5.5, medium): Stage H1, evaluation runs"
 ---
@@ -24,7 +24,7 @@ Read `eval/results-2026-10-30.md` (80 runs, 4 cells of 20) and answer the assess
 - Run data: `eval/runs/2026-10-30/<scenario>.<subject>.<arm>/` (`score.json` per run; `usage.json` has the harness's token total).
 
 ## Verified facts
-- Gate `node scripts/check.mjs`: 90 files read, 0 findings, exit 0; `npm test`: 31 tests, 31 pass (2026-10-30, end of H1).
+- Gate `node scripts/check.mjs`: 90 files read, 0 findings, exit 0; `npm test`: 31 tests, 31 pass (2026-10-30, end of H1). At F2's close: 92 files, 0 findings; 31 tests pass.
 - Final-agreement rates (Wilson 95 percent, n = 20 each): Sonnet with calculator 20/20 (83.9 to 100.0); Sonnet by hand 17/20 (64.0 to 94.8); Haiku with calculator 11/20 (34.2 to 74.2); Haiku by hand 10/20 (29.9 to 70.1).
 - Haiku fails with and without the calculator; its misses are mostly `continue` where `fresh` is expected (calculator 6 of 9 misses, hand 7 of 10). Arithmetic correct of stated: Haiku 43/44 with the calculator, 32/35 by hand; Sonnet 45/47 and 43/47. Bound guardrails: Haiku 9/10 and 5/10; Sonnet 10/10 and 9/10 (counts of 10, small).
 - Cap: the subjects' own records exceeded the 8,000-token decision cap in 19/20 (Haiku calculator), 17/20 (Haiku hand), 16/20 (Sonnet calculator), 11/20 (Sonnet hand) runs; median 1.9 to 2.7 minutes. Reported tokens are the subject's own estimate; the harness totals are 76,262 to 119,228 a run (no input and output split), several times larger.

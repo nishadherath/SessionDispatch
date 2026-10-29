@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, twelfth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after pushing H1 and starting Stage F2.
+Last updated: 2026-10-30, thirteenth update, by the Stage F2 session (claude-fable-5-1, high) at its close.
 
 ## Done
 
@@ -21,74 +21,75 @@ Last updated: 2026-10-30, twelfth update, by the Fable coordinating session (cla
 | Stage F1: adversarial acceptance of Stage O1 | 2026-10-29 | `docs/acceptance-2026-10-29-stage-o1.md`: step 2 derived by hand, every figure recomputed without the shared module, guardrails re-read, calculator probed, four gate mutations caught. Fourteen claims accepted, none rejected. Six findings handed on (fresh-side fixed cost understated by 2 to 11 percent of the smaller side; reasoning retention unmeasured; the gate's recompute stops at totals; three effort rules for acceptance; two sentences for step 2.1; one claim's wording). Commit `17c9526`. Gate 59 files, 0 findings. About 25 minutes; about 5 USD counting visible output, about 7.4 with reasoning (estimate). |
 | Stage O2: evaluation design | 2026-10-30 | `eval/`: 20 scenarios the calculator scores (every matrix row, every final outcome, guardrails 1 to 3 and 5 to 8 binding, a stale fixture table, a null price, the cap, the band, growth F plus visible output), `rubric.md` (four measures scored from a result block, no model in the loop), `subject-prompt.md`, an index. The gate's `checkEval` reruns the calculator on each scenario; `scripts/eval.test.mjs` seeds three faults. The scorer's recompute path reproduces all 18 computable scenarios. Gate 87 files, 0 findings; 24 tests pass. S2 handoff written. About 40 minutes. |
 | Stage S2: evaluation runner and scorer | 2026-10-30 | `eval/score.mjs` (the four measures, Wilson intervals, the report), `eval/run.mjs` (`prepare`, `usage`, `collect`, `score`), `scripts/eval-score.test.mjs` (a perfect block on all 20 scenarios, seven mutations, the Wilson values, sandbox dating). Dry run, scenario 03 on a Haiku and a Sonnet sub-agent, calculator arm: both continue, 3 of 3 figures correct, 14 of 14 inputs matched (`eval/results-2026-10-30.md`). Four open facts settled in the H1 handoff. Gate 89 files, 0 findings; 31 tests pass. About 40 minutes; about 2.4 USD by the calculator at T 45 (estimate), subjects' split unreported. H1 handoff written. |
-| Stage H1: evaluation runs | 2026-10-30 | 80 sub-agent runs scored (D7 = B; Haiku failed by hand, so the Sonnet hand arm ran): `eval/results-2026-10-30.md`. Final agreement, n = 20 per cell: Sonnet 20/20 with the calculator and 17/20 by hand; Haiku 11/20 and 10/20. Haiku fails with or without the calculator (mostly `continue` for `fresh`). Cap exceeded in 11 to 19 of 20 runs per cell; two runs unscorable (null `target`); sub-agents load `AGENTS.md` and `MEMORY.md` (validity threat). Commits `60a87f2` and the one after it. Gate 90 files, 0 findings; 31 tests pass. About 33 minutes wall clock (session created 14:07 UTC, last usage read about 14:40 UTC); about 6.3 USD (estimate: orchestration 4.0, subjects 2.3 on the harness token totals). F2 handoff written. |
+| Stage H1: evaluation runs | 2026-10-30 | 80 sub-agent runs scored (D7 = B; Haiku failed by hand, so the Sonnet hand arm ran): `eval/results-2026-10-30.md`. Final agreement, n = 20 per cell: Sonnet 20/20 with the calculator and 17/20 by hand; Haiku 11/20 and 10/20. Cap exceeded in 11 to 19 of 20 runs per cell; two runs unscorable (null `target`); sub-agents load `AGENTS.md` and `MEMORY.md` (validity threat). Commits `60a87f2` and `b9c40c8`. Gate 90 files, 0 findings; 31 tests pass. About 33 minutes wall clock; about 6.3 USD (estimate: orchestration 4.0, subjects 2.3 on the harness token totals). F2 handoff written. |
+| Stage F2: reassessment on the evaluation results | 2026-10-30 | `docs/assessment-2026-10-30-f2.md`: the skill is a procedure Sonnet can run (20/20 with the calculator, 17/20 by hand, not separable, p = 0.23); every one of Haiku's 19 misses took guardrail 7's default after a draft correct in 14 of 17, so the 8,000-token cap, not Haiku, is the finding. Verdicts on the three two-answer places and a fourth (step 5.4), the cap (record under 4,000 tokens and 10 minutes, step 5 cut past it, the draft stands), the null target (string or null, two runs rescored by O3 with both figures), repeating cells (on the revised text only, 120 runs with pre-registered thresholds), F1-1 (O4 after H2), F1-3 (S4), F1-4 (one rule in matrix row 4), F1-5 (O3), the `AGENTS.md` load (S4's CLI runner); D5 accepted with four contract findings. Roadmap re-priced from `docs/dispatch/2026-10-30-f2-roadmap.json`. O3 handoff written. Gate and tests at close in the stage report. |
 
 ## In progress
 
-| Stage | Session | Class, effort | Where | Estimate |
-|---|---|---|---|---|
-| F2: reassessment on the evaluation results | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-f2-reassessment.md`; session `local_bf52bc77`, name `stage-f2`, sharing this checkout; H1's commits `60a87f2` and `b9c40c8` pushed | Fable, high | this checkout, `main` | 60 to 120 min; about 17.7 USD at T 60 (calculator) |
+None. The next stage is O3; the coordinating session starts it from
+`docs/handoffs/2026-10-30-stage-o3-skill-text-revision.md` (Opus, high;
+a card for the operator where the class needs one).
 
-Stage S1 is merged into `main` (`73393b8`): the installer ships `scripts/`,
-has `--check` and `--seed`, and `npm test` runs 22 tests; the gate takes
-`--today` and, with the calculator, judges a table's age by the local
-calendar day. The user copy at `~/.claude/skills/session-dispatch/` was
-refreshed with `node scripts/install.mjs` on 2026-10-29, and `--check`
-reports all three installed copies (claude, codex, opencode) current.
+The installed user copy at `~/.claude/skills/session-dispatch/` matches
+the repository as of S1; O3's text change will put it behind until
+`node scripts/install.mjs` runs again.
 
 ## To do
 
-From `docs/assessment-2026-10-29.md` section 6. Costs at API list price
-from `pricing/2026-10-18.json`; wall clock is the model's, operator
-review separate.
+From `docs/assessment-2026-10-30-f2.md` section 6. Costs at API list
+price from `pricing/2026-10-29.json` by one calculator run
+(`node scripts/dispatch.mjs --json docs/dispatch/2026-10-30-f2-roadmap.json --today 2026-10-30`);
+wall clock is the model's, operator review separate.
 
 | Stage | Class, effort | Cost (USD) | Wall clock | Depends on |
 |---|---|---|---|---|
-| S3: adapter verification on each harness | Sonnet, medium, operator present | 1 to 2.5 | 30 to 45 min plus the operator's installs | none |
-| F2: reassessment on the evaluation results | Fable, high | 12 to 20 | 60 to 120 min | H1 |
-| Variant C (D2, conditional): `SKILL.md`, adapters and templates rewritten under STE100's writing rules, scored on the evaluation scenarios | Opus, high | 3 to 5 (estimate) | 30 to 60 min | H1 |
+| O3: skill text revision and evaluation contract (F2 section 3.6) | Opus, high | 8.62 (quote 7 to 12) | 45 to 75 min | F2 |
+| S4: harness hardening (CLI runner from the sandbox with measured usage, manifest merge, gate term lines F1-3) | Sonnet, medium | 3.05 (2.5 to 5) | 30 to 45 min | none; beside O3 |
+| F3: acceptance of O3 | Fable, high | 6.29 (5 to 8) | 20 to 30 min | O3 |
+| H2: rerun on the revised text, 120 runs, thresholds fixed in F2 section 3.6 | Sonnet, medium, orchestrating | 2.40 plus subjects 3 to 18 (estimate) | 30 to 60 min | F3, S4, D9 |
+| F4: reassessment on H2; decides O4 and C1 | Fable, high | 9.46 (8 to 12) | 45 to 75 min | H2 |
+| S3: adapter verification on each harness | Sonnet, medium, operator present | 1.31 (1 to 2.5) | 30 to 45 min plus installs | none |
+| O4 (conditional): fresh-side fixed-cost terms F1-1, new worked example | Opus, high | 5.50 (4.5 to 8) | 30 to 60 min | F4 |
+| C1 (conditional, D8): variant C rewrite under STE100's writing rules, scored on Haiku | Opus, high | 6.02 plus 40 Haiku runs | 30 to 60 min | F4 |
 
-From the F1 acceptance (its section 7), not yet staged: an Opus stage for
-the fresh-side fixed-cost terms and step 2.1's two sentences (F1-1,
-F1-5; after H1 shows their weight, about 3 USD, estimate); a Sonnet stage
-for the gate's recompute of term lines and Step B costs (F1-3, about 1
-USD, estimate); F2 settles the one effort rule for acceptance (F1-4).
-
-Total for the whole roadmap, the stages done included: about 46 USD
-(quote 35 to 65) as assessed, about 56 to 65 with H1 at O2's estimate,
-plus about 4 USD for the F1 follow-ups. Serial chain
-about 5.5 hours of model time, about 1.5 hours of it done; operator
-review about 3 to 4 hours across all stages (rough).
+Totals: firm stages about 34 to 49 USD (sessions 31.13 plus subject
+runs 3 to 18), conditional stages about 12 to 15 more. Done stages
+about 48 USD (estimates where the stage said so; F2's own figure in its
+stage report). Whole roadmap about 82 to 97 USD firm, 95 to 110 with
+the conditional stages. Serial chain left (O3, F3, H2, F4) about 2.5 to
+4 hours of model time, S4 and S3 beside it; operator review about 2.5
+hours (rough).
 
 ## Decisions waiting
 
-Each is set out in the five-part shape in section 7 of the assessment,
-D5 below.
+Each is set out in the five-part shape in section 7 of the newest
+assessment; D8 and D9 are repeated below.
 
 - D1 Autonomy: yes, recorded 2026-10-29 in `docs/operator-preferences.json`. Finishing sessions start the next stage themselves where the class allows; a higher class is started by the Fable coordinating session or by the operator.
-- D2 ASD-STE100 (key `ste100`): no, recorded 2026-10-30 (option A, the recommendation). Variant C, STE100's writing rules without its dictionary for `SKILL.md`, the adapters and the templates, is deferred to after H1 and is adopted only if it scores higher on the evaluation scenarios.
-- D3 How price refreshes are filled: the operator chose live reads (option b) on 2026-10-29, for the Anthropic family first. Other families stay null until the operator names them.
-- D4 Stage order: settled on 2026-10-29 by the operator starting O1, S1 and H0 together.
-- D5 Acceptance of O2's design, below. O2's evidence for the recommendation's condition: the rubric scores deterministically; the scorer's recompute path reproduces the calculator on all 18 computable scenarios, and every hand-set expectation names its rule in the scenario's notes.
-- D7 H1's scope, below.
-- D6 Pushes to origin: standing yes given by the operator on 2026-10-30 ("Push, standing yes"), recorded under `approvals.push_origin` in `docs/operator-preferences.json`; `main` was pushed to origin at `f84cc82` the same day, so every stage above is on the remote.
+- D2 ASD-STE100 (key `ste100`): no, recorded 2026-10-30 (option A). Variant C is D8 below.
+- D3 How price refreshes are filled: live reads (option b), 2026-10-29, for the Anthropic family first.
+- D4 Stage order: settled 2026-10-29.
+- D5 Acceptance of O2's design: F2 was the acceptance (option A); accepted on 2026-10-30 with four contract findings carried to O3 (`docs/assessment-2026-10-30-f2.md` section 3.7).
+- D6 Pushes to origin: standing yes, 2026-10-30, under `approvals.push_origin`.
+- D7 H1's scope: B, decided by the operator on 2026-10-30; done.
+- D8 Variant C: open, below.
+- D9 H2's size: open, below.
 - Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`.
 
 ```
-D5
-Decision:      Whether O2's evaluation design is accepted by a Fable session before S2 builds the runner, or whether F2's reassessment of the results is the acceptance.
-Options:       A F2 covers it (as the roadmap stands) / B a short Fable acceptance of the design before S2
-Pros and cons: A no extra stage; a design flaw shows up only after S2 and H1 have spent about 6 USD on it. B about 3 USD and 20 minutes (estimate) now; catches a scenario set that cannot distinguish the classes before anything is built on it.
-Blast radius:  A S2 and H1 may need a rerun if the design is wrong. B one extra stage and one more handoff.
-Recommended:   A, because S2's dry run on one scenario per class is itself a check of the design, and F2 reads every result; choose B if O2's stage report shows the rubric could not be scored deterministically.
+D8
+Decision:      Whether variant C (SKILL.md, adapters and templates rewritten under ASD-STE100's writing rules without its dictionary, D2's deferred option) is staged, and against what.
+Options:       A defer to F4: stage C1 only if H2 shows Haiku still below 18 of 20 on the revised text / B stage C1 now, beside O3, scored on Haiku in H2 / C drop variant C
+Pros and cons: A costs nothing now; if the cap fix alone lifts Haiku, the rewrite has no target and is never paid for; if not, C1 runs with a clean baseline. B gets the answer one stage earlier at about 6 USD plus 40 Haiku runs, but two text changes land in one rerun and H2 cannot say which one moved Haiku. C saves about 6 to 9 USD and leaves D2's condition untested; Sonnet's cells cannot show a rise at any n the budget allows, so Haiku is the only place variant C could ever be shown to help.
+Blast radius:  A none now. B a confounded H2. C D2's condition closed without data.
+Recommended:   A, because H2 must attribute any change to one cause, and the cap finding means Haiku's baseline is not yet measured; the threshold (18 of 20) is fixed now so F4 does not choose it after seeing the result.
 ```
 
 ```
-D7
-Decision:      How many of the 80 possible runs H1 makes (20 scenarios, Haiku and Sonnet subjects, calculator and hand arms).
-Options:       A all 80 / B calculator arm on both classes plus hand arm on Haiku (60), then the Sonnet hand arm only if Haiku fails by hand / C calculator arm only (40)
-Pros and cons: A answers every cell at once; about 23 USD (estimate). B about 14 USD; answers whether the skill is a procedure at the cheapest class first, and the Sonnet hand arm (about 10 USD) runs only when it would change the answer. C about 13 USD; never tests the skill without its calculator, which is the assessment's open question.
-Blast radius:  A spends about 10 USD that B may not need. B a second H1 pass, one more handoff. C F2 cannot say whether the skill is a procedure.
-Recommended:   B, because a Sonnet subject that passes where Haiku passes adds nothing, and the Sonnet hand arm is the dearest quarter of the runs.
-Decided:       B, by the operator on 2026-10-30 ("B: 60 runs"); relayed to the H1 session by the coordinating session.
+D9
+Decision:      How many runs Stage H2 makes on the revised text.
+Options:       A 120: Sonnet two runs per scenario in both arms (n = 40 each), Haiku one (n = 20 each) / B 80: one run per cell as H1 / C 160: two runs per scenario in every cell
+Pros and cons: A can show Sonnet above 91 percent (40 of 40), separate the Sonnet arms if the hand arm is at or below 34 of 40, and see Haiku's recovery (10 to 18 of 20 is p of about 0.01); about 2.4 USD orchestration plus 3 to 18 of runs. B cannot show Sonnet above 84 percent or separate its arms; about 2 plus 2 to 12. C narrows Haiku too (n = 40) for about 1 to 6 USD more; Haiku's question is whether it passes at all, which n = 20 answers.
+Blast radius:  A and C one stage's cost. B a second rerun if F4 needs to separate the arms.
+Recommended:   A, because the money question is whether Sonnet needs the calculator, and that needs n = 40 on Sonnet and nothing more on Haiku.
 ```
