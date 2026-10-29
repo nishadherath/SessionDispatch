@@ -2,7 +2,7 @@
 stage: "Stage F4: reassessment on the H2 results; decides O4 and C1"
 model: claude-fable-5-1
 effort: high
-status: ready
+status: done
 created: 2026-10-30
 from: "Session local_2f355400 (Sonnet 5.5, medium): Stage H2, the rerun on the revised text"
 ---

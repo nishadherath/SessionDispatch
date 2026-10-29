@@ -125,6 +125,22 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-10-30: reassessment on the H2 results (Stage F4),
+  `docs/assessment-2026-10-30-f4.md`. The Sonnet thresholds are met
+  (40 of 40 in both arms, arms not different); Haiku's 18-of-20
+  threshold is ruled not met on the pre-registered scorer's count, the
+  two format failures counting as misses with the hand reading (19 of
+  20) recorded as a second figure. The text gains a class floor (Stage
+  S5); variant C is left unstaged for want of a measurable target
+  (decision D10 for the operator); O4 is declined in favour of one
+  sentence on the omitted terms; the Sonnet `t_star` misses are a block
+  encoding fault, fixed in the prompt (Stage S4); scenario 10's Haiku
+  misses are an undefined term in step 1.2, defined in S5; a 21st
+  scenario covers guardrail 7's fallback (S4). H1 to H2 compared cell by
+  cell without scenario 17. Roadmap re-priced from
+  `docs/dispatch/2026-10-30-f4-roadmap.json`: S4, S5, H3, S3, F5 remain.
+  Handoffs for S4 and S5 written. No change to the skill, the scripts or
+  the evaluation.
 - 2026-10-30: evaluation rerun on the revised text (Stage H2).
   `prepare --repeat <n>` gives repeat runs of a scenario, subject and
   arm distinct ids (`.2` and on), with its test. 120 sub-agent runs on

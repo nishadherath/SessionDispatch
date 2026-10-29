@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, eighteenth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after pushing H2 and starting Stage F4.
+Last updated: 2026-10-30, nineteenth update, by the Stage F4 session (claude-fable-5-1, high) at its close.
 
 ## Done
 
@@ -26,38 +26,44 @@ Last updated: 2026-10-30, eighteenth update, by the Fable coordinating session (
 | Stage O3: skill text revision and evaluation contract | 2026-10-30 | F2's verdicts in `SKILL.md` (cap on the record, 4,000 tokens and 10 minutes, the draft standing past it; guardrail 1 at the same class; the guardrail order; one acceptance effort rule in matrix row 4; step 5.4's adverse-value rule; F1-5; the null target; measured cost-of-deciding figures), the template, protocol section 2 and `AGENTS.md` rule 5 (`271edfd`). Evaluation contract (`53da875`): null `target`, `not-run` model, `over_cap` on the record's measured size, guardrail 7's new consequence, the F2-6 diagnostic; scenario 17's expected final moved to fresh on Opus at high, escalated and ruled option A by the coordinating session. Two runs rescored with both figures (`3e78e26`): Sonnet by hand 17/20 as scored, 18/20 rescored. Gate 92 files, 0 findings; 34 tests pass. About 50 minutes; about 5 USD (estimate, stage report). F3 handoff written. |
 | Stage F3: adversarial acceptance of Stage O3 | 2026-10-30 | `docs/acceptance-2026-10-30-stage-o3.md`: sixteen claims accepted, none rejected; the writing matches F2 section 3.6 and the scenario 17 ruling. One run rescored by hand (every field reproduces), the over-cap column (1, 0, 1, 1 of 20) and the F2-6 diagnostic (10 runs) recomputed from the 80 records without the scorer, Wilson by hand, twenty-one scorer probes. Seven findings handed on, none blocking: rubric row 7 against the guardrail order in a case no scenario holds (F4); a repeat index for `prepare` before H2; the runner choice for H2 (`Agent`, for comparability with H1); the scorer's record size is the whole file; the diagnostic double-counts an unlisted outcome guardrail; a broken sentence in scenario 17's note; the old-rule over-cap column with the two unscorable runs read (19, 18, 16, 12). H2 handoff written (`docs/handoffs/2026-10-30-stage-h2-eval-rerun.md`, Sonnet medium, 120 runs). Gate and tests at close in the stage report. About 22 minutes; about 5.9 USD counting visible output, about 7.8 with reasoning (estimate, stage report). |
 | Stage H2: rerun on the revised text, 120 runs | 2026-10-30 | `prepare --repeat <n>` (`5349fdb`), then 120 `Agent` runs scored (`c45891e`): `eval/results-2026-10-31.md`, labelled 2026-10-31 because H1 holds 2026-10-30. Final agreement: Sonnet 40/40 in both arms (n = 40), Haiku calculator 17/20 and hand 19/20 (n = 20). Pre-registered thresholds: Sonnet "a procedure" met; arms not different (p = 1.000); Haiku calculator 18 of 20 not met on the scorer's count (two unscorable format failures whose final outcomes are right, so 19/20 by hand; scenario 10 missed in both arms). Over cap 6 runs, all scenario 17. Gate 97 files, 0 findings; 35 tests pass. About 50 minutes; about 5 USD orchestration plus about 4 for subjects (estimates, split unreported). F4 handoff written. |
+| Stage F4: reassessment on the H2 results | 2026-10-30 | `docs/assessment-2026-10-30-f4.md`: the Sonnet thresholds met (40 of 40 in both arms, p = 1.000); Haiku's 18-of-20 threshold ruled not met on the pre-registered scorer's count (17 of 20), the two format failures counted as misses and the hand reading (19 of 20) recorded as a second figure; the class floor goes into the text (S5); C1 left unstaged for want of a measurable target (D10 to the operator); O4 declined for one sentence on the omitted terms; the Sonnet `t_star` misses traced to the block's encoding (S4 prompt fix); scenario 10's Haiku misses traced to the undefined "writing-heavy" (S5); scenario 21 for guardrail 7's fallback (S4); H1 to H2 compared cell by cell without scenario 17 (Haiku hand 9 of 19 to 18 of 19, p = 0.003). Roadmap re-priced (`docs/dispatch/2026-10-30-f4-roadmap.json`); S4 and S5 handoffs written. Gate 100 files, 0 findings; 35 tests pass. About 24 minutes; about 9 USD (estimate, assessment section 5). |
 
 ## In progress
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| F4: reassessment on the H2 results; decides O4 and C1 | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-f4-reassessment.md`; session `local_1edc5e80`, name `stage-f4`, sharing this checkout; H2's commits pushed (`0eb590b`) | Fable, high | this checkout, `main` | 45 to 75 min, 9 to 15 USD (14.71 by `docs/dispatch/2026-10-30-h2-f4.json`) |
+| none started | S4 and S5 are ready to start from their handoffs (`docs/handoffs/2026-10-30-stage-s4-harness-and-contract.md`, `docs/handoffs/2026-10-30-stage-s5-skill-text.md`); the coordinating session starts them, side by side (disjoint files except one changelog line each) | Sonnet, medium | worktrees or this checkout | S4 45 to 60 min, 2.5 to 5 USD; S5 15 to 25 min, 0.7 to 1.5 USD |
 
 The three installed copies (claude, codex, opencode) were refreshed with
 `node scripts/install.mjs` on 2026-10-30 after O3; `--check` reports 0
-files behind.
+files behind. S5's edit puts them behind until it reruns the install.
 
 ## To do
 
-From `docs/assessment-2026-10-30-f2.md` section 6. Costs at API list
+From `docs/assessment-2026-10-30-f4.md` section 3.6. Costs at API list
 price from `pricing/2026-10-29.json` by one calculator run
-(`node scripts/dispatch.mjs --json docs/dispatch/2026-10-30-f2-roadmap.json --today 2026-10-30`);
+(`node scripts/dispatch.mjs --json docs/dispatch/2026-10-30-f4-roadmap.json --today 2026-10-30`);
 wall clock is the model's, operator review separate.
 
 | Stage | Class, effort | Cost (USD) | Wall clock | Depends on |
 |---|---|---|---|---|
-| S4: harness hardening (CLI runner from the sandbox with measured usage, manifest merge so a second `prepare` call does not drop the first (met in H2), gate term lines F1-3) | Sonnet, medium | 3.05 (2.5 to 5) | 30 to 45 min | none; H2 is done, so `eval/run.mjs` is free |
-| F4: reassessment on H2; decides O4 and C1 | Fable, high | 14.71 by the calculator on this session's measured inputs (the F2 roadmap said 9.46, range 8 to 12; quote 9 to 15) | 45 to 75 min | H2 (done) |
-| S3: adapter verification on each harness | Sonnet, medium, operator present | 1.31 (1 to 2.5) | 30 to 45 min plus installs | none |
-| O4 (conditional): fresh-side fixed-cost terms F1-1, new worked example | Opus, high | 5.50 (4.5 to 8) | 30 to 60 min | F4 |
-| C1 (conditional, D8): variant C rewrite under STE100's writing rules, scored on Haiku | Opus, high | 6.02 plus 40 Haiku runs | 30 to 60 min | F4 |
+| S4: harness hardening and evaluation contract (CLI runner with measured usage and the F2-8 probe; `prepare` merges the manifest; gate term lines F1-3; the block contract fixes for `t_star`, `usd` null and the block's placement; F3-1, F3-3, F3-5, F3-6; scenario 21 for guardrail 7's fallback) | Sonnet, medium | 3.11 (2.5 to 5) | 45 to 60 min | none |
+| S5: skill text, three fixed additions (the class floor; writing-heavy defined by matrix row; the omitted fresh-side terms as a fragility sentence) and the install refresh | Sonnet, medium | 0.85 (0.7 to 1.5) | 15 to 25 min | none; beside S4 |
+| H3: clean-harness regression, 42 runs (21 scenarios, Sonnet and Haiku, calculator arm, one run each) on the CLI runner and the S5 text; thresholds Sonnet 20 of 21, Haiku 19 of 21, fixed in F4 section 3.6 | Sonnet, medium, orchestrating; subjects Sonnet and Haiku | 0.85 plus subjects 1 to 5 (estimate; the CLI reports it) | 20 to 40 min | S4, S5 |
+| S3: adapter verification on each harness, operator present | Sonnet, medium | 1.31 (1 to 2.5) | 30 to 45 min plus installs | S5 |
+| F5: closing assessment on H3; the floor's figures updated if they moved; "done" declared or what is not named | Fable, high | 5.18 (4 to 7) | 30 to 45 min | H3, S3 |
 
-Totals: firm stages left about 20 to 35 USD (sessions 16.76 plus
-subject runs 3 to 18), conditional stages about 12 to 15 more. Done
-stages about 60 USD (estimates where the stage said so). Whole roadmap
-about 80 to 95 USD firm, 92 to 110 with the conditional stages. Serial
-chain left (H2, F4) about 1.5 to 2.5 hours of model time, S4 and S3
-beside or after it; operator review about 1.5 hours (rough).
+Not staged: C1 (variant C) and its acceptance F6, 12.31 USD plus about 84
+Haiku runs, unless the operator overrules D10; O4 declined (F4 section
+2.3), 5.50 plus acceptance and a rerun, about 20.
+
+Totals: firm stages left about 12 to 17 USD (sessions 11.30 plus subject
+runs 1 to 5), quote 12 to 20. Done stages about 69 USD (estimates where
+the stage said so; F4 about 9). Whole roadmap about 81 to 86 USD firm,
+94 to 100 with C1 and F6. Serial chain left (S4, H3, F5) about 1.5 to
+2.5 hours of model time, S5 beside S4 and S3 beside H3; operator review
+about 2 hours including S3's installs (rough). The roadmap is near its
+end: F4 section 3.7 says what "done" looks like.
 
 ## Decisions waiting
 
@@ -71,8 +77,9 @@ assessment; D8 and D9 are repeated below.
 - D5 Acceptance of O2's design: F2 was the acceptance (option A); accepted on 2026-10-30 with four contract findings carried to O3 (`docs/assessment-2026-10-30-f2.md` section 3.7).
 - D6 Pushes to origin: standing yes, 2026-10-30, under `approvals.push_origin`.
 - D7 H1's scope: B, decided by the operator on 2026-10-30; done.
-- D8 Variant C: A (defer to F4; staged only if Haiku stays below 18 of 20 on the revised text), decided by the operator on 2026-10-30; below.
+- D8 Variant C: A (defer to F4; staged only if Haiku stays below 18 of 20 on the revised text), decided by the operator on 2026-10-30; below. F4 ruled the gate open (17 of 20 on the scorer's count) and left C1 unstaged; D10 below puts that choice to the operator.
 - D9 H2's size: A (120 runs), decided by the operator on 2026-10-30; below.
+- D10 Variant C staged or closed (new, F4, 2026-10-30): waiting; recommended A. Nothing else waits on it.
 - F3-7 H2's runner (the coordinating session's, not the operator's): A, the `Agent` runner as H1 used it, decided 2026-10-30 so that H1 and H2 share one harness and F4 can attribute any change to the text; S4's CLI runner follows H2.
 - Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`.
 
@@ -94,4 +101,13 @@ Pros and cons: A can show Sonnet above 91 percent (40 of 40), separate the Sonne
 Blast radius:  A and C one stage's cost. B a second rerun if F4 needs to separate the arms.
 Recommended:   A, because the money question is whether Sonnet needs the calculator, and that needs n = 40 on Sonnet and nothing more on Haiku.
 Decided:       A, by the operator on 2026-10-30 ("A: 120 runs"); the H2 handoff carries it.
+```
+
+```
+D10
+Decision:      Whether variant C (C1, an ASD-STE100-style rewrite of SKILL.md judged on Haiku) is staged now that D8's gate is open (Haiku 17 of 20 on the scorer's count) and F4 has read the misses as two block-format faults and one open input default.
+Options:       A leave C1 unstaged and close variant C with F4's ruling / B stage C1 after S4 and S5 against the measure fixed in F4 section 1.4 (baseline n = 42 on the S5 text, C1 at the same n, Fisher p under 0.05) / C stage C1 now against H2's cell, as D8 first read
+Pros and cons: A costs nothing and keeps the budget for the clean measurement; it closes D2's deferred option on a reading of three records rather than a run. B is the only version that can measure a rewrite at all, about 12.31 USD of sessions plus about 84 Haiku runs (1 to 6 USD), and it can show an effect only if the baseline cell falls to about 34 of 42, which F4's reading makes unlikely. C spends the same money on a cell whose misses are known to be contract faults, so its result would measure S4's absence.
+Blast radius:  A none; variant C can be reopened by a later run if Haiku's clean-harness cell (H3) falls below 19 of 21. B two more stages on the serial chain after H3. C a confounded result.
+Recommended:   A, because a rewrite's target on the revised text is one scenario whose miss is an input default S5 fixes, and no n the budget allows can show a move from 19 of 20; D8 deferred this choice to F4 and F4 takes it, subject to the operator's overrule.
 ```
