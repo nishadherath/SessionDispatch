@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, thirteenth update, by the Stage F2 session (claude-fable-5-1, high) at its close.
+Last updated: 2026-10-30, thirteenth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after pushing F2 and starting Stage O3.
 
 ## Done
 
@@ -26,9 +26,9 @@ Last updated: 2026-10-30, thirteenth update, by the Stage F2 session (claude-fab
 
 ## In progress
 
-None. The next stage is O3; the coordinating session starts it from
-`docs/handoffs/2026-10-30-stage-o3-skill-text-revision.md` (Opus, high;
-a card for the operator where the class needs one).
+| Stage | Session | Class, effort | Where | Estimate |
+|---|---|---|---|---|
+| O3: skill text revision and evaluation contract | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-o3-skill-text-revision.md`; session `local_0b6855b7`, name `stage-o3`, sharing this checkout; F2's commit `bc9327b` pushed | Opus, high | this checkout, `main` | 45 to 75 min, 7 to 12 USD (8.62 by the calculator) |
 
 The installed user copy at `~/.claude/skills/session-dispatch/` matches
 the repository as of S1; O3's text change will put it behind until
