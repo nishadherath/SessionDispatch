@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, sixteenth update, by Stage O3 (claude-opus-5-5, high) at its close.
+Last updated: 2026-10-30, sixteenth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after pushing O3, refreshing the installed copies and starting Stage F3.
 
 ## Done
 
@@ -29,11 +29,11 @@ Last updated: 2026-10-30, sixteenth update, by Stage O3 (claude-opus-5-5, high) 
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| None. F3 is next: `docs/handoffs/2026-10-30-stage-f3-acceptance.md`, started by the coordinating session after it pushes O3's commits | | | |
+| F3: adversarial acceptance of Stage O3 | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-f3-acceptance.md`; session `local_43d442db`, name `stage-f3`, sharing this checkout; O3's commits pushed (`3acfa03`) | Fable, high | this checkout, `main` | 20 to 40 min, 5 to 9 USD (6.40 by the calculator) |
 
-The installed user copy at `~/.claude/skills/session-dispatch/` is behind
-the repository since O3's text change, until `node scripts/install.mjs`
-runs again (the coordinating session's step).
+The three installed copies (claude, codex, opencode) were refreshed with
+`node scripts/install.mjs` on 2026-10-30 after O3; `--check` reports 0
+files behind.
 
 ## To do
 
