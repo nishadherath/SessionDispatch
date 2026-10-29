@@ -167,6 +167,18 @@ then prose follows the persona's section 14.1.
 - Without a yes, the finishing session proposes the next session as a
   card for the operator to start, and still maintains `docs/status.md`.
 
+**Standing approvals.** An outward step the operator approves once for
+the rest of the project is recorded under `approvals` in the same file:
+the key names the step, `scope` says exactly what is covered (the
+remote, the branches, the conditions), `answer` is true or false,
+`recorded` is the date and `note` quotes the operator's words. A
+session acts on a recorded approval without asking and names the step
+in its stage report; nothing outside the scope is covered, and a false
+answer withdraws it from that date. The gate checks the shape. On
+record: `push_origin`, the operator's yes of 2026-10-30 to pushes of
+`main` and the stage branches to `origin` after a green gate and a
+clean commit.
+
 ## 2. Model tiering on this project
 
 The persona's section 3 applies. Prices live in `pricing/<date>.json`,

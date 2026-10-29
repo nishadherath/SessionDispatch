@@ -78,6 +78,18 @@ test("a table_date that disagrees with its filename exits 1", () => {
   });
 });
 
+test("an approval without a recorded date exits 1", () => {
+  withTree("gate-approval", (tree) => {
+    const file = path.join(tree, "docs", "operator-preferences.json");
+    const prefs = JSON.parse(fs.readFileSync(file, "utf8"));
+    prefs.approvals = { fixture_step: { scope: "a fixture", answer: true, recorded: null } };
+    fs.writeFileSync(file, JSON.stringify(prefs, null, 2) + String.fromCharCode(10));
+    const r = runGate(tree);
+    assert.equal(r.status, 1, r.out);
+    assert.match(r.stdout, /approvals[.]fixture_step[.]recorded must be YYYY-MM-DD/);
+  });
+});
+
 test("the fixtures are valid JSON", () => {
   for (const n of fs.readdirSync(FIXTURES).filter((f) => f.endsWith(".json"))) JSON.parse(fs.readFileSync(path.join(FIXTURES, n), "utf8").replaceAll("@TODAY@", "2020-01-01"));
 });

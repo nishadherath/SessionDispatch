@@ -281,6 +281,11 @@ function checkPreferences() {
     for (const d of ["asked", "recorded"]) if (!(q[d] === null || DATE_RE.test(String(q[d])))) fail(file, `questions.${key}.${d} must be null or YYYY-MM-DD`);
     if (typeof q.answer === "boolean" && q.recorded === null) fail(file, `questions.${key} is answered but recorded has no date`);
   }
+  for (const [key, a] of Object.entries(prefs.approvals || {})) {
+    if (typeof a.scope !== "string" || !a.scope) fail(file, `approvals.${key}.scope must say what the approval covers`);
+    if (typeof a.answer !== "boolean") fail(file, `approvals.${key}.answer must be true or false`);
+    if (!DATE_RE.test(String(a.recorded))) fail(file, `approvals.${key}.recorded must be YYYY-MM-DD`);
+  }
   const status = path.join(ROOT, "docs", "status.md");
   if (!fs.existsSync(status)) return fail(status, "missing live status document (AGENTS.md rule 11)");
   const text = read(status);
