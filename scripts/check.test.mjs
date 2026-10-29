@@ -93,3 +93,33 @@ test("an approval without a recorded date exits 1", () => {
 test("the fixtures are valid JSON", () => {
   for (const n of fs.readdirSync(FIXTURES).filter((f) => f.endsWith(".json"))) JSON.parse(fs.readFileSync(path.join(FIXTURES, n), "utf8").replaceAll("@TODAY@", "2020-01-01"));
 });
+
+// F1-3: the recompute reads the term lines inside Step A's block and Step B's cost column.
+function mutateExample(tree, name, from, to) {
+  const file = path.join(tree, "examples", name);
+  const text = fs.readFileSync(file, "utf8");
+  assert.ok(text.includes(from), `fixture line not found: ${from}`);
+  fs.writeFileSync(file, text.replace(from, to));
+}
+
+test("a term line, a product line and a Step B cost that disagree with the inputs each exit 1", () => {
+  withTree("gate-terms", (tree) => {
+    mutateExample(tree, "2026-10-29-sessiondispatch-stage-0b.md", "T*C_fresh*p_cr                  = 3.437", "T*C_fresh*p_cr                  = 3.447");
+    mutateExample(tree, "2026-10-29-sessiondispatch-stage-0b.md", "| 9.37 USD (T 60", "| 9.47 USD (T 60");
+    mutateExample(tree, "2026-10-27-fork-graft-stage-26.md", "+ 60*3,000*12.5e-6    = 2.250   (fresh input written to cache)", "+ 60*3,000*12.5e-6    = 2.350   (fresh input written to cache)");
+    const r = runGate(tree);
+    assert.equal(r.status, 1, r.out);
+    assert.match(r.stdout, /Step A: cost_fresh term 3 \(cache reads\) states 3\.447, the inputs give 3\.4374/);
+    assert.match(r.stdout, /Step B: piece "Stage O1[^"]*" costs 9\.47 USD, the inputs give 9\.3697 on claude-opus-5-5/);
+    assert.match(r.stdout, /Step A: cost_continue term "60\*3,000\*12\.5e-6" multiplies to 2\.25000, the line states 2\.350/);
+  });
+});
+
+test("a term line count that disagrees with the formula exits 1", () => {
+  withTree("gate-term-count", (tree) => {
+    mutateExample(tree, "2026-10-29-sessiondispatch-stage-0b.md", "  M*C_cont*(p_cw - p_cr)          = 0.000   (cache misses, M 0)\n", "");
+    const r = runGate(tree);
+    assert.equal(r.status, 1, r.out);
+    assert.match(r.stdout, /Step A: cost_continue states 4 term line\(s\), the formula gives 5/);
+  });
+});

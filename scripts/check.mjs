@@ -13,7 +13,7 @@ import { execFile } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { FORMULAS, FORMULA_IN_FORCE, REQUIRED_SYMBOLS, OPTIONAL_SYMBOLS, validateInputs, findModel, missingPrices, stepA, splitCost, breakEven, modelForClass, CLASS_RANK } from "./dispatch-core.mjs";
+import { FORMULAS, FORMULA_IN_FORCE, REQUIRED_SYMBOLS, OPTIONAL_SYMBOLS, validateInputs, findModel, missingPrices, stepA, splitCost, breakEven, pieceCost, modelForClass, CLASS_RANK } from "./dispatch-core.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CLASSES = new Set(["haiku", "sonnet", "opus", "fable"]);
@@ -167,6 +167,65 @@ function matchesStated(stated, computed) {
   return Math.abs(Number(stated.replace(/,/g, "")) - computed) <= 0.5 * 10 ** -places + 1e-9;
 }
 
+// A term line states a figure the way a total does, except that an integer ("0") must be
+// exact: half a unit of zero decimal places would accept anything under 0.5.
+function termMatches(stated, computed) {
+  return stated.includes(".") ? matchesStated(stated, computed) : Math.abs(Number(stated.replace(/,/g, "")) - computed) < 0.0005;
+}
+
+// The term lines of one side inside Step A's fenced block (F1-3): from the line that opens
+// "cost_continue" or "cost_fresh" to the "= n USD" total, each stated as "= n" and compared,
+// in order, with the terms dispatch-core.mjs gives that side. A line that is a product
+// ("60*190,000*0.25e-6  = 2.850") is also multiplied out.
+function checkTermLines(file, stepAText, formula, name, expected) {
+  const lines = stepAText.split(/\r?\n/);
+  const open = lines.findIndex((l) => new RegExp(`^\\s*${name}\\b`).test(l));
+  if (open < 0) return;
+  const close = lines.findIndex((l, k) => k >= open && /=\s*\d[\d,]*\.\d+\s*USD/.test(l));
+  if (close < 0) return;
+  const num = "[\\d,]+(?:\\.\\d+)?(?:e-?\\d+)?";
+  const productRe = new RegExp(`(${num}(?:\\*${num})+)\\s*=`);
+  const terms = [];
+  for (const l of lines.slice(open, close)) {
+    const stated = [...l.matchAll(/=\s*(\d[\d,]*(?:\.\d+)?)(?=\s+\(|\s*$)/g)].pop()?.[1];
+    if (stated === undefined) continue;
+    terms.push(stated);
+    const product = l.match(productRe)?.[1];
+    if (product) {
+      const value = product.split("*").reduce((acc, f) => acc * Number(f.replace(/,/g, "")), 1);
+      if (!termMatches(stated, value)) fail(file, `Step A: ${name} term "${product}" multiplies to ${value.toPrecision(6)}, the line states ${stated}`);
+    }
+  }
+  if (terms.length !== expected.length) return fail(file, `Step A: ${name} states ${terms.length} term line(s), the formula gives ${expected.length} (${expected.map((e) => e[0]).join(", ")})`);
+  expected.forEach(([label, want], k) => {
+    if (!termMatches(terms[k], want)) fail(file, `Step A: ${name} term ${k + 1} (${label}) states ${terms[k]}, the inputs give ${want.toFixed(4)} under formula ${formula}`);
+  });
+}
+
+// Step B's cost column (F1-3): a cell that opens "n USD (T t, F f, O o, R r..." is the piece
+// priced as a fresh session on the model in its row, the way the calculator's Step B table
+// prices it (pieceCost), and must match at the same tolerance.
+function checkStepBColumn(file, text, inp, table) {
+  const lines = section(text, "### Step B: model, effort and concurrency").split(/\r?\n/);
+  const h = lines.findIndex((l) => /^\| Piece \|/.test(l));
+  if (h < 0) return;
+  const cols = lines[h].split("|").slice(1, -1).map((c) => c.trim());
+  const modelAt = cols.indexOf("Model id"), costAt = cols.indexOf("Cost");
+  if (modelAt < 0 || costAt < 0) return;
+  for (let k = h + 2; k < lines.length && lines[k].startsWith("|"); k += 1) {
+    const cells = lines[k].split("|").slice(1, -1).map((c) => c.trim().replace(/`/g, ""));
+    const m = cells[costAt]?.match(/^(\d[\d,]*\.\d+) USD \(([^)]*)\)/);
+    if (!m) continue;
+    const piece = {};
+    for (const [, sym, n] of m[2].matchAll(/\b([TFOR]) (\d[\d,]*)/g)) piece[sym] = Number(n.replace(/,/g, ""));
+    const model = findModel(table, cells[modelAt]);
+    if (!model) { fail(file, `Step B: piece "${cells[0]}" names model ${JSON.stringify(cells[modelAt])}, which is not in the example's table`); continue; }
+    if (!["T", "F", "O", "R"].every((s) => piece[s] !== undefined)) { fail(file, `Step B: piece "${cells[0]}" states a cost without all of T, F, O and R in its parentheses`); continue; }
+    const want = pieceCost({ ...inp, F: piece.F, O: piece.O }, model, { T: piece.T, F: piece.F, O: piece.O, R: piece.R }).total;
+    if (!matchesStated(m[1], want)) fail(file, `Step B: piece "${cells[0]}" costs ${m[1]} USD, the inputs give ${want.toFixed(4)} on ${model.id}`);
+  }
+}
+
 // Reads the example's Inputs table, recomputes Step A with dispatch-core.mjs
 // against the table the example names, and compares every figure it states:
 // the cost_continue, cost_fresh and cost_split totals, T*, the draft
@@ -220,6 +279,10 @@ function recomputeExample(file, text) {
   }
   const tStar = stepAText.match(/^T\* =.*\s(\d[\d,]*(?:\.\d+)?) turns$/m)?.[1];
   if (tStar && !(own.be.turns !== null && matchesStated(tStar, own.be.turns))) fail(file, `Step A: T* is ${tStar} turns, the inputs give ${own.be.turns === null ? "none (the model changes)" : own.be.turns.toFixed(2)}`);
+  const isNew = inp.formula === FORMULA_IN_FORCE, c = own.a.cont, f = own.a.fresh;
+  checkTermLines(file, stepAText, inp.formula, "cost_continue", [["cache reads", c.reads], ["new context written", c.writes], ["output", c.output], ...(isNew ? [["cache misses", c.misses]] : []), ["penalty_compaction", c.penaltyCompaction]]);
+  checkTermLines(file, stepAText, inp.formula, "cost_fresh", [["handoff", f.handoff], ["first read", f.first], ["cache reads", f.reads], ["new context written", f.writes], ["output", f.output], ...(isNew ? [["cache misses", f.misses]] : []), ["penalty_loss", f.loss]]);
+  checkStepBColumn(file, text, inp, table);
   const side = text.match(/^Draft verdict: (continue|fresh)/m)?.[1];
   if (side && side !== own.a.verdict.side) fail(file, `Draft verdict says ${side}, the arithmetic says ${own.a.verdict.side} (by ${own.a.verdict.by}); a guardrail changes the final verdict, not the draft`);
 
