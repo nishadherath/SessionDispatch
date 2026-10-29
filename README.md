@@ -125,6 +125,12 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-10-30: Stage H3, the clean-harness regression (`eval/results-2026-11-01.md`,
+  42 runs through the CLI runner on the S5 text). Sonnet calculator 21 of 21
+  (threshold 20 of 21 met); Haiku calculator 13 of 21 (threshold 19 of 21 not
+  met: all scorable records right, 8 format or no-record misses). Measured
+  subject cost 6.61 USD. No change to `SKILL.md`; D10's reopening condition
+  holds and F5 rules on it.
 - 2026-10-30: Stage S5, three additions to `SKILL.md` under matrix row 5
   (assessment F4): a class floor stating the measured Sonnet and Haiku
   results, a definition of writing-heavy for the O default in step 1.2,

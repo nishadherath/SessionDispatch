@@ -1,0 +1,137 @@
+{
+  "duration_api_ms": 58804,
+  "stop_reason": "end_turn",
+  "session_id": "b67fd149-e99a-4a45-93b8-621ff8a54d21",
+  "total_cost_usd": 0.3621308,
+  "usage": {
+    "input_tokens": 12,
+    "cache_creation_input_tokens": 29975,
+    "cache_read_input_tokens": 830734,
+    "output_tokens": 7606,
+    "output_tokens_details": {
+      "thinking_tokens": 2672
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 29975,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 15,
+        "cache_read_input_tokens": 147615,
+        "cache_creation_input_tokens": 5683,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 5683
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "claude-sonnet-5-5": {
+      "inputTokens": 12,
+      "outputTokens": 7606,
+      "cacheReadInputTokens": 830734,
+      "cacheCreationInputTokens": 29975,
+      "webSearchRequests": 0,
+      "costUSD": 0.3621308,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "thinkingTokens": 2672,
+      "canonicalModel": "claude-sonnet-5-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01W6DPK451Fsdye9syaAFXdo",
+      "tool_input": {
+        "command": "cd \"C:/Users/Bob/AppData/Local/Temp/sd-eval/2026-11-01/07-split-plan.sonnet.calculator/skill\"; for T in 25 100; do node scripts/dispatch.mjs --current claude-fable-5-1 --target opus --W 1000000 --K 970000 --C0 350000 --T $T --F 3000 --O 1500 --B 86450 --R 30000 --H 2500 --Ta 15 --Ra 40000 --compacted no --today 2026-11-01 | grep -E \"^  = |Draft|Split against|crosses\"; done; node scripts/dispatch.mjs --current claude-fable-5-1 --target opus --W 1000000 --K 970000 --C0 350000 --T 50 --F 3000 --O 3000 --B 86450 --R 30000 --H 2500 --M 3 --Ta 15 --Ra 40000 --compacted no --today 2026-11-01 | grep -E \"^  = |Draft|Split against\""
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "is_error": false,
+  "num_turns": 7,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Record is written; nothing further to run. done",
+  "ttft_ms": 3398,
+  "type": "result",
+  "duration_ms": 84824,
+  "uuid": "56127670-d41b-461b-ac8c-4db55ca0e730",
+  "ttft_stream_ms": 2897,
+  "time_to_request_ms": 1435,
+  "time_to_request_phases_ms": {
+    "other": 172,
+    "system_prompt": 654,
+    "resume_other": 1,
+    "process_user_input": 6,
+    "input_attachments": 26,
+    "input_hooks": 4,
+    "tool_pool_refresh": 17,
+    "init_message": 391,
+    "engine_pickup": 3,
+    "message_prep": 1,
+    "model_config_wait": 4,
+    "autocompact": 5,
+    "query_setup": 3,
+    "model_gates": 3,
+    "tool_schema_build": 66,
+    "message_normalization": 9,
+    "client_creation": 14,
+    "request_build": 56
+  },
+  "turn_start_resume_kind": "none",
+  "process_turn_index": 0,
+  "time_to_request_loop_lag_ms": 747,
+  "time_to_request_cpu_ms": 593,
+  "time_to_request_major_faults": 3962,
+  "input_attachments_detail": {
+    "slowest_producer": "queued_commands",
+    "slowest_producer_ms": 16,
+    "cpu_ms": 31,
+    "major_faults": 166
+  },
+  "first_content_frame_ms": 2898,
+  "queued_turn_count": 0,
+  "result_index": 0
+}

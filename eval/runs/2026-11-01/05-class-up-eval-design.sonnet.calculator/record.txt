@@ -1,0 +1,174 @@
+## Session dispatch decision
+
+Date: 2026-11-01. Decided by: claude-sonnet-5-5, effort medium, in Claude Code desktop app.
+Price table: `pricing/2026-10-31.json` (age 1 day, limit 14; no null in the rows used).
+
+Step 0: the skill runs. T = 40 is over 10 turns, and the stage needs a higher class than this session's. The calculator was not run (shell use was denied in this run), so Step A is by hand.
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as of that date |
+| Current model | claude-sonnet-5-5 (class sonnet) | Harness report |
+| Target model | claude-opus-5-5 (class opus) | Matrix row 3 (evaluation design, writing a brief a lower class executes), then the table's opus row |
+| Window W | 1,000,000 | Measured, usage tool `contextWindow` |
+| Compaction point K | 970,000 | Measured: 97 percent x W (`autoCompactsAtPercent` 97) |
+| Current context C0 | 150,000 | Measured, usage tool `tokensUsed` |
+| Compacted already | no | Measured, stated by the situation |
+| Unrecorded context | none | Everything the next stage needs is on disk (situation) |
+| Expected turns T | 40 | Plan estimate; stress-tested at 80 |
+| Fresh input per turn F | 3,000 | Estimated: skill default, unmeasured (no per-turn measurement) |
+| Output per turn O | 3,000 | Estimated: writing-heavy default (row 3 writing, a brief); assumes medium effort, and the next session runs at high, so O may be larger |
+| Fresh baseline B | 86,450 | Measured: usage total less Messages |
+| Re-read set R | 25,000 (procedure, scripts, handoff, assessment) | Situation figure |
+| Handoff size H | 2,500 | Estimated: skill default for a handoff under 120 lines (about 100 lines); nothing unrecorded to add |
+| Cache misses M | 0 | Default, unmeasured; no review pauses expected |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta | 15 | Situation figure (split only) |
+| Acceptance re-read Ra | 30,000 | Situation figure (split only) |
+| Task type | Row 3: evaluation design | Opus, high |
+| Design-heavy | yes | Evaluation design |
+| Irreversible or outward-facing steps | none | Files and local commits only; nothing leaves the machine |
+
+### Step A: continue or hand off
+
+Hand arithmetic (prices per million: sonnet in 2, out 10, cache_read 0.1, cache_write 2.5; opus in 4, out 20, cache_read 0.2, cache_write 5).
+
+```
+G       = F + O                 = 6,000
+C_end   = C0 + T * G            = 150,000 + 240,000 = 390,000
+crosses = C_end > K             = false (390,000 < 970,000)
+C_cont  = C0 + T * G / 2        = 270,000
+C_fresh = B + R + T * G / 2     = 111,450 + 120,000 = 231,450
+
+cost_continue (sonnet) = 40*270,000*0.1e-6 (1.0800) + 240,000*2.5e-6 (0.6000) + 120,000*10e-6 (1.2000) + 0 + 0
+              = 2.88 USD
+cost_fresh (opus)      = 2,500*10e-6 (0.0250) + 111,450*5e-6 (0.5573) + 40*231,450*0.2e-6 (1.8516)
+                         + 240,000*5e-6 (1.2000) + 120,000*20e-6 (2.4000) + 0 + 0
+              = 6.03 USD
+T* = n/a: the model changes (no break-even exists)
+cost_split    = brief 0.0250 + run at sonnet without H (0.2786 + 0.9258 + 0.6000 + 1.2000 = 3.0044)
+                + acceptance at opus: (30,000+86,450)*5e-6 (0.5823) + 15 turns, G taken as 6,000
+                  (reads 0.4844, writes 0.4500, output 0.9000)
+              = 5.42 USD (about; acceptance turn growth is my assumption, G = 6,000)
+```
+
+Prices used: claude-sonnet-5-5: 2 / 10 / 0.1 / 2.5. claude-opus-5-5: 4 / 20 / 0.2 / 5. No long-context tier on either row.
+
+Time: fresh adds about 10 minutes to write and commit the handoff and about 5 minutes for the new session to read it. The operator must start the new session and pick the model.
+
+Draft verdict: fresh, by class (target opus is above current sonnet), margin 3.15 USD, 109 percent of the smaller (continue 2.88). The money alone would favour continue, so the class rule is what decides.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Evaluation design: scenarios, scoring measures, brief for the later session | opus | claude-opus-5-5 | high | The written brief and measures file exist on disk and the handoff's definition of done is met (self-check against the brief's checklist) | Serial, one piece | 6.03 USD (fresh, T 40, F 3,000, O 3,000, R 25,000, B 86,450) |
+
+Serial chain and its wall clock: the single piece, 40 turns; no wall-clock figure is given and I do not estimate one beyond the 15 minutes of handoff write and read. Operator review time: none expected (M = 0).
+
+Effort raised or lowered because: no change. Matrix row 3 gives high. There is no irreversible step, so no raise; the work is not a repeatable checked chore, so no lowering.
+
+Split (step 2.1): the target is opus, so the split is priced (5.42 USD) but not an option. The stage is evaluation design, which is row 3 work, and a brief cannot turn it into row 1 or 2 work for a Sonnet-class session. It stays a figure only. It is also not cheaper than continue.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 40.
+2. Design-heavy across a compaction: the stage is design-heavy, but crosses is false and the session has not compacted, so it does not bind. The verdict is fresh on class anyway.
+3. Irreversible steps and their approval step: none, so no approval step is needed. Nothing leaves the machine.
+4. Model chosen from the table, not memory: yes, claude-opus-5-5 from the opus row.
+5. Table age and nulls: 1 day old, no nulls in the rows used.
+6. Acceptance at matrix row 4's class and effort: no acceptance session is planned. If one is used, it runs on one class above the author at high effort, in a fresh session. The author here is opus, so the acceptor is fable at high.
+7. Decision budget: the record is under 4,000 tokens; the decision is inside 10 minutes.
+8. Class and effort match the harness: this session is sonnet at medium and does not change itself. The next session must be started by the operator on claude-opus-5-5 at high, and the handoff states both on its first lines.
+
+### Adversarial pass
+
+The opposite verdict, argued: continue costs 2.88 USD against 6.03, less than half, and the session already holds the project's context at 150,000 tokens with a 970,000 compaction point far away. A handoff is work, and a cold session starts without the session's feel for the project. Sonnet at medium could write the design and a later acceptance could catch the gaps. This fails on class: evaluation design is Opus work, and running it below its class is the error the matrix exists to prevent. All the needed knowledge is on disk, so the fresh session loses nothing.
+
+Each input, the way it could be wrong:
+
+- C0: measured. If 30 percent lower (105,000), continue gets cheaper still; the class rule still decides.
+- T: 40 is an estimate. At 80 turns the context still stays under K (630,000), no compaction.
+- F and O: unmeasured defaults. O is larger at high effort, which raises both sides and lifts the opus side more. The verdict is by class and does not move.
+- B and R: B measured; R is the situation's figure for the files named. Anything left out raises the fresh side only slightly.
+- M: 0, unmeasured, and no review pauses are expected. Misses would add to the fresh side on a smaller context than continue's, so fresh gains slightly.
+- Task type: I treated it as row 3. If it were row 2, sonnet would run it, but a stage that chooses scenarios and measures is design work, so row 3 stands.
+- Prices: table 1 day old; no long-context tier on either row, so none applied.
+- Unrecorded context: none, stated by the situation. L = 0.
+
+Recomputed with the adverse value that moves the result most (T doubled to 80):
+
+```
+cost_continue = 3.12 + 1.20 + 2.40 = 6.72 USD   (C_cont 390,000)
+cost_fresh    = 0.0250 + 0.5573 + 5.6232 + 2.4000 + 4.8000 = 13.41 USD   (C_fresh 351,450)
+```
+
+Verdict holds: yes. Fresh by class does not depend on cost, and crosses is still false at T = 80. Cost favours continue on both T values, so the class rule is the only reason for fresh.
+
+### Final verdict
+
+fresh, model claude-opus-5-5, effort high, pieces 1 (serial). Exact next action: write the handoff of about 100 lines with this record pasted in, state `claude-opus-5-5` and `high` on its first lines, commit it locally, and ask the operator to start a fresh session on that model and effort. Human approval step: none needed (nothing outward-facing).
+
+Question I would ask the operator: none; the table is current and all prices are present. Meanwhile verdict: fresh, as above.
+
+### Cost of deciding
+
+| Row | Value | Source (measured, naming the harness report, or self-estimate) |
+|---|---|---|
+| Context at start | 150,000 tokens | Usage tool figure from the situation, taken as the start of step 1 |
+| Context at end | not measured | No usage report after step 5; self-estimate about 168,000 |
+| Input tokens read | about 18,000 | Self-estimate: SKILL.md, the price table, the record template |
+| Output tokens | about 4,000 | Self-estimate: record characters divided by 4 |
+| Wall clock | about 8 minutes | Self-estimate; no timestamps |
+| Priced | 0.09 USD | 18,000 x 2.5e-6 (cache write) + 4,000 x 10e-6 (output), sonnet row of `pricing/2026-10-31.json`; self-estimate |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-sonnet-5-5",
+    "target": "claude-opus-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 150000,
+    "T": 40,
+    "F": 3000,
+    "O": 3000,
+    "B": 86450,
+    "R": 25000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": 15,
+    "Ra": 30000,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "2.88",
+    "cost_fresh": "6.03",
+    "cost_split": "5.42",
+    "t_star": null
+  },
+  "draft": {
+    "side": "fresh",
+    "by": "class"
+  },
+  "guardrails_triggered": [],
+  "final": {
+    "outcome": "fresh",
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 18000,
+    "output_tokens": 4000,
+    "minutes": 8,
+    "usd": "0.09"
+  }
+}
+```

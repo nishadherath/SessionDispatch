@@ -1,0 +1,52 @@
+{
+  "scenario": "11-band-compacted-fresh",
+  "subject": "sonnet",
+  "arm": "calculator",
+  "outcome_expected": "fresh",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "fresh",
+  "final_ok": true,
+  "draft_ok": true,
+  "guardrails_ok": true,
+  "bound": [],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 3,
+    "correct": 3,
+    "missing": 0,
+    "max_error_usd": 0.0031,
+    "rule_ok": true,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 14,
+    "matched": 14,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 17000,
+    "reported_minutes": 8,
+    "measured_tokens": 716216,
+    "measured_minutes": 0.90385,
+    "record_tokens": 2096,
+    "usd_to_decide": 0.065,
+    "usd_measured": 0.126,
+    "over_cap": false,
+    "report_ratio": 0.024
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": ""
+}

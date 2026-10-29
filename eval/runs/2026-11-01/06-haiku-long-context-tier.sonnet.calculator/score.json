@@ -1,0 +1,52 @@
+{
+  "scenario": "06-haiku-long-context-tier",
+  "subject": "sonnet",
+  "arm": "calculator",
+  "outcome_expected": "continue",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "continue",
+  "final_ok": true,
+  "draft_ok": true,
+  "guardrails_ok": true,
+  "bound": [],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 3,
+    "correct": 3,
+    "missing": 0,
+    "max_error_usd": 0.0032,
+    "rule_ok": true,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 14,
+    "matched": 14,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 14500,
+    "reported_minutes": 5,
+    "measured_tokens": 863259,
+    "measured_minutes": 1.2752166666666667,
+    "record_tokens": 2341,
+    "usd_to_decide": 0.0625,
+    "usd_measured": 0.1347,
+    "over_cap": false,
+    "report_ratio": 0.017
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": ""
+}

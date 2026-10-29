@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, twenty-third update, by the Fable coordinating session (claude-fable-5-1, xhigh) after relaying the operator's yes on the H3 Sonnet budget.
+Last updated: 2026-10-30, twenty-fourth update, by Stage H3 (claude-sonnet-5-5, medium) at its close: all 42 runs scored; F5 handoff written and `ready`.
 
 ## Done
 
@@ -29,12 +29,13 @@ Last updated: 2026-10-30, twenty-third update, by the Fable coordinating session
 | Stage F4: reassessment on the H2 results | 2026-10-30 | `docs/assessment-2026-10-30-f4.md`: the Sonnet thresholds met (40 of 40 in both arms, p = 1.000); Haiku's 18-of-20 threshold ruled not met on the pre-registered scorer's count (17 of 20), the two format failures counted as misses and the hand reading (19 of 20) recorded as a second figure; the class floor goes into the text (S5); C1 left unstaged for want of a measurable target (D10 to the operator); O4 declined for one sentence on the omitted terms; the Sonnet `t_star` misses traced to the block's encoding (S4 prompt fix); scenario 10's Haiku misses traced to the undefined "writing-heavy" (S5); scenario 21 for guardrail 7's fallback (S4); H1 to H2 compared cell by cell without scenario 17 (Haiku hand 9 of 19 to 18 of 19, p = 0.003). Roadmap re-priced (`docs/dispatch/2026-10-30-f4-roadmap.json`); S4 and S5 handoffs written. Gate 100 files, 0 findings; 35 tests pass. About 24 minutes; about 9 USD (estimate, assessment section 5). |
 | Stage S4: harness hardening and evaluation contract | 2026-10-30 | Four commits on `main`: the block contract fixes and scenario 21 (`132b778`; `t_star` null on a model change, `usd` string or null, the block on its own lines, F3-1, F3-3, F3-5, F3-6, 21 scenarios and `checkEval` green); the CLI runner `run --runner cli` with measured usage and the F2-8 probe (`4541134`: the default `claude -p` lists the installed `session-dispatch` skill and runs the user's hooks, so the runner passes `--disable-slash-commands --setting-sources project`); `prepare` merging into the day's manifest (`6c3ee4c`); the gate's term-line and Step B recompute with seeded-mutation tests (`7b179e5`). Dry run: one hand-arm run each of Sonnet (0.63 USD priced, 1.59 million tokens) and Haiku (0.04 USD priced; the CLI's own 4.47 is not credible for `claude-haiku-5-5`). The calculator arm's scoped Bash grant is untested: the auto-mode classifier refused the first attempt. Gate 102 files, 0 findings; 48 tests pass. About 50 minutes of wall clock (17:49 to 18:38 by the session tools and the clock); about 3 USD (estimate: context grew from 91,000 to 276,000 tokens over about 75 turns, priced by the formula; the subjects add the dry run's 0.67 USD priced). H3 handoff written (`docs/handoffs/2026-10-30-stage-h3-clean-harness.md`). |
 | Stage S5: skill text, the class floor and two definitions | 2026-10-30 | Three fixed additions in `SKILL.md` (F4 sections 1.4, 2.1, 2.3, matrix row 5): the class floor paragraph before step 0, writing-heavy defined by matrix row in step 1.2's O row, and the fragility sentence on the omitted fresh-side terms in step 2. No other sentence, figure, front matter, matrix row or guardrail changed. Changelog line in `README.md`; claude, codex and opencode copies reinstalled, `--check` 0 files behind. Gate 102 files, 0 findings, `checkEval` unchanged; 48 tests pass. About 15 minutes; about 0.85 USD (estimate, calculator row). H3 next, from its existing handoff. |
+| Stage H3: clean-harness regression, 42 runs | 2026-10-30 | 42 runs on the CLI runner and the S5 text (`SKILL.md` SHA-256 `0bad1334...`), commits `cbd0f26` and the closing commit; `eval/results-2026-11-01.md`. Sonnet calculator 21 of 21 (84.5 to 100.0 percent), threshold 20 of 21 met. Haiku calculator 13 of 21 (40.9 to 79.2 percent), threshold 19 of 21 not met: all 13 scorable records right, the 8 misses are format (7 unscorable field types, 1 no record). Measured subject cost 6.61 USD (Sonnet 5.89, Haiku 0.72). Gate 103 files, 0 findings; 48 tests pass. D10's reopening condition holds. |
 
 ## In progress
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| H3: clean-harness regression, 42 runs | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-h3-clean-harness.md`; session `local_e1d2c989`, name `stage-h3`, sharing this checkout; S5 accepted (three additions verbatim) and pushed (`c1890f7`). Interim at `cbd0f26` (pushed): the scoped Bash grant ran without refusal; the Haiku half is in at 13 of 21 (40.9 to 79.2 percent), under the 19 of 21 threshold, every scored record right and all 8 misses format or no-record failures; Haiku cost 0.72 USD measured for 21 runs, the one Sonnet run 0.47. The operator confirmed the Sonnet budget on 2026-10-30 ("Yes, run them", about 9.4 USD projected from n = 1); relayed to the session, which is running the 20 Sonnet runs | Sonnet, medium; subjects Sonnet and Haiku | this checkout, `main` | 20 to 40 min; session 0.85 USD plus subjects about 10 (Haiku 0.72 measured, Sonnet about 9.4 projected from one run) |
+| none running; F5 is next (see To do) | | | | |
 
 The three installed copies (claude, codex, opencode) were refreshed with
 `node scripts/install.mjs` on 2026-10-30 after O3; `--check` reports 0
@@ -49,7 +50,6 @@ wall clock is the model's, operator review separate.
 
 | Stage | Class, effort | Cost (USD) | Wall clock | Depends on |
 |---|---|---|---|---|
-| H3: clean-harness regression, 42 runs (21 scenarios, Sonnet and Haiku, calculator arm, one run each) on the CLI runner and the S5 text; thresholds Sonnet 20 of 21, Haiku 19 of 21, fixed in F4 section 3.6 | Sonnet, medium, orchestrating; subjects Sonnet and Haiku | 0.85 plus subjects 1 to 5 (estimate; the CLI reports it) | 20 to 40 min | S4, S5 |
 | S3: adapter verification on each harness, operator present | Sonnet, medium | 1.31 (1 to 2.5) | 30 to 45 min plus installs | S5 |
 | F5: closing assessment on H3; the floor's figures updated if they moved; "done" declared or what is not named | Fable, high | 5.18 (4 to 7) | 30 to 45 min | H3, S3 |
 

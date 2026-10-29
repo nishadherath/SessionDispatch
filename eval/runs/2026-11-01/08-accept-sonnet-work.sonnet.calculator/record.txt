@@ -1,0 +1,159 @@
+## Session dispatch decision
+
+Date: 2026-11-01. Decided by: claude-sonnet-5-5, effort medium, in Claude Code desktop app.
+Price table: `pricing/2026-10-31.json` (age 1 day of 14).
+
+Step 0: the stage is 15 turns (over 10) and the model class changes (sonnet author, acceptance needs a higher class). The skill runs.
+
+### Inputs
+
+| Input | Value | Source |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 |
+| Current model | claude-sonnet-5-5, effort medium | Measured: harness report |
+| Target model | claude-opus-5-5 | Matrix row 4 (acceptance, one class above the author), table's opus model |
+| Window W | 1,000,000 | Measured: usage tool contextWindow |
+| Compaction point K | 970,000 | Measured: 97 percent of W |
+| Current context C0 | 300,000 | Measured: usage tool tokensUsed |
+| Compacted already | no | Measured: situation |
+| Unrecorded context | none | Situation: everything the next stage needs is on disk |
+| Expected turns T | 15 | Plan estimate |
+| Fresh input per turn F | 5,000 | Estimate from diff size and last acceptance |
+| Output per turn O | 3,000 | Estimate from the situation; effort high assumed for the acceptor |
+| Fresh baseline B | 86,450 | Measured: usage total less Messages |
+| Re-read set R | 30,000 (brief, diff, test output) | Situation figure |
+| Handoff size H | 2,500 | Default: handoff about 80 lines, under 120 lines; no other figure given |
+| Cache misses M | 0 | Default, unmeasured; no review pauses expected |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta | 15 | Situation (a further acceptance session) |
+| Acceptance re-read Ra | 30,000 | Situation |
+| Task type | Row 4, adversarial acceptance of another agent's work | Situation |
+| Design-heavy | no | Re-derive claims and run tests; no design choice |
+| Irreversible or outward-facing steps | none (local files and local commits only) | Situation |
+
+### Step A: continue or hand off
+
+```
+G       = F + O                 = 8,000
+C_end   = C0 + T * G            = 420,000
+crosses = C_end > K             = false (K 970,000)
+C_cont  = C0 + T * G / 2        = 360,000
+C_fresh = B + R + T * G / 2     = 176,450
+
+cost_continue (sonnet) = 0.540 + 0.300 + 0.450 + 0 + 0 = 1.29 USD
+cost_fresh (opus)      = 0.025 + 0.582 + 0.529 + 0.600 + 0.900 + 0 + 0 = 2.64 USD
+T* = n/a: the model changes
+cost_split = 0.025 + run at sonnet 1.306 + acceptance at opus 2.612 = 3.94 USD
+```
+
+Prices per million: claude-sonnet-5-5 input 2, output 10, cache_read 0.10, cache_write 2.50; claude-opus-5-5 input 4, output 20, cache_read 0.20, cache_write 5.
+
+Draft verdict: fresh, by class, margin 1.35 USD (104.4 percent of the smaller). Continuing would run acceptance at the author's class, which shares the author's blind spots; the money is shown but the class decides.
+
+Split: not an option. The run is already done by this session; the stage is the acceptance, so there is nothing for a Sonnet run to do. The figure (3.94 USD, 49.5 percent dearer than fresh) is for the record only.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Adversarial acceptance of the refactor and its tests | opus | claude-opus-5-5 | high | The project's test command re-run, plus the claims re-derived from the diff; observable: a list of findings or a pass | Serial (single piece) | 2.61 USD (plus handoff 0.025) |
+
+Serial chain and its wall clock: one piece; about 10 minutes to write and commit the handoff and about 5 minutes for the new session to read it, then 15 turns. Operator review time: none expected. The operator must pick the model and effort when starting the fresh session.
+
+Effort raised or lowered because: no change from the row 4 default (high). Not a release or a merge, no irreversible step, no security or money.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 15.
+2. Design-heavy across a compaction: not design-heavy, crosses false, not compacted. Does not bind.
+3. Irreversible steps: none (local commits only). No approval step needed.
+4. Model chosen from the table: claude-opus-5-5 from the price table, opus class.
+5. Table age 1 day, no nulls on the rows used.
+6. Acceptance at row 4's class and effort in a fresh session: binds. Opus, high, fresh. This forces the verdict.
+7. Decision budget: record about 1,000 tokens against 4,000; under 10 minutes.
+8. Class and effort match the harness: this session stays on sonnet medium and does not change itself; the handoff names claude-opus-5-5, high, on its first lines.
+
+### Adversarial pass
+
+The opposite verdict, argued: continue. This session is 300,000 tokens in and holds the context of the refactor, so it would re-derive claims fastest, and it is 1.35 USD cheaper (1.29 against 2.64 USD). Everything needed is on disk, so a fresh reader loses nothing. That is the case for it. It fails because the author checking its own work shares its blind spots, which is what row 4 and guardrail 6 exist to stop.
+
+Each input, the way it could be wrong:
+
+- C0: measured. 30 percent off changes the continue cost only; fresh does not depend on it.
+- T: 15 is an estimate. At 30 turns the class rule is unchanged; the cost gap stays in favour of continue, the class still decides.
+- F and O: estimates. Effort high may lengthen Opus reasoning and raise O; that raises both sides and does not touch the class rule.
+- B and R: B measured; R is the situation's figure. A larger R adds cost to fresh only; the verdict does not depend on cost.
+- M: 0 by default; no review pauses expected. One miss adds about 0.9 USD to fresh at C_fresh, no effect on the verdict.
+- Task type: row 4 as stated. It does not hide a design choice.
+- Prices: table 1 day old; no long-context tier on sonnet or opus rows used.
+- Unrecorded context: none claimed; if some exists it is written into the 80-line handoff or lost, and nothing in the figures changes the class rule.
+
+Recomputed with the adverse value that moves the result most (T doubled to 30):
+
+```
+cost_continue = about 3.4 USD
+cost_fresh    = about 5.9 USD
+```
+
+(Scaled from the 15-turn figures, hand estimate.) Verdict holds: yes. The verdict is by class, so no cost input can flip it.
+
+### Final verdict
+
+fresh, model claude-opus-5-5, effort high, pieces 1 (serial). Exact next action: write the 80-line handoff (acceptance brief, diff location, test command, claims to re-derive; model id and effort on its first lines), commit it locally, and have the operator start a fresh Claude Code session on claude-opus-5-5 at high effort. No human approval step is needed because nothing leaves the machine.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 300,000 tokens | Measured: situation's usage tool figure |
+| Context at end | not measured | Self-estimate: about 318,000 tokens |
+| Input tokens read | about 15,000 | Self-estimate: SKILL.md, price table, template, calculator output |
+| Output tokens | about 3,500 | Self-estimate: record characters divided by 4, plus working |
+| Wall clock | about 5 minutes | Self-estimate |
+| Priced | 0.07 USD | Self-estimate at claude-sonnet-5-5 rates: 15,000 x 2.50/M + 3,500 x 10/M; table pricing/2026-10-31.json |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-sonnet-5-5",
+    "target": "claude-opus-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 300000,
+    "T": 15,
+    "F": 5000,
+    "O": 3000,
+    "B": 86450,
+    "R": 30000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": 15,
+    "Ra": 30000,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "1.29",
+    "cost_fresh": "2.64",
+    "cost_split": "3.94",
+    "t_star": null
+  },
+  "draft": {"side": "fresh", "by": "class"},
+  "guardrails_triggered": [6],
+  "final": {
+    "outcome": "fresh",
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 15000,
+    "output_tokens": 3500,
+    "minutes": 5,
+    "usd": "0.07"
+  }
+}
+```

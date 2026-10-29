@@ -1,0 +1,137 @@
+{
+  "duration_api_ms": 47886,
+  "stop_reason": "end_turn",
+  "session_id": "01879d43-736e-42d8-a281-b70de96f82dc",
+  "total_cost_usd": 0.3651472,
+  "usage": {
+    "input_tokens": 14,
+    "cache_creation_input_tokens": 27759,
+    "cache_read_input_tokens": 971366,
+    "output_tokens": 5981,
+    "output_tokens_details": {
+      "thinking_tokens": 1341
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 27759,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 3,
+        "cache_read_input_tokens": 146605,
+        "cache_creation_input_tokens": 4477,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 4477
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "claude-sonnet-5-5": {
+      "inputTokens": 14,
+      "outputTokens": 5981,
+      "cacheReadInputTokens": 971366,
+      "cacheCreationInputTokens": 27759,
+      "webSearchRequests": 0,
+      "costUSD": 0.3651472,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "thinkingTokens": 1341,
+      "canonicalModel": "claude-sonnet-5-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01HAjrToyxehTGjtMoawe7AZ",
+      "tool_input": {
+        "command": "cd \"C:/Users/Bob/AppData/Local/Temp/sd-eval/2026-11-01/10-band-continue-quality.sonnet.calculator/skill\"; for T in 24; do node scripts/dispatch.mjs --current claude-opus-5-5 --target sonnet --W 1000000 --K 970000 --C0 110000 --T $T --F 3000 --O 1500 --B 86450 --R 50000 --H 2500 --compacted no --today 2026-11-01 | grep -E \"^  = |Draft\"; done; node scripts/dispatch.mjs --current claude-opus-5-5 --target sonnet --W 1000000 --K 970000 --C0 110000 --T 12 --F 3000 --O 1500 --B 86450 --R 50000 --H 2500 --M 2 --compacted no --today 2026-11-01 | grep -E \"^  = |Draft\"; node scripts/dispatch.mjs --current claude-opus-5-5 --target sonnet --W 1000000 --K 970000 --C0 110000 --T 12 --F 3000 --O 3000 --B 86450 --R 50000 --H 2500 --compacted no --today 2026-11-01 | grep -E \"^  = |Draft\""
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "is_error": false,
+  "num_turns": 7,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "done",
+  "ttft_ms": 2759,
+  "type": "result",
+  "duration_ms": 61529,
+  "uuid": "06b1a55d-b627-4d2f-9cf5-c0229e2c358f",
+  "ttft_stream_ms": 2241,
+  "time_to_request_ms": 540,
+  "time_to_request_phases_ms": {
+    "other": 70,
+    "system_prompt": 49,
+    "resume_other": 1,
+    "process_user_input": 5,
+    "input_attachments": 27,
+    "input_hooks": 4,
+    "tool_pool_refresh": 6,
+    "init_message": 93,
+    "engine_pickup": 2,
+    "message_prep": 1,
+    "model_config_wait": 4,
+    "autocompact": 4,
+    "query_setup": 6,
+    "model_gates": 5,
+    "tool_schema_build": 78,
+    "message_normalization": 5,
+    "client_creation": 16,
+    "request_build": 164
+  },
+  "turn_start_resume_kind": "none",
+  "process_turn_index": 0,
+  "time_to_request_loop_lag_ms": 312,
+  "time_to_request_cpu_ms": 421,
+  "time_to_request_major_faults": 4007,
+  "input_attachments_detail": {
+    "slowest_producer": "queued_commands",
+    "slowest_producer_ms": 18,
+    "cpu_ms": 46,
+    "major_faults": 227
+  },
+  "first_content_frame_ms": 2243,
+  "queued_turn_count": 0,
+  "result_index": 0
+}

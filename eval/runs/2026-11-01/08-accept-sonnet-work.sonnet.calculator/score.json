@@ -1,0 +1,54 @@
+{
+  "scenario": "08-accept-sonnet-work",
+  "subject": "sonnet",
+  "arm": "calculator",
+  "outcome_expected": "fresh",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "fresh",
+  "final_ok": true,
+  "draft_ok": true,
+  "guardrails_ok": true,
+  "bound": [
+    6
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 3,
+    "correct": 3,
+    "missing": 0,
+    "max_error_usd": 0.0034,
+    "rule_ok": true,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 16,
+    "matched": 16,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 18500,
+    "reported_minutes": 5,
+    "measured_tokens": 714492,
+    "measured_minutes": 0.8877833333333334,
+    "record_tokens": 1806,
+    "usd_to_decide": 0.0725,
+    "usd_measured": 0.1138,
+    "over_cap": false,
+    "report_ratio": 0.026
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": ""
+}
