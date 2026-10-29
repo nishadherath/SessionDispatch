@@ -1,5 +1,5 @@
 // The evaluation scorer (eval/score.mjs) and runner (eval/run.mjs) against the
-// oracle of Stage S2: a perfect block synthesised from each of the 20
+// oracle of Stage S2: a perfect block synthesised from each of the 21
 // scenarios must score clean, each mutation must fail exactly its own check,
 // the Wilson interval must match the rubric's worked values, and `prepare`
 // must date each sandbox table by the scenario's own age. Everything runs
@@ -9,7 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { ROOT, rm, tmpDir } from "./fixtures/helpers.mjs";
-import { extractBlock, scoreRun, wilson } from "../eval/score.mjs";
+import { extractBlock, renderReport, scoreRun, wilson } from "../eval/score.mjs";
 import { prepare, recordUsage } from "../eval/run.mjs";
 
 const scenarios = fs.readdirSync(path.join(ROOT, "eval", "scenarios")).filter((n) => n.endsWith(".json")).sort()
@@ -32,7 +32,7 @@ function perfectBlock(s) {
     inputs,
     table_age_days: ran ? 1 : null,
     totals: ran ? { cost_continue: c.cost_continue, cost_fresh: c.cost_fresh, cost_split: c.cost_split, t_star: c.t_star } : null,
-    draft: ran ? c.draft : null,
+    draft: ran && !s.id.startsWith("21") ? c.draft : null, // 21: the cap passed before step 2, no draft
     guardrails_triggered: [...e.guardrails],
     final: { outcome: e.final.outcome, model: e.final.model, effort: e.final.effort, approval_step: e.final.approval_step ? "The operator approves the push before it runs." : null },
     cost_of_deciding: ran ? { input_tokens: 1000, output_tokens: 3000, minutes: 5, usd: "0.07" } : null,
@@ -50,8 +50,8 @@ function recordOf(s, block) {
 const score = (s, block) => scoreRun({ scenario: s, table: tableOf(s), record: recordOf(s, block), subject: "sonnet", arm: "calculator" });
 const clone = (o) => JSON.parse(JSON.stringify(o));
 
-test("a perfect block scores clean on all 20 scenarios", () => {
-  assert.equal(scenarios.length, 20);
+test("a perfect block scores clean on all 21 scenarios", () => {
+  assert.equal(scenarios.length, 21);
   for (const s of scenarios) {
     const r = score(s, perfectBlock(s));
     const why = `${s.id}: ${JSON.stringify(r.note)}`;
@@ -64,7 +64,7 @@ test("a perfect block scores clean on all 20 scenarios", () => {
     assert.deepEqual(r.arithmetic.errors, [], why);
     assert.equal(r.arithmetic.correct, r.arithmetic.stated, why);
     assert.equal(r.arithmetic.missing, 0, why);
-    if (r.arithmetic.scored) assert.equal(r.arithmetic.rule_ok, true, why);
+    if (r.arithmetic.scored && !s.id.startsWith("21")) assert.equal(r.arithmetic.rule_ok, true, why);
     assert.equal(r.inputs.matched, r.inputs.scored, why);
     assert.equal(r.consistency.draft_line_ok === false || r.consistency.skill_ran_ok === false, false, why);
     assert.equal(r.prose.em_dashes, 0, why);
@@ -252,4 +252,74 @@ test("usage names the model per subject class and refuses a run outside the mani
     assert.throws(() => recordUsage({ date: "2026-11-05", entries: [{ run: "nope" }], models: { haiku: "x" }, runsRoot }), /not in the manifest/);
     assert.throws(() => recordUsage({ date: "2026-11-05", entries: [{ run }], models: {}, runsRoot }), /no id for subject haiku/);
   } finally { rm(work); }
+});
+
+test("scenario 21: the cap passed with no draft takes the default, continue on the current model and effort", () => {
+  const s = byId("21");
+  assert.deepEqual([s.expected.draft_required, s.expected.guardrails, s.expected.final.outcome, s.expected.final.model, s.expected.final.effort], [false, [7], "continue", s.current, s.current_effort]);
+  const block = (outcome, model, effort) => ({ ...perfectBlock(s), draft: null, guardrails_triggered: [7], final: { outcome, model, effort, approval_step: null } });
+  let r = score(s, block("continue", s.current, s.current_effort));
+  assert.deepEqual([r.final_ok, r.draft_ok, r.bound_failed, r.overrun_default_not_taken], [true, null, [], false]);
+  // The H1 pattern: step 2 run past the cap and its fresh verdict taken.
+  r = score(s, block("fresh", "claude-opus-5-5", "high"));
+  assert.deepEqual([r.final_ok, r.bound_failed, r.overrun_default_not_taken], [false, [7], true]);
+  // Continue on another model breaks the default's model clause.
+  r = score(s, block("continue", "claude-opus-5-5", "high"));
+  assert.deepEqual(r.bound_failed, [7]);
+});
+
+test("t_star: never for a model change is an error, null is not (F4 2.2)", () => {
+  const s = byId("02"), b = perfectBlock(s);
+  assert.equal(s.expected.calculator.t_star, null);
+  b.totals.t_star = "never";
+  let r = score(s, b);
+  assert.deepEqual(r.arithmetic.errors, [{ figure: "t_star", why: "stated where the recompute has none" }]);
+  b.totals.t_star = null;
+  r = score(s, b);
+  assert.deepEqual([r.arithmetic.errors, r.arithmetic.missing], [[], 0]);
+});
+
+test("cost_of_deciding.usd may be null (not priced) and stays a string otherwise", () => {
+  const s = byId("03"), b = perfectBlock(s);
+  b.cost_of_deciding.usd = null;
+  let r = score(s, b);
+  assert.equal(r.unscorable, false);
+  b.cost_of_deciding.usd = 0.07;
+  r = score(s, b);
+  assert.equal(r.unscorable, true);
+  assert.match(r.reason, /cost_of_deciding\.usd/);
+});
+
+test("an incomplete draft with guardrail 5 listed keeps incomplete at the cap (F3-1)", () => {
+  const s = byId("17");
+  const block = (guardrails, outcome, model, effort) => ({ ...perfectBlock(s), draft: { side: "incomplete", by: null }, guardrails_triggered: guardrails, final: { outcome, model, effort, approval_step: null } });
+  let r = score(s, block([5, 7], "incomplete", null, null));
+  assert.deepEqual([r.bound_failed, r.overrun_default_not_taken], [[], false]);
+  // Without 5 listed, an incomplete draft is step 2 unfinished and the default is continue.
+  r = score(s, block([7], "incomplete", null, null));
+  assert.deepEqual(r.bound_failed, [7]);
+  r = score(s, block([5, 7], "continue", s.current, s.current_effort));
+  assert.deepEqual(r.bound_failed, [7]);
+});
+
+test("record_tokens measures the record less the result block (F3-5)", () => {
+  const s = byId("03"), b = perfectBlock(s);
+  const record = recordOf(s, b);
+  const r = score(s, b);
+  assert.equal(r.decide.record_tokens, Math.round(extractBlock(record).outside.length / 4));
+  assert.ok(r.decide.record_tokens < Math.round(record.length / 4));
+});
+
+test("the overrun diagnostic reports flagged n, of which m fail a bound outcome guardrail (F3-6)", () => {
+  const s = byId("17"), s8 = byId("08");
+  const fresh = { side: "fresh", by: "cost" };
+  const flagged = score(s, { ...perfectBlock(s), draft: fresh, guardrails_triggered: [7], final: { outcome: "continue", model: s.current, effort: s.current_effort, approval_step: null } });
+  const b8 = perfectBlock(s8);
+  const bound = score(s8, { ...b8, guardrails_triggered: [6, 7], final: { ...b8.final, outcome: "continue", model: s8.current, effort: s8.current_effort } });
+  const header = { date: "2026-11-05", commit: "x", tableName: "t", subjectModels: {}, promptNote: "n" };
+  const line = (scores) => renderReport({ header, scores }).split("\n").find((l) => l.includes("default not taken"));
+  assert.match(line([flagged]), /flagged 1, of which 0 fail a bound outcome guardrail/);
+  // A run that lists an outcome guardrail it binds leaves the diagnostic; the line then reports none.
+  assert.equal(bound.overrun_default_not_taken, false);
+  assert.match(line([bound]), /flagged 0, of which 0/);
 });

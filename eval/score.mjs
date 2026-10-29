@@ -87,7 +87,7 @@ export function validateBlock(b) {
   if (c !== null) {
     if (typeof c !== "object" || Array.isArray(c) || c === undefined) return bad("cost_of_deciding", "null or an object");
     for (const k of ["input_tokens", "output_tokens", "minutes"]) if (!isNum(c[k])) return bad(`cost_of_deciding.${k}`, "a number");
-    if (typeof c.usd !== "string") return bad("cost_of_deciding.usd", "a string");
+    if (!isStrOrNull(c.usd)) return bad("cost_of_deciding.usd", "a string or null (null: not priced)");
   }
   return null;
 }
@@ -179,6 +179,8 @@ function arithmetic(block, rc, expectedCalc) {
 // else continue. A split carries out a fresh draft (step 2.1 runs before the
 // cap cuts step 5).
 function takesCapDefault(block) {
+  // An incomplete draft with guardrail 5 listed stays incomplete: 5 comes first in step 4's order (F3-1).
+  if (block.draft?.side === "incomplete" && block.guardrails_triggered.includes(5)) return block.final.outcome === "incomplete";
   const side = DRAFT_SIDES.includes(block.draft?.side) ? block.draft.side : "continue";
   return block.final.outcome === side || (side === "fresh" && block.final.outcome === "split");
 }
@@ -217,8 +219,9 @@ function inputFidelity(scenario, inputs) {
 // Measure 4 for one run. `pricing` is the table in force on the scoring day;
 // the record's size is measured here, never taken from the subject.
 function decideCost(block, usage, pricing, record) {
+  const recordText = extractBlock(record).outside; // the result block is the evaluation's output, not the subject's record (F3-5)
   const c = block?.cost_of_deciding ?? null;
-  const recordTokens = Math.round(record.length / CHARS_PER_TOKEN);
+  const recordTokens = Math.round(recordText.length / CHARS_PER_TOKEN);
   const reportedTokens = c ? c.input_tokens + c.output_tokens : null;
   const reportedMinutes = c ? c.minutes : null;
   const measuredTokens = isNum(usage?.total_tokens) ? usage.total_tokens : null;
@@ -379,7 +382,9 @@ export function renderReport({ header, scores }) {
   diag("Draft line and block disagree", (s) => s.consistency.draft_line_ok === false);
   diag("Step 0 line and skill_ran disagree", (s) => s.consistency.skill_ran_ok === false);
   diag("Em-dashes or banned words in the record", (s) => s.prose.em_dashes > 0 || s.prose.banned.length > 0);
-  diag("Overrun recorded or over the cap, default not taken (guardrail 7: the draft, else continue)", (s) => s.overrun_default_not_taken === true);
+  const overrun = sorted.filter((s) => s.overrun_default_not_taken === true);
+  const alsoFail = overrun.filter((s) => s.bound_failed.some((g) => OUTCOME_GUARDRAILS.includes(g)));
+  L.push(`- Overrun recorded or over the cap, default not taken (guardrail 7: the draft, else continue): flagged ${overrun.length}, of which ${alsoFail.length} fail a bound outcome guardrail${overrun.length ? `: ${overrun.map((s) => `${s.scenario}.${s.subject}.${s.arm}`).join(", ")}` : ""}`);
   L.push("");
   return L.join("\n");
 }
