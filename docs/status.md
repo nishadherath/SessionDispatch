@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, fifth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after pushing `main` and recording the standing push approval.
+Last updated: 2026-10-30, sixth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after starting Stage O2.
 
 ## Done
 
@@ -24,10 +24,11 @@ Last updated: 2026-10-30, fifth update, by the Fable coordinating session (claud
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| O2: evaluation design (scenario set, rubric, runner brief) | not started: while the operator works over Remote Control the app allows neither a start nor a card from a session, so the coordinating session starts O2 on the operator's next message typed in the desktop app; F1's card was withdrawn | Opus, high | this checkout, `main` | 30 to 60 min, 5 to 10 USD (6.17 by the calculator) |
+| O2: evaluation design (scenario set, rubric, runner brief) | started 2026-10-30 by the coordinating session with `start_session` (model and effort set), session `local_d10b709b`, name `stage-o2`, sharing this checkout | Opus, high | this checkout, `main` | 30 to 60 min, 5 to 10 USD (6.17 by the calculator) |
 
 O2's brief is `docs/handoffs/2026-10-29-stage-o2-eval-design.md`; it writes
-`eval/` and the S2 handoff, and the coordinating session starts S2 from it.
+`eval/` and the S2 handoff (`docs/handoffs/2026-10-30-stage-s2-eval-runner.md`),
+and the coordinating session pushes and starts S2 from it when O2's turn ends.
 Stage S1 is merged into `main` (`73393b8`): the installer ships `scripts/`,
 has `--check` and `--seed`, and `npm test` runs 22 tests; the gate takes
 `--today` and, with the calculator, judges a table's age by the local
