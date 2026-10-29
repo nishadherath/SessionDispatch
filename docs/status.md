@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-29, second update, by the assessment session (claude-fable-5-1, xhigh) after the operator answered the autonomy question.
+Last updated: 2026-10-29, by the Stage H0 session (claude-haiku-5-5, medium) after the price table refresh. Earlier: the assessment session (claude-fable-5-1, xhigh) after the operator answered the autonomy question.
 
 ## Done
 
@@ -15,6 +15,7 @@ Last updated: 2026-10-29, second update, by the assessment session (claude-fable
 |---|---|---|
 | Stage 0: bootstrap | 2026-10-27 | Skill, nine adapters, first price table, templates, worked example, three scripts, protocol kit. Commits `9e821b7`, `6ff89f1`. Gate 47 files, 0 findings. |
 | Stage 0b: first assessment and protocol revision | 2026-10-29 | `docs/assessment-2026-10-29.md` with a priced roadmap; the standing instructions of 2026-10-29 recorded; session mechanics re-verified; the two operator questions and this document added; the gate checks them. |
+| Stage H0: price table refresh | 2026-10-29 | `pricing/2026-10-29.json`: Anthropic read live, unchanged, `fetched` 2026-10-29; other families null. Gate 129 files, 330 findings, all under `graft\` (gitignored cache, awaiting O1's skip); install held until O1 lands. Handoff `docs/handoffs/2026-10-29-stage-h0-pricing.md`. |
 
 ## In progress
 
@@ -24,7 +25,6 @@ Started by the operator from the cards on 2026-10-29.
 |---|---|---|---|---|
 | O1: formula revision, calculator, gate recompute, new example | `local_0988c077` | Opus, high | this checkout, `main` | 45 to 75 min, 7 to 12 USD |
 | S1: install portability, seed command, script tests | `local_e4c1f871` | Sonnet, medium | own worktree and branch | 30 to 45 min, 2 to 4 USD |
-| H0: price table refresh | `local_290ba6f8` | Haiku, medium | this checkout, `main` | 10 to 15 min after the operator supplies figures, 0.10 to 0.25 USD |
 
 When O1 reports done, the Fable assessment session verifies the gate and
 starts F1 (Fable, xhigh) itself, because a session can start only a class
@@ -56,6 +56,6 @@ Each is set out in the five-part shape in section 7 of the assessment.
 
 - D1 Autonomy: yes, recorded 2026-10-29 in `docs/operator-preferences.json`. Finishing sessions start the next stage themselves where the class allows; a higher class is started by the Fable coordinating session or by the operator.
 - D2 ASD-STE100 (key `ste100`): unanswered.
-- D3 How price refreshes are filled: the operator's figures, or live reads of each `source` page under a standing yes.
+- D3 How price refreshes are filled: the operator chose live reads (option b) on 2026-10-29, for the Anthropic family first. Other families stay null until the operator names them.
 - D4 Stage order: settled on 2026-10-29 by the operator starting O1, S1 and H0 together.
 - Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`.
