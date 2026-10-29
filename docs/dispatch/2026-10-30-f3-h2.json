@@ -1,0 +1,23 @@
+{
+  "_note": "Stage F3 (2026-10-30): the session dispatch decision for H2, the rerun on the revised text under D9 (120 runs). Run: node scripts/dispatch.mjs --json docs/dispatch/2026-10-30-f3-h2.json --today 2026-10-30. C0 and B measured by get_usage self in the F3 session after the probes (277,486 total, 190,372 Messages); T, F, O, R and H are estimates (R: the H2 handoff 3,500, the H1 handoff 3,500, docs/status.md 3,500, eval/README.md 3,000, eval/run.mjs 3,000, eval/results-2026-10-30.md 6,000, eval/rubric.md 3,500).",
+  "formula": "2026-10-29",
+  "table": "pricing/2026-10-29.json",
+  "today": "2026-10-30",
+  "current": "claude-fable-5-1",
+  "target": "sonnet",
+  "W": 1000000,
+  "K": 970000,
+  "C0": 277486,
+  "compacted": false,
+  "T": 45,
+  "F": 3000,
+  "O": 2000,
+  "B": 87114,
+  "R": 26000,
+  "H": 3500,
+  "M": 0,
+  "L": 0,
+  "pieces": [
+    { "name": "H2 rerun orchestration (120 runs, the repeat flag first)", "model": "claude-sonnet-5-5", "effort": "medium", "T": 45, "F": 3000, "O": 2000, "R": 26000 }
+  ]
+}
