@@ -9,7 +9,7 @@ Price table: `pricing/<date>.json` (age N days).
 |---|---|---|
 | Formula | 2026-10-29 | `SKILL.md` step 2 as of that date |
 | Current model | | The harness's report of this session's model |
-| Target model | | Matrix row of step 3.1, then the table's model for that class |
+| Target model | | Matrix row of step 3.1, then the table's model for that class; null with the reason when the table cannot give one (step 1.4.4) |
 | Window W | | |
 | Compaction point K | | |
 | Current context C0 | | |
@@ -75,8 +75,8 @@ Split (step 2.1): <an option or not, and why>.
 3. Irreversible steps and their approval step: <>
 4. Model chosen from the table, not memory: <>
 5. Table age and nulls: <>
-6. Acceptance one class above the author: <>
-7. Decision budget: <>
+6. Acceptance at matrix row 4's class and effort: <>
+7. Decision budget: <record size in tokens against 4,000; minutes against 10>
 8. Class and effort match the harness: <>
 
 ### Adversarial pass
@@ -101,7 +101,9 @@ cost_continue =
 cost_fresh    =
 ```
 
-Verdict holds: <yes | no, changed because <input>>.
+Verdict holds: <yes | yes, fragile: flips at <input> of <n> | no, changed
+because <input>, a value inside its stated range or a measurement the
+draft ignored>.
 
 ### Final verdict
 
@@ -110,11 +112,11 @@ Verdict holds: <yes | no, changed because <input>>.
 
 ### Cost of deciding
 
-| Row | Value | Source |
+| Row | Value | Source (measured, naming the harness report, or self-estimate) |
 |---|---|---|
 | Context at start | | |
 | Context at end | | |
 | Input tokens read | | |
 | Output tokens | | |
 | Wall clock | | |
-| Priced | | table `pricing/<date>.json` |
+| Priced | | table `pricing/<date>.json`; measured or self-estimate as the rows above |

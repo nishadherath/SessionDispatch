@@ -39,9 +39,10 @@ records the decision and the token cost of making it in the handoff.
    shows its inputs with sources, the formula, the numbers and the
    margin. A verdict changes only on arithmetic or a guardrail, never on
    preference.
-5. **The decision is capped.** 8,000 tokens and 10 minutes; past the
-   cap, the default (continue, same model, same effort) and a recorded
-   overrun.
+5. **The decision is capped.** The record under 4,000 tokens and the
+   decision under 10 minutes; reading is measured, never capped. Past
+   the cap, step 2's draft where it was written, else the default
+   (continue, same model, same effort), and a recorded overrun.
 6. **Windows is the primary platform.** Paths through `path.join` and
    `os.homedir()`; copies, never links; nothing assumes a POSIX shell.
 7. **Outward-facing steps need a yes.** Creating a remote and opening a
