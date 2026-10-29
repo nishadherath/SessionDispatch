@@ -224,6 +224,22 @@ test("prepare dates each sandbox table by the scenario's own age and leaves scri
   } finally { rm(work); }
 });
 
+test("prepare --repeat suffixes the second and later runs of one scenario, subject and arm", () => {
+  const work = tmpDir("eval-repeat");
+  try {
+    const args = { date: "2026-11-05", subjects: ["sonnet"], arms: ["hand"], only: ["03"], runsRoot: path.join(work, "runs"), sandboxRoot: path.join(work, "sandbox"), skillRoot: ROOT, repoRoot: ROOT };
+    const out = prepare({ ...args, repeat: 3 });
+    const ids = out.runs.map((r) => r.run);
+    assert.deepEqual(ids, ["03-break-even-continue.sonnet.hand", "03-break-even-continue.sonnet.hand.2", "03-break-even-continue.sonnet.hand.3"]);
+    assert.equal(new Set(out.runs.map((r) => r.sandbox)).size, 3);
+    assert.equal(new Set(out.runs.map((r) => r.prompt)).size, 3);
+    for (const r of out.runs) assert.ok(fs.existsSync(r.prompt), r.prompt);
+    assert.match(fs.readFileSync(out.runs[1].prompt, "utf8"), /hand\.2/);
+    assert.equal(prepare(args).runs.length, 1);
+    for (const bad of [0, 1.5, -1, NaN]) assert.throws(() => prepare({ ...args, repeat: bad }), /--repeat must be a whole number/);
+  } finally { rm(work); }
+});
+
 test("usage names the model per subject class and refuses a run outside the manifest", () => {
   const work = tmpDir("eval-usage");
   try {
