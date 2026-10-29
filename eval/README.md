@@ -167,7 +167,7 @@ node eval/run.mjs collect --date YYYY-MM-DD
 node eval/run.mjs score   --date YYYY-MM-DD
 ```
 
-`--skill` takes the payload from another folder, so a variant of `SKILL.md`
+`prepare` merges into the day's manifest if one exists (a new call adds its runs, `--force` replaces a run's entry) and refuses when the skill text or the prompt differs from the manifest's: one manifest, one text under test. `--skill` takes the payload from another folder, so a variant of `SKILL.md`
 can be scored on the same scenarios. `scripts/eval-score.test.mjs` is the
 scorer's oracle and `scripts/eval-run.test.mjs` the CLI runner's (against a
 stand-in for `claude`).

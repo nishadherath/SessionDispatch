@@ -323,3 +323,28 @@ test("the overrun diagnostic reports flagged n, of which m fail a bound outcome 
   assert.equal(bound.overrun_default_not_taken, false);
   assert.match(line([bound]), /flagged 0, of which 0/);
 });
+
+test("prepare merges into the day's manifest and refuses a different text under test (F2-10)", () => {
+  const work = tmpDir("eval-merge");
+  try {
+    const base = { date: "2026-11-05", only: ["03"], runsRoot: path.join(work, "runs"), sandboxRoot: path.join(work, "sandbox"), skillRoot: ROOT, repoRoot: ROOT };
+    const file = path.join(work, "runs", "2026-11-05", "manifest.json");
+    const ids = () => JSON.parse(fs.readFileSync(file, "utf8")).runs.map((r) => r.run);
+    prepare({ ...base, subjects: ["sonnet"], arms: ["calculator", "hand"] });
+    assert.equal(ids().length, 2);
+    prepare({ ...base, subjects: ["haiku"], arms: ["hand"] });
+    assert.deepEqual(ids(), ["03-break-even-continue.sonnet.calculator", "03-break-even-continue.sonnet.hand", "03-break-even-continue.haiku.hand"]);
+    // The same run prepared again with --force replaces its entry; nothing is duplicated.
+    prepare({ ...base, subjects: ["haiku"], arms: ["hand"], force: true });
+    assert.equal(ids().length, 3);
+    // A second call under the same date with other skill text is refused.
+    const variant = path.join(work, "variant");
+    for (const e of ["SKILL.md", "templates", "examples", "scripts"]) fs.cpSync(path.join(ROOT, e), path.join(variant, e), { recursive: true });
+    fs.appendFileSync(path.join(variant, "SKILL.md"), "\nA changed line.\n");
+    assert.throws(() => prepare({ ...base, subjects: ["haiku"], arms: ["calculator"], skillRoot: variant }), /different skill_sha256/);
+    assert.equal(ids().length, 3);
+    // A merged manifest still serves collect and usage by run id.
+    const runs = JSON.parse(fs.readFileSync(file, "utf8")).runs;
+    assert.ok(runs.every((r) => r.prompt && r.sandbox && r.record));
+  } finally { rm(work); }
+});
