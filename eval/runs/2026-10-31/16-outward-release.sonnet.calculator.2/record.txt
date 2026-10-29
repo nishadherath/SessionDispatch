@@ -1,0 +1,167 @@
+## Session dispatch decision
+
+Date: 2026-10-31. Decided by: claude-sonnet-5-5, effort medium, in Claude Code desktop app.
+Price table: `pricing/2026-10-30.json` (age 1 day of 14; the calculator printed 0 because the machine clock reads 2026-10-30; the situation's today is 2026-10-31).
+
+Step 0: T = 15 turns, over 10, so the skill runs.
+
+### Inputs
+
+| Input | Value | Source |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 |
+| Current model | claude-sonnet-5-5 (sonnet), effort medium | Harness report (measured) |
+| Target model | claude-haiku-5-5 (haiku), effort high | Matrix row 1 (apply a reviewed diff, run the check script as oracle); table's haiku model. Effort medium raised one step to high: the stage has outward-facing steps (step 3.1) |
+| Window W | 1,000,000 | Usage tool (measured) |
+| Compaction point K | 970,000 | 97 percent of W, usage tool (measured) |
+| Current context C0 | 400,000 | Usage tool tokensUsed (measured) |
+| Compacted already | no | Situation (measured) |
+| Unrecorded context | none | Situation: all of it is on disk |
+| Expected turns T | 15 | Plan estimate |
+| Fresh input per turn F | 2,000 | Measured on a similar chore last week |
+| Output per turn O | 1,000 | Measured last week at medium effort. The target runs at high, so O is an estimate there; stress-tested at 2,000 below |
+| Fresh baseline B | 86,450 | Measured: usage total less Messages |
+| Re-read set R | 8,000 | Situation: handoff and patch |
+| Handoff size H | 2,500 | Default for a handoff under 120 lines (about 60 lines); unrecorded list empty, so nothing added |
+| Cache misses M | 0 | Unmeasured, default 0; no review pauses expected. The approval pause below could add one (tested in the adversarial pass) |
+| Rediscovery turns L | 0 | Unrecorded list empty |
+| Acceptance Ta, Ra | not used | Target is below opus, no split |
+| Task type | Row 1: mechanical, fully specified (apply reviewed diff, run check script) | Situation |
+| Design-heavy | no | Patch is reviewed and fixed |
+| Irreversible or outward-facing steps | push of main to origin; creation of tag v1.4.0 on origin | Situation. No standing approval exists in this project |
+
+### Step A: continue or hand off
+
+```
+G       = F + O                 = 3,000
+C_end   = C0 + T * G            = 445,000
+crosses = C_end > K             = false (K 970,000)
+C_cont  = C0 + T * G / 2        = 422,500
+C_fresh = B + R + T * G / 2     = 116,950
+
+cost_continue (sonnet) = 0.634 + 0.113 + 0.150 + 0 + 0 = 0.90 USD
+cost_fresh (haiku)     = 0.025 (H) + 0.012 (first read) + 0.080 + 0.025 + 0.034 = 0.18 USD
+T*                     = n/a: the model changes
+cost_split             = not computed: the target is below opus
+```
+
+Long-context tier: haiku's tier threshold is 100,000 tokens. B + R = 94,450, and C_fresh averages 116,950, so the calculator priced 13 of 15 fresh turns at the tier (higher prices applied, as matrix row 1 asks). Continue: 0 of 15 turns at a tier (sonnet has none).
+
+Prices per million: claude-sonnet-5-5 input 2, output 10, cache_read 0.10, cache_write 2.50. claude-haiku-5-5 input 0.1, output 0.5, cache_read 0.01, cache_write 0.125; above 100,000 tokens output 2.5, cache_read 0.05, cache_write 0.625.
+
+Draft verdict: fresh, by cost, margin 0.72 USD (411 percent of the smaller, 0.18 USD). Time: fresh adds about 10 minutes to write the handoff and about 5 minutes to read it; the operator starts the session, or the app starts it with the model and effort set.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Apply patch to four files, run `check` script | haiku | claude-haiku-5-5 | high | The project's check script exits zero | Serial, first | 0.15 USD (fresh session, T 15) |
+| Push main and create tag v1.4.0 on origin | haiku | claude-haiku-5-5 | high | Operator's written yes in that session; then the remote shows the commit and the tag | Serial, after the check passes and the approval | Within the 15 turns above |
+
+Stage cost: 0.15 USD plus the handoff 0.025 = 0.18 USD. Serial chain: patch, check, approval wait, push, tag. Wall clock: not measured; the 15 turns plus about 15 minutes of handoff (guess). Operator review time: one approval pause, length unknown.
+
+Effort raised from medium to high because the stage contains an outward-facing step (push and release). No lowering.
+
+Split (step 2.1): not an option; the target class is haiku, below opus.
+
+Approval step written into the brief (guardrail 3): "After the check script exits zero, STOP. Show the operator the commit list, the branch and the tag name v1.4.0, and ask for a yes to push main to origin and to create tag v1.4.0 on origin. Do not push or tag without that yes given in this session. A yes to one of the two does not cover the other." The operator has given no standing approval, so none is assumed.
+
+If blocked: stop and report the five-line escalation to the operator; do not push.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 15.
+2. Design-heavy across a compaction: not design-heavy; crosses false; no compaction.
+3. Irreversible steps: BINDS. The push and the tag go to haiku, a class below Opus, so the brief carries the approval line above and names the approval step (the operator's yes in the session before the push and before the tag). Effort raised to high.
+4. Model chosen from the table, not memory: yes, claude-haiku-5-5 from the table row of class haiku.
+5. Table age and nulls: age 1 day; no null in the rows used.
+6. Acceptance: not part of this stage. If the operator wants the release accepted, it runs in a fresh session at one class above the author, effort xhigh for a release (row 4).
+7. Decision budget: record under 4,000 tokens (about 3,000, self-estimate); under 10 minutes.
+8. Class and effort match the harness: this session stays on sonnet medium and does not change itself; the fresh session is started on haiku at high by the harness or the operator, and checks its own model and effort on start.
+
+### Adversarial pass
+
+The opposite verdict, argued: continuing avoids the handoff, avoids a colder start, and keeps a session that already knows the patch. Sonnet is also a safer holder of a push than haiku. Against that, the context is 400,000 tokens, and every turn re-reads it, so continuing costs 0.90 USD against 0.18 USD.
+
+Each input, the way it could be wrong:
+
+- C0: measured. If 30 percent lower (280,000), continue falls to about 0.65 USD; still above fresh by far.
+- T: 15 is a plan estimate. Doubled to 30 is a stress test (see below).
+- F and O: measured at medium; O at high effort for haiku is an estimate. Tested at O 2,000.
+- B and R: B measured. R is only the handoff and patch; the fresh session also loads the project's instruction files, but B already includes those. R could be 30 percent larger with little effect.
+- M: default 0 as unmeasured. The approval pause may exceed the cache lifetime. I tested M 2.
+- Task type: the stage is mechanical. The push and tag hide no design choice; the risk is outward, handled by guardrail 3.
+- Prices: table 1 day old; the haiku long-context tier is applied to 13 of 15 turns. At tier prices fresh is still far cheaper.
+- Unrecorded context: none, as the situation states. Not claimed to be anything else.
+
+Recomputed with the adverse values that move the result most (T 30, O 2,000, M 2, all on the fresh side's weak points):
+
+```
+cost_continue = 4.49 USD
+cost_fresh    = 0.66 USD
+```
+
+Also, with the target at sonnet instead of haiku (the class alternative): continue 0.90, fresh 0.70, margin 0.20 USD (28 percent), T* 8.5 turns; fresh still wins.
+
+Verdict holds: yes. The adverse values do not cross the 10 percent line or any guardrail. The verdict does not rest on the haiku price alone.
+
+### Final verdict
+
+Fresh, model claude-haiku-5-5, effort high, pieces 2 (serial). Exact next action: commit anything uncommitted; write the handoff (about 60 lines, model id and effort on its first lines, the approval line above); start a fresh session on claude-haiku-5-5 at effort high with the handoff path (or propose it to the operator as a card, since no standing approval exists). The fresh session applies the patch, runs the check script, then stops and asks the operator for a yes before the push and before the tag v1.4.0.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 400,000 | Situation's usage figure (measured) |
+| Context at end | about 415,000 | Self-estimate |
+| Input tokens read | about 11,000 | Self-estimate: SKILL.md about 7,000, price table about 2,500, template about 1,500 |
+| Output tokens | about 3,000 | Self-estimate: record characters divided by 4 |
+| Wall clock | about 6 minutes | Self-estimate |
+| Priced | 0.06 USD | Input at cache-write 2.50 per million plus output at 10 per million, claude-sonnet-5-5, table `pricing/2026-10-30.json`; self-estimate |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-sonnet-5-5",
+    "target": "claude-haiku-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 400000,
+    "T": 15,
+    "F": 2000,
+    "O": 1000,
+    "B": 86450,
+    "R": 8000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": null,
+    "Ra": null,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "0.90",
+    "cost_fresh": "0.18",
+    "cost_split": null,
+    "t_star": null
+  },
+  "draft": { "side": "fresh", "by": "cost" },
+  "guardrails_triggered": [3],
+  "final": {
+    "outcome": "fresh",
+    "model": "claude-haiku-5-5",
+    "effort": "high",
+    "approval_step": "Operator gives a written yes in the fresh session, after the check script exits zero, before the push of main to origin and again before creating tag v1.4.0 on origin"
+  },
+  "cost_of_deciding": {
+    "input_tokens": 11000,
+    "output_tokens": 3000,
+    "minutes": 6,
+    "usd": "0.06"
+  }
+}
+```

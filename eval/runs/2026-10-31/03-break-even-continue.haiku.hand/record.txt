@@ -1,0 +1,174 @@
+## Session dispatch decision
+
+Date: 2026-10-31. Decided by: claude-haiku-5-5, effort not reported to this run, in the eval run (the session decided is the Claude Code desktop app session on claude-sonnet-5-5, effort medium).
+Price table: `pricing/2026-10-30.json` (age 1 day).
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as of that date |
+| Current model | claude-sonnet-5-5, effort medium | Harness report, as stated in the situation |
+| Target model | claude-sonnet-5-5 | Matrix row 2 (scoped module work with a stated test, Sonnet, medium: no auth, payments, storage or public interface); table row for class sonnet |
+| Window W | 1,000,000 | Measured: usage tool `contextWindow` |
+| Compaction point K | 970,000 | Measured: `autoCompactsAtPercent` 97 times W |
+| Current context C0 | 180,000 | Measured: usage tool `tokensUsed` |
+| Compacted already | no | Usage tool: not compacted |
+| Unrecorded context | none | Situation: everything the next stage needs is in files on disk |
+| Expected turns T | 20 | Measured from the plan estimate (no range given; ranges tested in the adversarial pass) |
+| Fresh input per turn F | 3,000 | Estimated: default, no per-turn measurement exists |
+| Output per turn O | 1,500 | Estimated: default, effort medium (the default was measured at high, so this may run high) |
+| Fresh baseline B | 86,450 | Measured: usage tool total less its Messages category, as stated in the situation |
+| Re-read set R | 15,000 | Situation: a fresh session reads the handoff and the module, 15,000 tokens |
+| Handoff size H | 2,500 | Estimated: step 1.2 default for a handoff under 120 lines (situation: about 80 lines) |
+| Cache misses M | 0 | Unmeasured; no review pauses expected |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta | not applicable | No split |
+| Acceptance re-read Ra | not applicable | No split |
+| Task type | Matrix row 2, Sonnet, medium | Scoped module feature with a test suite as oracle |
+| Design-heavy | no | One feature in one module; no cross-module change, no design choice named |
+| Irreversible or outward-facing steps | none | Stage writes files and commits locally; nothing leaves the machine |
+
+Prices used (USD per million): claude-sonnet-5-5 input 2, output 10, cache_read 0.1, cache_write 2.5. No long-context tier on this row. Not null.
+
+### Step A: continue or hand off
+
+```
+G       = F + O                 = 4,500
+C_end   = C0 + T * G            = 270,000 (under K = 970,000)
+crosses = C_end > K             = false
+C_cont  = C0 + T * G / 2        = 225,000
+C_fresh = B + R + T * G / 2     = 146,450
+
+cost_continue = 0.450 (T*C_cont*p_cr) + 0.225 (T*G*p_cw) + 0.300 (T*O*p_out)
+              = 0.975 USD
+cost_fresh    = 0.025 (H*p_out) + 0.254 ((B+R)*p_cw) + 0.293 (T*C_fresh*p_cr)
+                + 0.225 + 0.300
+              = 1.097 USD
+T* = (0.025 + 0.254) / ((180,000 - 86,450 - 15,000) * 0.1e-6)
+   = 0.279 / 0.007855 = 35.5 turns
+cost_split    = not computed: the target is not above Opus
+```
+
+Short path applies: same model, no long-context tier, not crosses, not compacted, L = 0.
+
+Draft verdict: continue, by break-even, T 20 under T* 35.5, margin 0.122 USD (12.5 percent of the smaller side, continue at 0.975 against fresh at 1.097).
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| 1. Module feature and its test suite | sonnet | claude-sonnet-5-5 | medium | The stage's test suite for the module | Serial (one piece) | 0.975 USD (continue) |
+
+Serial chain and its wall clock: one piece of 20 turns; wall clock not measured in this run (no figure given). Operator review time: none expected (situation).
+
+Effort raised or lowered because: no change. Not raised (no irreversible step, no auth, payments, storage or public interface); not lowered (medium is the floor for work that writes to a repository).
+
+Split (step 2.1): not an option; the target is Sonnet, not Opus or Fable.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 20. Skill runs.
+2. Design-heavy across a compaction: not design-heavy; not compacted; crosses false.
+3. Irreversible steps and their approval step: none. No approval step needed; the stage stays on the machine.
+4. Model chosen from the table, not memory: claude-sonnet-5-5, class sonnet, from `pricing/2026-10-30.json`.
+5. Table age and nulls: 1 day against 14; the Sonnet row has no null.
+6. Acceptance at matrix row 4's class and effort: not applicable; no acceptance in this stage.
+7. Decision budget: record under 4,000 tokens (about 3,000 self-estimated); decision time within 10 minutes (self-estimate).
+8. Class and effort match the harness: sonnet, medium, matching the harness report.
+
+### Adversarial pass
+
+The opposite verdict, argued: Fresh would give the module feature a clean context with none of the 180,000 tokens of earlier attempts, and the usage figure says the session is 18 percent of the window with 80 percent of the window still free, which is a reason to keep reasoning from a clean slate. Against that, fresh costs 1.097 USD against 0.975 USD, and a fresh session starts colder and must spend a handoff. The case for fresh rests on unrecorded context, which the situation says is nil, so the case is weak.
+
+Each input, the way it could be wrong:
+
+- C0: a 30 percent error moves it to 234,000 or 126,000. High: T* falls to 21.0 turns, so T 20 is still under it. Low: T* rises to about 113 turns.
+- T: a doubled T of 40 gives cost_continue 2.130 and cost_fresh 2.094, fresh cheaper by 0.036 (1.7 percent, inside the 10 percent band).
+- F and O: F of 5,000 moves both sides by the same term; the break-even does not move, and the margin falls to 11.3 percent.
+- B and R: R of 30,000 raises T* to about 49.7 turns.
+- M: one cache miss at one review pause (none expected): cost_continue 1.515, cost_fresh 1.448, fresh cheaper by 0.067 (4.6 percent, inside the band).
+- Task type: matrix row 2 fits. The stage could hide a design choice inside the module; if it does, guardrail 2 still applies only with a compaction, so the verdict would not change.
+- Prices: table 1 day old; the Sonnet row carries no long-context tier at these context sizes.
+- Unrecorded context: L of 5 turns adds 0.204 USD to cost_fresh (1.301 USD), which widens the continue margin.
+
+Recomputed with the adverse value that moves the result most (T doubled to 40):
+
+```
+cost_continue = 2.130 USD
+cost_fresh    = 2.094 USD
+```
+
+Verdict holds: yes, fragile: flips on break-even at T of 36 or more (a band verdict). At T 40 the cost gap is 1.7 percent, inside the 10 percent band, so the quality rule keeps continue (not compacted, no guardrail). Also fragile to one cache miss (flips on break-even, not on the band rule) and to C0 30 percent high at T of 21 or more. None of these changes the verdict under the rules.
+
+### Final verdict
+
+Continue, model claude-sonnet-5-5, effort medium, pieces 1 (serial). Exact next action: continue this session on claude-sonnet-5-5 at medium, write the module feature and its test suite, run the suite, and commit locally.
+
+### Cost of deciding
+
+| Row | Value | Source (measured, naming the harness report, or self-estimate) |
+|---|---|---|
+| Context at start | 180,000 tokens | Usage tool figure for the decided session, as given in the situation |
+| Context at end | not measured | Self-estimate: not available in this run |
+| Input tokens read | about 10,000 | Self-estimate: `SKILL.md`, the pricing table, the decision template, this run's prompt |
+| Output tokens | about 3,000 | Self-estimate: characters divided by 4 for this record |
+| Wall clock | about 8 minutes | Self-estimate, no timestamps available |
+| Priced | 0.00275 USD | Self-estimate, table `pricing/2026-10-30.json`, claude-haiku-5-5 at cache_write 0.125 and output 0.5 per million: 10,000 * 0.125e-6 + 3,000 * 0.5e-6 |
+
+### Stage plan (step 3.3)
+
+| Piece | Name | Class | Model | Effort | Oracle | Serial or parallel | Cost (continue) |
+|---|---|---|---|---|---|---|---|
+| 1 | Module feature and test suite | sonnet | claude-sonnet-5-5 | medium | The stage's test suite | serial | 0.975 USD |
+
+Stage cost: 0.975 USD at list price. Time projection: wall clock not measured; review time none expected.
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-sonnet-5-5",
+    "target": "claude-sonnet-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 180000,
+    "T": 20,
+    "F": 3000,
+    "O": 1500,
+    "B": 86450,
+    "R": 15000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": null,
+    "Ra": null,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "0.975",
+    "cost_fresh": "1.097",
+    "cost_split": null,
+    "t_star": "35.5"
+  },
+  "draft": {
+    "side": "continue",
+    "by": "break-even"
+  },
+  "guardrails_triggered": [],
+  "final": {
+    "outcome": "continue",
+    "model": "claude-sonnet-5-5",
+    "effort": "medium",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 10000,
+    "output_tokens": 3000,
+    "minutes": 8,
+    "usd": "0.00275"
+  }
+}
+```

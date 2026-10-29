@@ -1,0 +1,173 @@
+## Session dispatch decision
+
+Date: 2026-10-31. Decided by: claude-fable-5-1, effort high, in Claude Code (desktop app).
+Price table: `pricing/2026-10-30.json` (age 1 day; max 14).
+
+Step 0: runs. Triggers: T = 12 turns (over 10), and the effort is about to change (high to xhigh, matrix row 4).
+
+### Inputs
+
+| Input | Value | Source |
+|---|---|---|
+| Formula | 2026-10-29 | SKILL.md step 2 |
+| Current model | claude-fable-5-1, effort high | Harness report in the situation |
+| Target model | claude-fable-5-1, effort xhigh | Matrix row 4: the author (this session) is the top class, so the acceptor is the top class, at xhigh; table's fable row |
+| W | 1,000,000 | Measured: usage tool |
+| K | 970,000 | Measured: 97 percent of W |
+| C0 | 150,000 | Measured: tokensUsed |
+| Compacted already | no | Measured |
+| Unrecorded context | none | Situation: all the next stage needs is on disk |
+| T | 12 | Estimate from the plan |
+| F | 5,000 | Estimate (read-heavy audit) |
+| O | 3,000 | Estimate, stated for high effort; xhigh would be larger (tested in the adversarial pass) |
+| B | 86,450 | Measured: usage total less Messages |
+| R | 30,000 | Estimate from the situation: cost model, inputs, handoff |
+| H | 2,500 | Step 1.2 default (about 80 lines, under 120) |
+| M | 0 | Unmeasured, default; no review pauses expected |
+| L | 0 | Unrecorded list is empty |
+| Ta, Ra | 12, 30,000 | Estimates given in the situation; split figure only |
+| Task type | Adversarial acceptance of another agent's work (here the session's own work), row 4 | Matrix |
+| Design-heavy | yes (cost-model assumptions argued) | Step 1.2 |
+| Irreversible steps | none | Local files and commits only |
+
+### Step A: continue or hand off
+
+By hand (the calculator script is not in the skill folder). G = 8,000.
+
+```
+G       = F + O                   = 8,000
+C_end   = C0 + T * G              = 246,000
+crosses = C_end > K               = false   (K 970,000)
+C_cont  = C0 + T * G / 2          = 198,000
+C_fresh = B + R + T * G / 2       = 164,450
+
+cost_continue on claude-fable-5-1
+  T*C_cont*p_cr   = 12*198,000*0.25e-6  = 0.594
+  T*G*p_cw        = 96,000*12.5e-6      = 1.200
+  T*O*p_out       = 36,000*50e-6        = 1.800
+  M term 0, penalty_compaction 0
+  = 3.59 USD
+cost_fresh on claude-fable-5-1
+  H*p_out         = 2,500*50e-6         = 0.125
+  (B+R)*p_cw      = 116,450*12.5e-6     = 1.456
+  T*C_fresh*p_cr  = 12*164,450*0.25e-6  = 0.493
+  T*G*p_cw        =                       1.200
+  T*O*p_out       =                       1.800
+  M term 0, penalty_loss 0
+  = 5.07 USD
+T* = (0.125 + 1.4556) / (33,550 * 0.25e-6) = 1.5806 / 0.0083875 = 188.5 turns
+cost_split = brief 0.125 + run at sonnet 1.088 + acceptance at fable 4.949 = 6.16 USD
+```
+
+Prices per million (claude-fable-5-1): input 10, output 50, cache_read 0.25, cache_write 12.50.
+Sonnet (claude-sonnet-5-5) for the split run: cache_read 0.10, cache_write 2.50, output 10.
+
+Draft verdict: continue, by break-even, T 12 under T* 188.5 (continue is cheaper by 1.48 USD, 41.2 percent of the smaller). Same model, no tier, no crossing, no compaction, L 0.
+
+Split: not an option. Acceptance below the top class breaks row 4, and a brief cannot carry an oracle for an adversarial re-derivation. The figure (6.16 USD) only shows it costs more than either side. The "further acceptance session" is not planned: one acceptance is the stage.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Adversarial acceptance of the cost model | Fable (author is the top class) | claude-fable-5-1 | xhigh | Acceptance note listing each figure recomputed by hand and the assumption argued against; any recomputation script exits zero | serial (single piece) | 5.07 USD (fresh formula, includes the handoff), estimate |
+
+Serial chain: handoff and commit 10 min, read 5 min, stage about 12 turns (estimate 20 to 30 min). Operator review: none expected. The operator must pick the model and effort for the new session or approve the card.
+
+Effort raised because: matrix row 4, the acceptor shares the author's class so effort is the lever (xhigh). Guardrail 8 forbids this session changing its own effort.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 12.
+2. Design-heavy across a compaction: no compaction, none ahead (C_end 246,000 under K 970,000).
+3. Irreversible steps: none; approval step: none needed.
+4. Model from the table, not memory: yes, the fable row.
+5. Table age 1 day, fable and sonnet rows complete.
+6. Binds: acceptance runs in a fresh session at row 4's class and effort (fable, xhigh). This overrides the cost draft (continue).
+7. Decision budget: record about 3,500 tokens against 4,000; under 10 minutes.
+8. Binds: this session is at effort high; the stage needs xhigh and a session never changes its own effort, so the stage goes to a fresh session.
+
+### Adversarial pass
+
+The opposite verdict, argued (continue): the cost model is in this session's context, the fresh side costs 1.48 USD more (41 percent), and a handoff is work. Against that, the author re-deriving its own work shares its blind spots and sits at the wrong effort; guardrail 6 settles it, not preference.
+
+Each input, the way it could be wrong:
+
+- C0: measured. 30 percent lower (105,000) moves continue down and tightens nothing that matters; the guardrails decide.
+- T: could double to 24; T* is 188.5, so cost still says continue.
+- F and O: O at 3,000 is for high effort; xhigh target may be 6,000 (tested below).
+- B and R: B measured. R could be larger if the acceptor reads more inputs; each extra 10,000 adds 0.125 USD to fresh.
+- M: no review pauses expected, so 0. Six pauses (stress) would give continue 18.15 and fresh 17.16 USD, fresh cheaper by 5.7 percent, inside the band.
+- Task type: row 4; the cost-model row 5 is also Fable, high; row 4's xhigh is the effort rule for acceptance.
+- Prices: 1 day old; no long-context tier on fable.
+- Unrecorded context: none named.
+
+Recomputed with the adverse value that moves the result most (O 6,000, G 11,000, xhigh estimate):
+
+```
+cost_continue = 5.90 USD
+cost_fresh    = 7.38 USD
+```
+
+Cost still says continue (25 percent). Verdict holds: yes for the cost draft (continue); the final verdict stays fresh because guardrails 6 and 8 bind, not because of any figure.
+
+### Final verdict
+
+Fresh, model claude-fable-5-1, effort xhigh, one piece, serial. Exact next action: commit the cost model and any state, write the roughly 80-line handoff with model id and effort on its first lines, and propose the fresh acceptance session as a card for the operator to start (no autonomy yes is stated in the situation). The new session checks its own model and effort first and stops on a mismatch.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 150,000 | Measured: usage figure in the situation |
+| Context at end | about 166,000 | Self-estimate |
+| Input tokens read | about 12,500 | Self-estimate: SKILL.md, table, template, example |
+| Output tokens | about 3,500 | Self-estimate: record characters divided by 4 |
+| Wall clock | about 6 minutes | Self-estimate |
+| Priced | 12,500 x 12.5e-6 + 3,500 x 50e-6 = 0.33 USD | table `pricing/2026-10-30.json`, fable row; self-estimate |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-fable-5-1",
+    "target": "claude-fable-5-1",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 150000,
+    "T": 12,
+    "F": 5000,
+    "O": 3000,
+    "B": 86450,
+    "R": 30000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": 12,
+    "Ra": 30000,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "3.59",
+    "cost_fresh": "5.07",
+    "cost_split": "6.16",
+    "t_star": "188.5"
+  },
+  "draft": {"side": "continue", "by": "break-even"},
+  "guardrails_triggered": [6, 8],
+  "final": {
+    "outcome": "fresh",
+    "model": "claude-fable-5-1",
+    "effort": "xhigh",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 12500,
+    "output_tokens": 3500,
+    "minutes": 6,
+    "usd": "0.33"
+  }
+}
+```

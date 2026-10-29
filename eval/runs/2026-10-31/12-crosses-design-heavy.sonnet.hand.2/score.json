@@ -1,0 +1,54 @@
+{
+  "scenario": "12-crosses-design-heavy",
+  "subject": "sonnet",
+  "arm": "hand",
+  "outcome_expected": "fresh",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "fresh",
+  "final_ok": true,
+  "draft_ok": false,
+  "guardrails_ok": true,
+  "bound": [
+    2
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 3,
+    "correct": 3,
+    "missing": 1,
+    "max_error_usd": 0.0013,
+    "rule_ok": false,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 16,
+    "matched": 16,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 13000,
+    "reported_minutes": 6,
+    "measured_tokens": 86876,
+    "measured_minutes": 1.5392333333333332,
+    "record_tokens": 2114,
+    "usd_to_decide": 0.0588,
+    "usd_measured": null,
+    "over_cap": false,
+    "report_ratio": 0.15
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": "first failed check: draft"
+}

@@ -1,0 +1,56 @@
+{
+  "scenario": "15-null-price",
+  "subject": "haiku",
+  "arm": "calculator",
+  "outcome_expected": "incomplete",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "incomplete",
+  "final_ok": true,
+  "draft_ok": null,
+  "guardrails_ok": true,
+  "bound": [
+    5
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [
+    4
+  ],
+  "arithmetic": {
+    "scored": false,
+    "reason": "target not named (null)",
+    "stated": 0,
+    "correct": 0,
+    "missing": 0,
+    "max_error_usd": null,
+    "rule_ok": null,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 14,
+    "matched": 14,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 12018,
+    "reported_minutes": 6,
+    "measured_tokens": 103923,
+    "measured_minutes": 3.819166666666667,
+    "record_tokens": 3033,
+    "usd_to_decide": 0.0026,
+    "usd_measured": null,
+    "over_cap": false,
+    "report_ratio": 0.116
+  },
+  "consistency": {
+    "draft_line_ok": null,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": ""
+}

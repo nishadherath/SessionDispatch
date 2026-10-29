@@ -1,0 +1,165 @@
+## Session dispatch decision
+
+Date: 2026-10-31. Decided by: claude-sonnet-5-5 (evaluation subject, deciding for the session described), effort not stated, in Claude Code desktop app.
+Price table: `pricing/2026-10-30.json` (age 1 day of 14).
+
+### Inputs
+
+| Input | Value | Source |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 |
+| Current model | claude-fable-5-1, effort high | Situation (harness report) |
+| Target model | claude-fable-5-1 | Matrix last row (whole-project assessment, roadmap): Fable, high; table's fable-class row |
+| Window W | 200,000 | Measured (situation) |
+| Compaction point K | 190,000 | 95 percent of W, measured (situation) |
+| Current context C0 | 100,000 | Measured (status line) |
+| Compacted already | yes | Situation: once earlier today |
+| Unrecorded context | none | Situation: everything the next stage needs is on disk |
+| Expected turns T | 60 | Plan estimate |
+| Fresh input per turn F | 3,000 | Measured on previous assessment (situation) |
+| Output per turn O | 1,500 | Measured on previous assessment, high effort |
+| Fresh baseline B | 25,000 | Estimated: no baseline measured, skill default |
+| Re-read set R | 30,000 | 1,000 handoff + 12,000 prior assessment + 6,000 three handoffs + 9,000 instruction files + 2,000 code index |
+| Handoff size H | 2,500 | Estimated: skill default for a handoff under 120 lines (about 60 lines); unrecorded list empty |
+| Cache misses M | 0 | Unmeasured, default; no review pauses expected |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta | 15 | Situation, split figure only |
+| Acceptance re-read Ra | 40,000 | Situation, split figure only |
+| Task type | Whole-project assessment, roadmap | Matrix row 5 |
+| Design-heavy | yes | Assessment (step 1.2 definition) |
+| Irreversible or outward-facing steps | none | Files and local commits only; nothing leaves the machine |
+
+### Step A: continue or hand off
+
+Calculator output (`node scripts/dispatch.mjs`, formula 2026-10-29):
+
+```
+G       = F + O                 = 4,500
+C_end   = C0 + T * G            = 370,000
+crosses = C_end > K             = true (K 190,000)
+C_cont  = C0 + T * G / 2        = 235,000
+C_fresh = B + R + T * G / 2     = 190,000
+
+cost_continue = 3.525 + 3.375 + 4.500 + 0 + penalty_compaction 0.500
+              = 11.90 USD
+cost_fresh    = 0.125 + 0.688 + 2.850 + 3.375 + 4.500 + 0 + 0
+              = 11.54 USD
+T* = 0.813 / (45,000 * p_cr') = 72.2 turns (short path does not settle: compaction ahead, session compacted)
+cost_split    = 0.125 (brief) + 2.853 (run at sonnet-5-5) + 1.409 (acceptance at opus-5-5, Ta 15, Ra 40,000)
+              = 4.39 USD
+```
+
+Prices used (per million): claude-fable-5-1 input 10, output 50, cache_read 0.25, cache_write 12.50 (current and target, same model).
+
+Draft verdict: fresh, by quality, margin 0.36 USD (3.1 percent of the smaller; inside the 10 percent band, so quality decides: the session has compacted and will cross K).
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Whole-project assessment and priced roadmap | fable | claude-fable-5-1 | high | The six questions each answered with evidence, roadmap file written, `node scripts/check.mjs` exits zero, counts quoted, work committed | Serial, one piece | 11.41 USD as a fresh session (T 60, R 30,000; calculator) plus handoff 0.125 |
+
+Serial chain and its wall clock: one session, 60 turns. Time estimate (guess): about 10 minutes to write and commit the handoff, 5 minutes for the new session to read, plus the stage run itself (not estimated here). Operator review time: none expected; the operator clicks to start the fresh session unless the autonomy yes applies.
+
+Effort raised or lowered because: no change. The matrix gives high; no outward-facing step, no security or money, not a merge or release, no failed prior attempt.
+
+Split (step 2.1): not an option, a figure only. An assessment is design-heavy and cannot carry a contract, oracle and observable definition of done that make the run matrix row 1 or 2 work. The 4.39 USD figure shows what a sharper brief would save (7.15 USD against fresh, 163 percent); it is not the plan.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 60.
+2. Design-heavy across a compaction: BINDS. Stage is design-heavy, `crosses` is true and the session has compacted. Verdict is fresh whatever the arithmetic (the margin is only 3.1 percent).
+3. Irreversible steps: none (local commits only). Approval step: none needed; the handoff carries the line "no outward-facing step".
+4. Model chosen from the table, not memory: claude-fable-5-1 is the table's fable-class row.
+5. Table age 1 day of 14; no null in the rows used.
+6. Acceptance: not part of this plan (split is not an option). If one is run later it is at matrix row 4: the top class, xhigh, in a fresh session.
+7. Decision budget: record about 2,400 tokens against 4,000 (self-estimate); about 5 minutes against 10 (self-estimate). Within cap.
+8. Class and effort match the harness: fable at high matches the situation. No change of class or effort mid-session. The fresh session checks its own model and effort first and stops on a mismatch.
+
+### Adversarial pass
+
+The opposite verdict, argued: continue. Fresh saves only 0.36 USD (3.1 percent), and a handoff is work: 10 minutes to write and 5 to read, and a fresh session starts colder. Everything the stage needs is on disk, so a compaction mid-stage would lose little, and the session already holds the project's shape.
+
+Each input, the way it could be wrong:
+
+- C0: measured at 100,000. If 30 percent lower (70,000), continue is cheaper by the cost side but the compaction still occurs (C_end 340,000 > K) and guardrail 2 still binds.
+- T: 60 is a plan estimate. At 120 turns: continue 27.35, fresh 26.31 USD (3.9 percent), fresh by quality; same side. At 30 turns C_end is 235,000, still above K; still crosses.
+- F and O: measured on the previous assessment; the skill's read-heavy range is 5,000 to 8,000 for F, so F may be understated. Higher F only increases growth and the crossing; same side.
+- B and R: B is a guess (25,000). A larger B shrinks fresh's advantage but cannot undo guardrail 2. R is summed from stated sizes; the stage may read more files, which hits both sides.
+- M (review pauses): none expected, so 0. With 3 misses: continue 20.54, fresh 18.52 USD (10.9 percent), fresh by cost; the same side, now by cost.
+- Task type: truly an assessment; the matrix puts it at Fable high, and it is design-heavy by definition.
+- Prices: table 1 day old, no long-context tier on the fable row, all four figures present.
+- Unrecorded context: none, per the situation. If some exists it is written into the handoff (raises H) or costs L rediscovery turns; either favours continue slightly but cannot override guardrail 2.
+
+Recomputed with the adverse value that moves the result most (M = 0 to 3 is the same-side move; T = 120 is the stress test of the continue side):
+
+```
+T = 120: cost_continue = 27.35 USD, cost_fresh = 26.31 USD (fresh by quality, 3.9 percent)
+M = 3:   cost_continue = 20.54 USD, cost_fresh = 18.52 USD (fresh by cost, 10.9 percent)
+```
+
+Verdict holds: yes. No adverse value flips it, and guardrail 2 fixes it regardless of the arithmetic.
+
+### Final verdict
+
+fresh, model claude-fable-5-1, effort high, pieces 1 (serial). Exact next action: write the stage's handoff (about 60 lines, model id and effort on its first lines, no outward-facing step, local commits only), commit the tree green, then start a fresh Claude Code session on claude-fable-5-1 at effort high with the handoff path as its brief. In the fresh session: check own model and effort first and stop on a mismatch. Questions I would ask the operator: none blocking. If the session cannot start the fresh session itself, it proposes a card for the operator to start. No measured baseline B exists; the fresh session should measure it once and record it.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | not reported | Harness gives no usage report for this run; self-estimate unavailable |
+| Context at end | not reported | As above |
+| Input tokens read | 13,000 | Self-estimate: SKILL.md about 8,500, price table about 1,800, template about 1,000, calculator output about 1,700 |
+| Output tokens | 3,500 | Self-estimate: record about 2,400 plus commands and reasoning |
+| Wall clock | 5 minutes | Self-estimate |
+| Priced | 0.07 USD | Input 13,000 at cache_write 2.5 plus output 3,500 at 10 per million for claude-sonnet-5-5, table `pricing/2026-10-30.json`; self-estimate |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-fable-5-1",
+    "target": "claude-fable-5-1",
+    "W": 200000,
+    "K": 190000,
+    "C0": 100000,
+    "T": 60,
+    "F": 3000,
+    "O": 1500,
+    "B": 25000,
+    "R": 30000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": true,
+    "Ta": 15,
+    "Ra": 40000,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "11.90",
+    "cost_fresh": "11.54",
+    "cost_split": "4.39",
+    "t_star": "72.2"
+  },
+  "draft": {
+    "side": "fresh",
+    "by": "quality"
+  },
+  "guardrails_triggered": [2],
+  "final": {
+    "outcome": "fresh",
+    "model": "claude-fable-5-1",
+    "effort": "high",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 13000,
+    "output_tokens": 3500,
+    "minutes": 5,
+    "usd": "0.07"
+  }
+}
+```

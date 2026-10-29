@@ -1,0 +1,38 @@
+You are the subject in an evaluation of the session-dispatch skill. Its folder is C:\Users\Bob\AppData\Local\Temp\sd-eval\2026-10-31\02-fable-to-opus-design.sonnet.hand\skill. Read C:\Users\Bob\AppData\Local\Temp\sd-eval\2026-10-31\02-fable-to-opus-design.sonnet.hand\skill/SKILL.md and follow it as written, using only the files in that folder. Do not open any other folder.
+
+The situation below is another agent session at a stage boundary. Decide for that session. Its harness, model, effort and figures are the ones the situation states, not your own. Where the situation gives no figure, apply the skill's rules and defaults and say which. Start at the skill's step 0. Today is 2026-10-31.
+
+<situation>
+Today is 2026-10-31. Harness: Claude Code desktop app. The harness reports this session's model as claude-fable-5-1 at effort xhigh.
+
+The session usage tool reports tokensUsed 254,081, contextWindow 1,000,000 and autoCompactsAtPercent 97. This session has not been compacted.
+
+A fresh session in this harness and project starts at 86,450 tokens (measured: the usage tool's total less its Messages category).
+
+Next stage: specify and implement a revision of a decision procedure's arithmetic across three modules (a Markdown procedure, a calculator script and a check script), choosing which cost terms the formula keeps, and add one worked example. The choices between designs are part of the stage. Plan estimate: 60 turns. It is a writing-heavy stage at high effort; no per-turn measurement exists.
+
+A fresh session would read: the assessment (7,000 tokens), the procedure (4,700), the check script (2,800), an example (2,300), a template (700) and the handoff (2,500).
+
+A handoff for this stage would be about 100 lines. If an acceptance session were used, it would take about 15 turns and read about 30,000 tokens.
+
+Everything this session knows that the next stage needs is already written in files on disk.
+
+No cache-miss measurement exists, and no review pauses are expected during the stage.
+
+The stage writes files and commits locally; nothing leaves the machine.
+</situation>
+
+Write what the skill asks you to record (the filled decision record, or the single line of step 0 when the skill does not run) to the file C:\Users\Bob\AppData\Local\Temp\sd-eval\2026-10-31\02-fable-to-opus-design.sonnet.hand\record.md. Nobody will answer questions during this run: where the skill says to ask the operator or to stop, write in the record what you would ask and the verdict the skill says to take meanwhile, then finish.
+
+End the file with one fenced block whose opening line is ```json dispatch-result and which holds one JSON object with exactly these keys:
+
+- "skill_ran": false only when the record is the step 0 line.
+- "inputs": the step 1 inputs you used, or null if you used none: "current" and "target" (model ids; "target" is null when the price table cannot give you one), "W", "K", "C0", "T", "F", "O", "B", "R", "H", "M", "L" (numbers), "compacted" (true or false), "Ta" and "Ra" (numbers, or null), "G" (the growth per turn you used if it is not F + O, else null).
+- "table_age_days": the price table's age in days as you found it, or null.
+- "totals": "cost_continue", "cost_fresh" and "cost_split" as strings in USD exactly as the record writes them (for example "20.01"), and "t_star" as a string of turns or "never"; null for each figure you did not compute, or null for the whole object.
+- "draft": "side" ("continue", "fresh" or "incomplete") and "by" ("class", "cost", "quality", "break-even" or null), or null if the record has no draft verdict.
+- "guardrails_triggered": the numbers of the step 4 guardrails that changed your verdict, model or effort, or required a line in the plan. Leave out guardrails you checked that did not bind.
+- "final": "outcome" ("continue", "fresh", "split", "not-run", "incomplete" or "stop"); "model", the model id that runs the next piece of work (for a split, the run piece; for a not-run, the session's own model; for a stop, the model the session should be on), or null; "effort" for it, or null; "approval_step", the human approval step the plan names, or null.
+- "cost_of_deciding": "input_tokens", "output_tokens" and "minutes" as numbers and "usd" as a string, from the record's cost-of-deciding table, or null if it has none.
+
+When the file is written, reply with the one word: done.

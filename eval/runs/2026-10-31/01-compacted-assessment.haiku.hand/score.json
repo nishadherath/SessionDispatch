@@ -1,0 +1,59 @@
+{
+  "scenario": "01-compacted-assessment",
+  "subject": "haiku",
+  "arm": "hand",
+  "outcome_expected": "fresh",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "fresh",
+  "final_ok": true,
+  "draft_ok": true,
+  "guardrails_ok": true,
+  "bound": [
+    2
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 4,
+    "correct": 3,
+    "missing": 0,
+    "max_error_usd": 0.0038,
+    "rule_ok": true,
+    "errors": [
+      {
+        "figure": "t_star",
+        "why": "too few decimal places (0)"
+      }
+    ]
+  },
+  "inputs": {
+    "scored": 16,
+    "matched": 16,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 12000,
+    "reported_minutes": 6,
+    "measured_tokens": 112160,
+    "measured_minutes": 3.3192333333333335,
+    "record_tokens": 2533,
+    "usd_to_decide": 0.0026,
+    "usd_measured": null,
+    "over_cap": false,
+    "report_ratio": 0.107
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": "first failed check: arithmetic (t_star)"
+}

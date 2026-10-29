@@ -1,0 +1,179 @@
+## Session dispatch decision
+
+Date: 2026-10-31. Decided by: claude-fable-5-1, effort xhigh, in Claude Code desktop app.
+Price table: `pricing/2026-10-30.json` (age 1 day of 14).
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as of that date |
+| Current model | claude-fable-5-1 (fable), xhigh | Measured: the harness report |
+| Target model | claude-opus-5-5 (opus) | Matrix row 3 (cross-module merge, specification of ambiguous work, design choices), then the table's opus row |
+| Window W | 1,000,000 | Measured: usage tool contextWindow |
+| Compaction point K | 970,000 | Measured: 97 percent of W (autoCompactsAtPercent 97) |
+| Current context C0 | 254,081 | Measured: usage tool tokensUsed |
+| Compacted already | no | Measured: the situation states it |
+| Unrecorded context | none | The situation says everything is in files on disk |
+| Expected turns T | 60 | Plan estimate |
+| Fresh input per turn F | 3,000 | Estimated: step 1.2 default, unmeasured |
+| Output per turn O | 3,000 | Estimated: writing-heavy default; the effort here is xhigh, so this is low-confidence (tested at 6,000 below) |
+| Fresh baseline B | 86,450 | Measured: usage total less Messages category |
+| Re-read set R | 20,000 | 7,000 + 4,700 + 2,800 + 2,300 + 700 + 2,500, from the situation |
+| Handoff size H | 2,500 | Estimated: step 1.2 default for a handoff under 120 lines (about 100 lines); no unrecorded context to add |
+| Cache misses M | 0 | Default, unmeasured; no review pauses expected |
+| Rediscovery turns L | 0 | The unrecorded list is empty |
+| Acceptance turns Ta | 15 | The situation |
+| Acceptance re-read Ra | 30,000 | The situation |
+| Task type | Matrix row 3 (Opus, high) | Cross-module revision, choice between designs, a worked example |
+| Design-heavy | yes | Choosing between designs and cross-module changes are the stage |
+| Irreversible or outward-facing steps | none | Files written and committed locally; nothing leaves the machine |
+
+G = F + O = 6,000: the default (keeping F + O), not a measured figure.
+
+### Step A: continue or hand off
+
+Calculator output (`node scripts/dispatch.mjs`, today 2026-10-31):
+
+```
+G       = F + O                   = 6,000
+C_end   = C0 + T * G              = 614,081
+crosses = C_end > K               = false   (K 970,000)
+C_cont  = C0 + T * G / 2          = 434,081
+C_fresh = B + R + T * G / 2       = 286,450
+
+cost_continue (claude-fable-5-1)
+  T*C_cont*p_cr   = 6.511
+  T*G*p_cw        = 4.500
+  T*O*p_out       = 9.000
+  M term 0, penalty_compaction 0
+  = 20.01 USD
+cost_fresh (claude-opus-5-5)
+  H*p_out[fable]  = 0.125
+  (B+R)*p_cw      = 0.532
+  T*C_fresh*p_cr  = 3.437
+  T*G*p_cw        = 1.800
+  T*O*p_out       = 3.600
+  M term 0, penalty_loss 0
+  = 9.49 USD
+T* = n/a: the model changes
+cost_split = 0.125 (brief) + 4.685 (run at sonnet) + 2.417 (acceptance at opus, Ta 15, Ra 30,000)
+           = 7.23 USD
+```
+
+Prices used (per million): claude-fable-5-1 input 10, output 50, cache_read 0.25, cache_write 12.5. claude-opus-5-5 input 4, output 20, cache_read 0.2, cache_write 5.
+
+The target class (opus) is below the current class (fable), so rule 1 does not apply. Continuing keeps the work on Fable at xhigh, above its class and at 2.1 times the cost.
+
+Draft verdict: fresh, by cost, margin 10.52 USD (110.8 percent of the smaller, 9.49; band 10 percent).
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| The stage (revise formula across procedure, calculator, check script; one worked example) | opus | claude-opus-5-5 | high | `node scripts/check.mjs` exits zero and its counts are quoted; the new example reproduces under the calculator | single piece | 9.37 USD (calculator, piece B = session baseline) plus handoff 0.125 |
+
+Serial chain and its wall clock: one piece, 60 turns; wall clock not measured (no per-turn timing exists), so no figure is given. Handoff about 10 minutes to write and commit and 5 minutes for the new session to read, from step 2.1. Operator review time: none expected (M 0). The operator picks the model and effort in the new session (step 3.2.6), so the handoff states `claude-opus-5-5`, effort high, on its first lines. Per AGENTS.md, a fresh session may also be started with those values.
+
+Effort raised or lowered because: no change. Matrix row 3 is high; no irreversible step, no security, credentials or money, not a merge or release, no failed prior attempt stated.
+
+Split (step 2.1): not an option, a figure only. The target is Opus, so it was priced (7.23 USD, 31.4 percent under fresh), but the stage includes choosing which cost terms the formula keeps. That is design, so the brief cannot carry a contract, an oracle and an observable definition of done that make the run row 1 or 2 work. A sharper brief would save 2.27 USD only if the design were settled first, which would be a separate Opus design stage.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 60.
+2. Design-heavy across a compaction: design-heavy yes, but crosses false (614,081 against 970,000) and not compacted. Does not bind. Fresh is the verdict on cost anyway.
+3. Irreversible steps and their approval step: none (local files and a local commit). Not binding. Approval step: none needed.
+4. Model chosen from the table, not memory: yes. claude-opus-5-5 is the table's opus row in the anthropic family.
+5. Table age and nulls: 1 day, under 14. The fable and opus rows have no null figure.
+6. Acceptance: not part of the plan. If used, it runs at Fable (one class above Opus) at high, in a fresh session (matrix row 4).
+7. Decision budget: record about 3,700 tokens (self-estimate, characters divided by 4) against 4,000; about 6 minutes (self-estimate) against 10.
+8. Class and effort match the harness: this session is Fable xhigh and does not change its own class. The next session is a new one on Opus high. It checks its own model and effort first and stops on a mismatch. Guardrail 8 does not bind.
+
+### Adversarial pass
+
+The opposite verdict, argued: continuing avoids writing and committing a handoff, avoids a 10-to-15 minute handoff wait and a colder start, and keeps all of this session's knowledge. Fable at xhigh is the stronger model for a design-heavy stage, and quality, not cost, is what a design choice is graded on. The context is only 25 percent full and will not compact. Against that, the matrix says Opus at high is the class for this work, the situation says everything is already on disk, and the cost gap is 10.52 USD.
+
+Each input, the way it could be wrong:
+
+- C0: measured at 254,081. At 30 percent lower, continue falls only a little (C_cont is dominated by T * G / 2); the gap stays above 10 percent.
+- T: 60 is a plan estimate. At 120 the context crosses K (974,081 against 970,000), continue costs 45.80 USD, fresh 22.65 USD. This reinforces fresh (guardrail 2 would require it). Under 10 turns is not a credible adverse value for a 60-turn plan.
+- F and O (and the effort O assumes): the 3,000 default for O was measured at high effort, not xhigh; mark it an estimate. Tested at O 6,000 below.
+- B and R: B measured. R is the six files named in the situation, 20,000 tokens; the project instruction files are already inside B. If R were 30 percent larger the fresh side moves by under 0.2 USD.
+- M (review pauses): none expected, 0 default and unmeasured. M 3 raises continue to 35.96 USD and fresh to 13.62 USD, which favours fresh further.
+- Task type: could the stage be Sonnet work? The situation says choices between designs are part of the stage, so it is not scoped module work. Could it be Fable work (whole-project assessment)? No: it revises one procedure, not the tiering decision itself.
+- Prices: table 1 day old; no long-context tier on the fable or opus rows; the opus row is priced at its own rate throughout.
+- Unrecorded context: none per the situation. If some existed, writing it would add H and output tokens, but the cost is small (a few thousand tokens at 50 USD per million output, under 0.5 USD).
+
+Recomputed with the adverse value that moves the result most (O at 6,000, the xhigh-reasoning case, which is the only input that raises both sides):
+
+```
+cost_continue = 32.61 USD
+cost_fresh    = 15.07 USD    (margin 17.54 USD, 116.3 percent)
+```
+
+Verdict holds: yes. Nothing tested brings the two costs within 10 percent. The nearest adverse direction (a smaller T) is not inside the stated range.
+
+### Final verdict
+
+fresh, model claude-opus-5-5, effort high, pieces 1 (single piece, no concurrency). Exact next action: commit the tree after a green `node scripts/check.mjs`, write the handoff (about 100 lines, with this record, the model id and effort on its first lines, and this stage's contract of three modules plus one worked example), then start a fresh session on claude-opus-5-5 at high effort with the handoff path. Nothing leaves the machine, so no approval step is needed. Estimate caveats: O and F are defaults, M is 0 unmeasured, and there is no wall-clock measurement.
+
+### Cost of deciding
+
+| Row | Value | Source (measured, naming the harness report, or self-estimate) |
+|---|---|---|
+| Context at start | 254,081 tokens | Measured: usage tool tokensUsed given in the situation (the decision began here) |
+| Context at end | not measured | No usage report after step 5 in this run |
+| Input tokens read | 12,000 | Self-estimate: SKILL.md, price table, record template and calculator output, characters divided by 4 |
+| Output tokens | 3,700 | Self-estimate: this record, characters divided by 4 |
+| Wall clock | 6 minutes | Self-estimate |
+| Priced | 0.34 USD | Input 12,000 at 12.5 per million (0.150) plus output 3,700 at 50 per million (0.185), claude-fable-5-1, table `pricing/2026-10-30.json`; self-estimate |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-fable-5-1",
+    "target": "claude-opus-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 254081,
+    "T": 60,
+    "F": 3000,
+    "O": 3000,
+    "B": 86450,
+    "R": 20000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": 15,
+    "Ra": 30000,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "20.01",
+    "cost_fresh": "9.49",
+    "cost_split": "7.23",
+    "t_star": "never"
+  },
+  "draft": {
+    "side": "fresh",
+    "by": "cost"
+  },
+  "guardrails_triggered": [],
+  "final": {
+    "outcome": "fresh",
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 12000,
+    "output_tokens": 3700,
+    "minutes": 6,
+    "usd": "0.34"
+  }
+}
+```

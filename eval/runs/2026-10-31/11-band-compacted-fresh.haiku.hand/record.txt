@@ -1,0 +1,173 @@
+## Session dispatch decision
+
+Date: 2026-10-31. Decided by: claude-haiku-5-5 (the model running this decision), effort not stated, in the evaluation harness. The session being dispatched is in Claude Code desktop.
+Price table: `pricing/2026-10-30.json` (age 1 day, max 14). Read: SKILL.md, the price table, templates/decision-record.md. No `scripts/` folder was among the files read, so the arithmetic is by hand.
+
+### Inputs
+
+| Input | Value | Source |
+|---|---|---|
+| Formula | 2026-10-29 | SKILL.md step 2 |
+| Current model | claude-sonnet-5-5, effort medium | Measured: harness report as stated in the situation |
+| Target model | claude-sonnet-5-5 | Matrix row 2 (scoped module refactor with a test oracle) gives Sonnet, medium; the table's sonnet class row is claude-sonnet-5-5. Same as current, so no model change |
+| Window W | 1,000,000 | Measured: usage tool contextWindow |
+| Compaction point K | 970,000 | Measured: autoCompactsAtPercent 97 times W |
+| Current context C0 | 180,000 | Measured: usage tool tokensUsed |
+| Compacted already | yes | Measured: once, an hour ago |
+| Unrecorded context | none | Situation: everything the stage needs is in files on disk. L = 0 |
+| Expected turns T | 45 | Plan estimate, single value, no range given |
+| Fresh input per turn F | 3,000 | Estimated: skill default, unmeasured. Stage is not read-heavy |
+| Output per turn O | 1,500 | Estimated: skill default, assumes medium effort. Unmeasured |
+| Fresh baseline B | 86,450 | Measured: usage total less Messages (per situation) |
+| Re-read set R | 15,000 | Given: fresh session reads the handoff and the module |
+| Handoff size H | 2,500 | Estimated: skill default for a handoff under 120 lines (this one is about 80 lines) |
+| Cache misses M | 0 | Unmeasured; no review pauses expected (situation). Default |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta, Ra | not applicable | Target class is sonnet, not opus; no split computed |
+| Task type | Matrix row 2, scoped module refactor with a test suite | Stated in the situation |
+| Design-heavy | no | One module, no cross-module change, no evaluation design |
+| Irreversible or outward-facing steps | none | Local commits only; nothing leaves the machine |
+
+### Step A: continue or hand off
+
+```
+G       = F + O                        = 3,000 + 1,500 = 4,500 per turn (estimated)
+C_end   = C0 + T*G                     = 180,000 + 202,500 = 382,500
+crosses = C_end > K                    = 382,500 > 970,000 = no
+C_cont  = C0 + T*G/2                   = 281,250
+C_fresh = B + R + T*G/2                = 86,450 + 15,000 + 101,250 = 202,700
+
+Prices (claude-sonnet-5-5, per million): input 2, output 10, cache_read 0.1, cache_write 2.5. No long-context tier for sonnet.
+
+cost_continue = T*C_cont*p_cr + T*G*p_cw + T*O*p_out + M-term + compaction
+  = 45*281,250*0.1e-6 + 45*4,500*2.5e-6 + 45*1,500*10e-6 + 0 + 0
+  = 1.2656 + 0.5063 + 0.6750 = 2.4469                       -> USD 2.45
+
+cost_fresh = H*p_out + (B+R)*p_cw + T*C_fresh*p_cr + T*G*p_cw + T*O*p_out + M-term + loss
+  = 2,500*10e-6 + 101,450*2.5e-6 + 45*202,700*0.1e-6 + 0.5063 + 0.6750 + 0 + 0
+  = 0.0250 + 0.2536 + 0.9122 + 0.5063 + 0.6750 = 2.3720     -> USD 2.37
+
+Gap: 2.4469 - 2.3720 = 0.0749 USD, 3.2 percent of the smaller (fresh). Inside the 10 percent band.
+
+Break-even, for reference only: T* = (H*p_out + (B+R)*p_cw) / ((C0-B-R)*p_cr)
+  = 0.278625 / (78,550 * 0.1e-6) = 35.5 turns. Not the rule that applies: the session has compacted, so the short path is closed. It is consistent with the result: T = 45 is above 35.5, and fresh is cheaper.
+```
+
+Draft verdict: fresh, by quality, margin USD 0.07 (0.0749) and 3.2 percent of the smaller side. Rule 3 applies: costs within 10 percent, and a session that has compacted once loses. Guardrail 2 does not bind, because the stage is not design-heavy.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Module refactor | sonnet | claude-sonnet-5-5 | medium | the module's test suite | serial, one piece | USD 2.37 (fresh side) |
+
+Serial chain and wall clock: 45 turns in one session. No per-turn measurement exists, so the turn wall clock is not measured. The handoff adds about 10 minutes to write and commit and about 5 minutes for the fresh session to read (step 2.1). Operator review time: none expected by the situation.
+
+Effort: no change. Matrix row 2 gives medium. The module touches no auth, payments, storage format or public interface, and medium is the floor for work that writes to a repository.
+
+Split (step 2.1): not an option. The target class is sonnet, not opus or fable, so the split is not computed.
+
+A fresh session needs the operator to start it and pick the model. The handoff states `claude-sonnet-5-5` and effort `medium` on its first lines.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 45.
+2. Design-heavy across a compaction: not design-heavy, so it does not bind. The compaction is handled by the quality rule.
+3. Irreversible steps: none. Local commits only, so no approval step is needed.
+4. Model from the table, not memory: claude-sonnet-5-5, class sonnet, from `pricing/2026-10-30.json`.
+5. Table age and nulls: 1 day old against 14. The sonnet row has no null price.
+6. Acceptance: no acceptance step in this plan, and no split. Not applicable.
+7. Decision budget: this record is about 2,500 tokens, under 4,000. Decision time is about 6 minutes (self-estimate, no timestamps), under 10.
+8. Class and effort match the harness: the harness reports sonnet at medium, and the target is sonnet at medium. Matches.
+
+### Adversarial pass
+
+The opposite verdict, argued: continue. The costs differ by 3.2 percent, far inside the 10 percent band. Continuing keeps the same class and effort, so no class is lost. The handoff costs about 15 minutes of write, commit and read, which the cost model does not price. The stage's knowledge is all on disk, so the compaction loss that rule 3 is about should be small. Continuing also needs no operator click to start a new session.
+
+Each input, the way it could be wrong:
+
+- C0: measured at 180,000. At 126,000 (30 percent lower), continue is cheaper by 7.6 percent, still inside the band, so the verdict holds. At 234,000 fresh's lead grows. Continue would win on cost only below about 115,000 (36 percent lower).
+- T: plan estimate 45. Doubled to 90, fresh is cheaper by 8.0 percent, still inside the band, and the verdict holds. Halved to 22, continue is cheaper by 9.8 percent, still inside the band. Continue wins on cost at T of 21 or fewer.
+- F and O: estimated at 3,000 and 1,500. At O = 3,000 (writing heavy), the gap narrows to 2.2 percent and the verdict holds.
+- B and R: B measured, R given. At R = 30,000, continue is cheaper by 1.2 percent. Holds.
+- Task type: a refactor with a test suite is row 2. If it hides a design choice, guardrail 2 applies and the verdict is fresh anyway, so the adverse case does not move toward continue.
+- Prices: the Sonnet row is 1 day old and has no long-context tier. Holds.
+- M (review pauses): none expected, M = 0. At M = 3, fresh is cheaper by about 17 percent, so the verdict holds and fresh wins on cost.
+- Unrecorded context: none claimed. At L = 5, penalty_loss adds USD 0.23 to fresh. Continue is then cheaper by 6.4 percent, inside the band, and the verdict holds.
+
+Recomputed with the adverse value that moves the result most (T halved to 22, the nearest flip):
+
+```
+cost_continue = 1.0824   (C_cont = 229,500)
+cost_fresh    = 1.1882   (C_fresh = 150,950)
+```
+
+Verdict holds: yes, fragile: flips to continue by cost at T of 21 or fewer. That is less than half the stated 45, so the stated estimate does not reach it.
+
+### Final verdict
+
+Fresh, model claude-sonnet-5-5, effort medium, pieces 1 (serial). Exact next action: the session writes the handoff (about 80 lines, model id and effort on its first lines), commits it with the work committed and the gate green, and the operator starts a fresh session on claude-sonnet-5-5 at medium with the handoff path.
+
+Nobody answers during this run. Where the operator would be asked, I would ask: "Start the fresh session on claude-sonnet-5-5 at medium with the handoff path?" Meanwhile the verdict stands as fresh. No approval step is named, because there are no irreversible or outward-facing steps.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 25,000 tokens | Self-estimate: the decider's own context (system prompt, tool list and the skill read). No usage figure was reported |
+| Context at end | 36,600 tokens | Self-estimate: start plus the reads and output below |
+| Input tokens read | 9,000 | Self-estimate: difference of the two rows above, less output |
+| Output tokens | 2,600 | Self-estimate: record and JSON, characters divided by 4 |
+| Wall clock | 6 minutes | Self-estimate, no timestamps |
+| Priced | USD 0.0024 | Table `pricing/2026-10-30.json`, claude-haiku-5-5 (the decider): input 9,000 at cache_write 0.125 = 0.001125, output 2,600 at 0.5 = 0.0013. Self-estimate figures |
+
+The decision cost USD 0.0024 against a stage that costs about USD 2.37, so the procedure pays for itself at this size.
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-sonnet-5-5",
+    "target": "claude-sonnet-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 180000,
+    "T": 45,
+    "F": 3000,
+    "O": 1500,
+    "B": 86450,
+    "R": 15000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": true,
+    "Ta": null,
+    "Ra": null,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "2.45",
+    "cost_fresh": "2.37",
+    "cost_split": null,
+    "t_star": "35.5"
+  },
+  "draft": {
+    "side": "fresh",
+    "by": "quality"
+  },
+  "guardrails_triggered": [],
+  "final": {
+    "outcome": "fresh",
+    "model": "claude-sonnet-5-5",
+    "effort": "medium",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 9000,
+    "output_tokens": 2600,
+    "minutes": 6,
+    "usd": "0.0024"
+  }
+}
+```

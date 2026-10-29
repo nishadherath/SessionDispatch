@@ -1,0 +1,59 @@
+{
+  "scenario": "19-handoff-model-mismatch",
+  "subject": "sonnet",
+  "arm": "calculator",
+  "outcome_expected": "stop",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "stop",
+  "final_ok": true,
+  "draft_ok": null,
+  "guardrails_ok": true,
+  "bound": [
+    8
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 3,
+    "correct": 2,
+    "missing": 0,
+    "max_error_usd": 0.0015,
+    "rule_ok": true,
+    "errors": [
+      {
+        "figure": "t_star",
+        "why": "stated where the recompute has none"
+      }
+    ]
+  },
+  "inputs": {
+    "scored": 14,
+    "matched": 14,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 22500,
+    "reported_minutes": 5,
+    "measured_tokens": 85289,
+    "measured_minutes": 1.5508166666666667,
+    "record_tokens": 1901,
+    "usd_to_decide": 0.075,
+    "usd_measured": null,
+    "over_cap": false,
+    "report_ratio": 0.264
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": "first failed check: arithmetic (t_star)"
+}

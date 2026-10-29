@@ -1,0 +1,52 @@
+{
+  "scenario": "03-break-even-continue",
+  "subject": "sonnet",
+  "arm": "hand",
+  "outcome_expected": "continue",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "continue",
+  "final_ok": true,
+  "draft_ok": true,
+  "guardrails_ok": true,
+  "bound": [],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 3,
+    "correct": 3,
+    "missing": 0,
+    "max_error_usd": 0.005,
+    "rule_ok": true,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 14,
+    "matched": 14,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 13000,
+    "reported_minutes": 5,
+    "measured_tokens": 85834,
+    "measured_minutes": 1.25825,
+    "record_tokens": 2130,
+    "usd_to_decide": 0.055,
+    "usd_measured": null,
+    "over_cap": false,
+    "report_ratio": 0.151
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": ""
+}

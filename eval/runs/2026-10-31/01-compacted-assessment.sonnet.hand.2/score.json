@@ -1,0 +1,54 @@
+{
+  "scenario": "01-compacted-assessment",
+  "subject": "sonnet",
+  "arm": "hand",
+  "outcome_expected": "fresh",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "fresh",
+  "final_ok": true,
+  "draft_ok": true,
+  "guardrails_ok": true,
+  "bound": [
+    2
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 4,
+    "correct": 4,
+    "missing": 0,
+    "max_error_usd": 0.0038,
+    "rule_ok": true,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 16,
+    "matched": 16,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 13500,
+    "reported_minutes": 6,
+    "measured_tokens": 87155,
+    "measured_minutes": 1.38895,
+    "record_tokens": 2256,
+    "usd_to_decide": 0.06,
+    "usd_measured": null,
+    "over_cap": false,
+    "report_ratio": 0.155
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": ""
+}

@@ -1,0 +1,169 @@
+## Session dispatch decision
+
+Date: 2026-10-31. Decided by: claude-sonnet-5-5 acting for the situation's session (claude-opus-5-5, effort high, Claude Code CLI).
+Price table: `pricing/2026-10-30.json` (age 1 day of 14; Anthropic rows fetched 2026-10-29).
+
+Step 0: the stage is 12 turns (over 10) and the context is past 60 percent of the window (126,450 of 200,000 = 63.2 percent). The skill runs.
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 |
+| Current model | claude-opus-5-5, effort high | Measured: the harness report in the situation |
+| Target model | claude-opus-5-5 | Matrix row 3 (evaluation design) is Opus, high; the table's opus-class model in the anthropic family |
+| Window W | 200,000 | Measured: /context |
+| Compaction point K | 160,000 | Measured: the installation's settings (80 percent of W) |
+| Current context C0 | 126,450 | Measured: /context |
+| Compacted already | no | Situation states it |
+| Unrecorded context | none | Situation: all needed knowledge is on disk |
+| Expected turns T | 12 | Plan estimate |
+| Fresh input per turn F | 2,500 | Measured on the previous design stage |
+| Output per turn O | 1,500 | Measured on the previous design stage (effort high) |
+| Fresh baseline B | 86,450 | Measured last week with /context before any message |
+| Re-read set R | 30,000 | Situation: procedure, handoff and prior results |
+| Handoff size H | 2,500 | Default for under 120 lines (about 80 lines); unrecorded list empty so nothing added |
+| Cache misses M | 0 | Unmeasured, default; no review pauses expected |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta | 15 | Situation (split figure only) |
+| Acceptance re-read Ra | 40,000 | Situation (split figure only) |
+| Task type | Row 3: evaluation design | Matrix |
+| Design-heavy | yes | Evaluation design is named in step 1.2 |
+| Irreversible or outward-facing steps | none | Stage writes files and commits locally; nothing leaves the machine |
+
+### Step A: continue or hand off
+
+Calculator output (`node scripts/dispatch.mjs`, run with today 2026-10-31):
+
+```
+G       = F + O                 = 4,000
+C_end   = C0 + T * G            = 174,450
+crosses = C_end > K             = true (K 160,000)
+C_cont  = C0 + T * G / 2        = 150,450
+C_fresh = B + R + T * G / 2     = 140,450
+
+cost_continue = 0.361 + 0.240 + 0.360 + 0.000 + penalty_compaction 0.200 (R*p_cw + H*p_out)
+              = 1.16 USD
+cost_fresh    = 0.050 + 0.582 + 0.337 + 0.240 + 0.360 + 0.000 + 0.000
+              = 1.57 USD
+T* = 0.632 / (10,000 * p_cr) = 316.1 turns, but the short path does not apply: a compaction is ahead
+cost_split    = 0.050 + run at sonnet 0.760 + acceptance at opus 1.852
+              = 2.66 USD
+```
+
+Prices used (per million, claude-opus-5-5, current and target): input 4, output 20, cache_read 0.2, cache_write 5. Split run at claude-sonnet-5-5: input 2, output 10, cache_read 0.1, cache_write 2.5.
+
+Cost draft: continue, by cost, margin 0.41 USD (35.2 percent of the smaller). Guardrail 2 then binds: the stage is design-heavy and `crosses` is true, so the verdict is fresh whatever the arithmetic says.
+
+Draft verdict: fresh, by quality (guardrail 2 overriding the cost lead of continue), margin 0.41 USD (26.1 percent of the smaller, 1.16 USD) paid for not summarising a design stage mid-way.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Evaluation design: test cases, measures, runner brief (fresh session) | Opus | claude-opus-5-5 | high | The files the stage names exist, `node scripts/check.mjs` exits zero, work committed | Serial (one piece) | 1.52 USD stage, plus 0.050 USD handoff = 1.57 USD |
+
+Serial chain and its wall clock: handoff and commit about 10 minutes, new session read about 5 minutes, then 12 turns (wall clock per turn not measured; self-estimate about 1 to 2 minutes each, so 12 to 24 minutes). Operator review time: none expected; the operator starts the fresh session or approves the card (to be stated in the handoff).
+
+Effort raised or lowered because: no change. Matrix row 3 says high; no raise rule holds (no outward step, no security or money, not a merge or release, no failed previous attempt stated).
+
+Split (step 2.1): not an option. It is dearer than fresh by 1.09 USD (69.6 percent), and an evaluation design brief is ambiguous-work specification, not a brief a lower class can run to a contract and oracle.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 12.
+2. Design-heavy across a compaction: yes, design-heavy and crosses = true (174,450 > 160,000). Verdict is fresh. This is the binding guardrail.
+3. Irreversible steps and their approval step: none; the stage commits locally only. No approval step is required; the handoff names "none, local commit only".
+4. Model chosen from the table, not memory: yes, claude-opus-5-5 is the table's opus-class row.
+5. Table age and nulls: 1 day old, no null on the rows used.
+6. Acceptance at matrix row 4's class and effort: no acceptance session is planned. If one is added later it runs on Fable at high (author is Opus), in a fresh session.
+7. Decision budget: record about 3,300 tokens (about 13,000 characters divided by 4) against 4,000; about 8 minutes against 10.
+8. Class and effort match the harness: the session is claude-opus-5-5 at high, the same as the target; the fresh session must check its model and effort first and stop on a mismatch.
+
+### Adversarial pass
+
+The opposite verdict, argued: continue is 0.41 USD (35.2 percent) cheaper on the arithmetic, and a handoff is work: 80 lines to write and commit, a cold start, and 30,000 tokens re-read. The session already holds the context, and everything the next stage needs is on disk, so a compaction would lose little. The stage is only 12 turns, and it overshoots K by 14,450 tokens (174,450 against 160,000), about 3.6 turns of growth.
+
+Each input, the way it could be wrong:
+
+- C0: measured. If 30 percent lower (88,515) the stage does not cross (C_end 136,515) and continue would win by cost; but the figure is a measurement, so this is a stress test only.
+- T: a plan estimate. The crossing disappears at T of 8 or fewer (126,450 + 8 * 4,000 = 158,450). T of 9 to 12 still crosses. Fewer than 10 turns is outside the stated plan (12). Doubling T to 24 only deepens the crossing.
+- F and O: measured on the previous design stage at high effort. If growth were 3,000 per turn (G), C_end is 162,450 and still crosses; at 2,800 per turn it is 160,050, borderline. Design stages tend to be read-heavy, so F is more likely to be low than high.
+- B and R: B measured last week (could have drifted); R from the situation. If R were 20,000 lower, fresh costs about 0.1 USD less; no change to the verdict.
+- M (review pauses): none expected; each miss would favour fresh, so a miss strengthens the verdict.
+- Task type: could the stage be Sonnet work? No: choosing test cases and measures and writing a runner brief is matrix row 3 (Opus); lowering the class is not allowed by the arithmetic or the matrix.
+- Prices: table 1 day old, no long-context tier on opus; applied correctly.
+- Unrecorded context: none claimed. If something were unrecorded, L turns of rediscovery (about 0.06 USD a turn) would be added to fresh, or the items written into H; either way a small cost.
+
+Recomputed with the adverse value that moves the result most (C0 30 percent lower, 88,515; no crossing, no compaction penalty):
+
+```
+cost_continue = 0.270 + 0.240 + 0.360 = 0.87 USD
+cost_fresh    = 1.57 USD
+```
+
+Verdict holds: yes, fragile: flips at T of 8 or fewer or C0 of 111,999 or less (C_end at or below K), neither inside the stated range (T 12 planned, C0 measured). On the stated inputs guardrail 2 binds and the arithmetic does not override it.
+
+### Final verdict
+
+Fresh, model claude-opus-5-5, effort high, pieces 1 (serial). Exact next action: finish the files the next stage needs, run `node scripts/check.mjs` if the project has it, commit, write the handoff (about 80 lines, model id and effort on its first lines, approval step "none, local commit only") to the project's handoff location, then start the fresh session (or propose it as a card where the operator's autonomy yes is absent) with the handoff path, model claude-opus-5-5 and effort high. The fresh session checks its own model and effort first and stops on a mismatch.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 126,450 tokens | The situation's /context figure; the skill and table reads of this run are not in it (self-estimate) |
+| Context at end | about 146,500 tokens | Self-estimate: start plus reads and output |
+| Input tokens read | 17,000 | Self-estimate: SKILL.md about 11,500, table about 2,000, template about 1,500, calculator output about 1,000, situation about 1,000 |
+| Output tokens | 3,500 | Self-estimate: record about 3,300 plus commands |
+| Wall clock | 8 minutes | Self-estimate; no timestamps given |
+| Priced | 0.16 USD | Table `pricing/2026-10-30.json`, claude-sonnet-5-5 as decider: 17,000 * 2.5/1e6 = 0.043 plus 3,500 * 10/1e6 = 0.035 gives 0.08; at the situation's session model claude-opus-5-5 (17,000 * 5/1e6 = 0.085 plus 3,500 * 20/1e6 = 0.070) it is 0.155, rounded 0.16. Self-estimate |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-opus-5-5",
+    "target": "claude-opus-5-5",
+    "W": 200000,
+    "K": 160000,
+    "C0": 126450,
+    "T": 12,
+    "F": 2500,
+    "O": 1500,
+    "B": 86450,
+    "R": 30000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": 15,
+    "Ra": 40000,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "1.16",
+    "cost_fresh": "1.57",
+    "cost_split": "2.66",
+    "t_star": "never"
+  },
+  "draft": {
+    "side": "fresh",
+    "by": "quality"
+  },
+  "guardrails_triggered": [2],
+  "final": {
+    "outcome": "fresh",
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 17000,
+    "output_tokens": 3500,
+    "minutes": 8,
+    "usd": "0.16"
+  }
+}
+```
