@@ -3,7 +3,7 @@
 // the records the subjects wrote, and scores them into eval/results-<date>.md
 // (eval/rubric.md). Standard library only, Node 20 or later.
 //
-//   node eval/run.mjs prepare --date YYYY-MM-DD --subjects haiku,sonnet --arms calculator,hand [--only 03,04] [--skill <dir>]
+//   node eval/run.mjs prepare --date YYYY-MM-DD --subjects haiku,sonnet --arms calculator,hand [--only 03,04] [--skill <dir>] [--repeat <n>]
 //   node eval/run.mjs usage   --date YYYY-MM-DD --file <usage.json> --models haiku=<id>,sonnet=<id>
 //   node eval/run.mjs collect --date YYYY-MM-DD
 //   node eval/run.mjs score   --date YYYY-MM-DD
@@ -67,8 +67,11 @@ const newestTable = (dir) => fs.readdirSync(dir).filter((n) => /^\d{4}-\d{2}-\d{
  * Prepares sandboxes, prompts and the manifest. Returns { runs, manifestFile }.
  * `skillRoot` is where the skill payload is read from (the repository, or a
  * variant's folder); `repoRoot` where scenarios and the prompt template live.
+ * `repeat` runs each scenario, subject and arm that many times: the first keeps
+ * the id `<scenario>.<subject>.<arm>`, the nth after it takes the suffix `.n`.
  */
-export function prepare({ date, subjects, arms, only, skillRoot = REPO, repoRoot = REPO, runsRoot = path.join(REPO, "eval", "runs"), sandboxRoot = path.join(os.tmpdir(), "sd-eval"), force = false }) {
+export function prepare({ date, subjects, arms, only, skillRoot = REPO, repoRoot = REPO, runsRoot = path.join(REPO, "eval", "runs"), sandboxRoot = path.join(os.tmpdir(), "sd-eval"), force = false, repeat = 1 }) {
+  if (!Number.isInteger(repeat) || repeat < 1) throw new Error(`--repeat must be a whole number of 1 or more, found ${JSON.stringify(repeat)}`);
   if (!isDate(date)) throw new Error(`--date must be YYYY-MM-DD, found ${JSON.stringify(date)}`);
   for (const s of subjects) if (!SUBJECT_CLASSES.includes(s)) throw new Error(`subject ${JSON.stringify(s)} must be one of ${SUBJECT_CLASSES.join(", ")}`);
   for (const a of arms) if (!ARMS.includes(a)) throw new Error(`arm ${JSON.stringify(a)} must be one of ${ARMS.join(", ")}`);
@@ -83,8 +86,8 @@ export function prepare({ date, subjects, arms, only, skillRoot = REPO, repoRoot
     const age = Math.round((Date.parse(sc.today) - Date.parse(table.table_date)) / DAY_MS);
     if (!Number.isFinite(age)) throw new Error(`${sc.id}: cannot date table ${sc.table} against ${sc.today}`);
     const redated = { ...table, table_date: shiftDays(date, -age) };
-    for (const subject of subjects) for (const arm of arms) {
-      const id = `${sc.id}.${subject}.${arm}`;
+    for (const subject of subjects) for (const arm of arms) for (let rep = 1; rep <= repeat; rep++) {
+      const id = `${sc.id}.${subject}.${arm}${rep > 1 ? `.${rep}` : ""}`;
       const runDir = path.join(dayDir, id), sandbox = path.join(sandboxRoot, date, id), skillDir = path.join(sandbox, "skill");
       if (!force && fs.existsSync(path.join(runDir, "record.txt"))) throw new Error(`${runDir} already holds a record; pass --force to prepare it again`);
       fs.rmSync(sandbox, { recursive: true, force: true });
@@ -185,13 +188,13 @@ function main() {
   const [cmd, ...rest] = process.argv.slice(2);
   let v;
   try {
-    v = parseArgs({ args: rest, strict: true, options: { date: { type: "string" }, subjects: { type: "string" }, arms: { type: "string" }, only: { type: "string" }, skill: { type: "string" }, force: { type: "boolean" }, file: { type: "string" }, models: { type: "string" } } }).values;
-  } catch (e) { die(`${e.message}; usage: prepare|usage|collect|score --date YYYY-MM-DD [--subjects haiku,sonnet] [--arms calculator,hand] [--only 03,04] [--skill <dir>] [--force]`); }
+    v = parseArgs({ args: rest, strict: true, options: { date: { type: "string" }, subjects: { type: "string" }, arms: { type: "string" }, only: { type: "string" }, skill: { type: "string" }, force: { type: "boolean" }, file: { type: "string" }, models: { type: "string" }, repeat: { type: "string" } } }).values;
+  } catch (e) { die(`${e.message}; usage: prepare|usage|collect|score --date YYYY-MM-DD [--subjects haiku,sonnet] [--arms calculator,hand] [--only 03,04] [--skill <dir>] [--repeat <n>] [--force]`); }
   const date = v.date ?? die("--date YYYY-MM-DD is required");
   const list = (s) => (s ? s.split(",").map((x) => x.trim()).filter(Boolean) : undefined);
   try {
     if (cmd === "prepare") {
-      const { runs, manifestFile } = prepare({ date, subjects: list(v.subjects) ?? SUBJECT_CLASSES, arms: list(v.arms) ?? ARMS, only: list(v.only), skillRoot: v.skill ? path.resolve(v.skill) : REPO, force: v.force });
+      const { runs, manifestFile } = prepare({ date, subjects: list(v.subjects) ?? SUBJECT_CLASSES, arms: list(v.arms) ?? ARMS, only: list(v.only), skillRoot: v.skill ? path.resolve(v.skill) : REPO, force: v.force, repeat: v.repeat === undefined ? 1 : Number(v.repeat) });
       for (const r of runs) console.log(`${r.run}\t${r.subject}\t${r.prompt}`);
       console.log(`prepared ${runs.length} run(s); manifest ${manifestFile}`);
     } else if (cmd === "usage") {
