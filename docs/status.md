@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, eighth update, by the Stage O2 session (claude-opus-5-5, high) at the end of O2.
+Last updated: 2026-10-30, ninth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after pushing O2 and starting Stage S2.
 
 ## Done
 
@@ -25,7 +25,7 @@ Last updated: 2026-10-30, eighth update, by the Stage O2 session (claude-opus-5-
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| S2: evaluation runner and scorer | ready; the coordinating session pushes O2 and starts it with `start_session` from `docs/handoffs/2026-10-30-stage-s2-eval-runner.md` | Sonnet, medium | this checkout, `main` | 30 to 45 min, 3 to 7 USD (3.07 by the calculator) |
+| S2: evaluation runner and scorer | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-s2-eval-runner.md`; session `local_33dacb0c`, name `stage-s2`, sharing this checkout; O2's commit `988537f` pushed | Sonnet, medium | this checkout, `main` | 30 to 45 min, 3 to 7 USD (3.07 by the calculator) |
 
 Stage S1 is merged into `main` (`73393b8`): the installer ships `scripts/`,
 has `--check` and `--seed`, and `npm test` runs 22 tests; the gate takes
