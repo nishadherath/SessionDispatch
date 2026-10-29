@@ -156,19 +156,83 @@ Sonnet. Haiku is three below and was never in the claim.
 
 ## Running it
 
-`eval/run.mjs` prepares one sandbox and prompt per run, the
-orchestrating session runs each prompt on a sub-agent of the subject's class
-(the `Agent` tool, `model` haiku or sonnet), and the scorer writes
-`eval/results-<date>.md` by `rubric.md`:
+`eval/run.mjs` prepares one sandbox and prompt per run, runs each prompt on a
+subject of the right class, and the scorer writes `eval/results-<date>.md` by
+`rubric.md`. There are two ways to run the subjects.
 
 ```
-node eval/run.mjs prepare --date YYYY-MM-DD --subjects haiku,sonnet --arms calculator,hand [--only 03,04] [--skill <dir>]
-node eval/run.mjs usage   --date YYYY-MM-DD --file usage.json --models haiku=<id>,sonnet=<id>
+node eval/run.mjs prepare --date YYYY-MM-DD --subjects haiku,sonnet --arms calculator,hand [--only 03,04] [--skill <dir>] [--repeat <n>]
+node eval/run.mjs run     --date YYYY-MM-DD --runner cli [--only 03,04] [--force] [--concurrency <n>] [--max-turns <n>] [--timeout-min <n>] [--models haiku=<id>,sonnet=<id>]
 node eval/run.mjs collect --date YYYY-MM-DD
 node eval/run.mjs score   --date YYYY-MM-DD
 ```
 
 `--skill` takes the payload from another folder, so a variant of `SKILL.md`
 can be scored on the same scenarios. `scripts/eval-score.test.mjs` is the
-scorer's oracle. Stage H1's handoff holds the dry run's findings (the
-`Agent` result's fields, what a sub-agent loads).
+scorer's oracle and `scripts/eval-run.test.mjs` the CLI runner's (against a
+stand-in for `claude`).
+
+### The Agent path (H1, H2)
+
+The orchestrating session runs each `prompt.txt` on a sub-agent of the
+subject's class (the `Agent` tool, `model` haiku or sonnet), copying the
+prompt by hand, and records what the Agent result reports with
+`node eval/run.mjs usage --date <d> --file usage.json --models haiku=<id>,sonnet=<id>`
+(one `subagent_tokens` total, no split, no model id). The subagents load the
+project's `AGENTS.md` and `MEMORY.md`. It stays documented because H1 and H2
+were run this way and their figures are compared with it; it needs no script
+changes and `run` refuses it (`--runner agent`).
+
+### The CLI runner (H3 onwards)
+
+`run --runner cli` starts `claude -p` once per prepared run, from the run's
+sandbox (outside the repository), with the prompt on stdin, and writes beside
+`prompt.txt`: `cli-result.json` (the CLI's JSON result as printed),
+`cli-stderr.txt` and `usage.json`. A run that already has a `usage.json` is
+skipped unless `--force`; a run whose CLI prints no JSON, times out (20
+minutes by default) or reports an error is listed as failed and exits 1. Model
+ids come from the price table in force (the `haiku` and `sonnet` class rows),
+or `--models`. The subject's tools are `Read,Write` in the hand arm and
+`Read,Write,Bash` limited to `node *dispatch.mjs*` in the calculator arm, with
+`--permission-mode dontAsk`. `usage.json` carries the measured figures:
+
+| Field | Holds |
+|---|---|
+| `model` | The id the CLI reports in `modelUsage` |
+| `total_tokens` | Input, cache writes, cache reads and output, summed: the whole run, harness baseline included |
+| `input_tokens`, `output_tokens` | Uncached input plus cache writes, and output; `cache_read_input_tokens`, `cache_creation_input_tokens`, `uncached_input_tokens` are kept apart |
+| `num_turns`, `duration_ms` | The CLI's turns and wall clock; `tool_uses` is null (the CLI does not count them) |
+| `usd_priced` | The same tokens priced from the table in force (input, cache write, cache read, output). **This is the dollar figure to read** |
+| `usd_cli`, `cost_basis` | The CLI's own cost and the basis it states. Not used for budgets or comparison, see below |
+| `long_context_possible` | True when the average request could have crossed the model's long-context threshold (the tier is not applied) |
+
+What the dry run and the probe of Stage S4 found (CLI 2.1.289, 2026-10-30):
+
+- **Instruction files and skills (F2-8).** One CLI run asked the subject which
+  instruction files and skills it had loaded. A default `claude -p` from a
+  sandbox loads no `CLAUDE.md`, `AGENTS.md` or `MEMORY.md` (the memory
+  folder is keyed to the project folder, and the sandbox is outside the
+  repository), but it does list the user's installed skills, **`session-dispatch`
+  (the installed copy) among them**, and runs the user's session-start hooks
+  (their text reaches the subject). The runner therefore passes
+  `--disable-slash-commands --setting-sources project --no-session-persistence`;
+  the same question under those flags returned no skill, no hook text and no
+  instruction file. The home directory is not isolated: the sign-in stays where
+  it is. A subject can still read any file it can path to, as in H1 and H2.
+- **Model ids.** `claude-sonnet-5-5` and `claude-haiku-5-5` are accepted. For
+  `claude-haiku-5-5` the CLI prints an `unrecognized_model` notice and states
+  `costBasis: "unknown"`, and its cost is not credible (4.47 USD for a run
+  the table prices at 0.04 USD). `--max-budget-usd` counts that figure: a
+  1.5-minute Haiku run stopped on a 2 USD budget at its first turn. The flag
+  is passed only if given; do not give it for Haiku. The `haiku` alias
+  resolves to an older Haiku, so ids are passed whole.
+- **Cost.** For Sonnet the CLI's cost (1.01 USD) is above the table's price
+  (0.63 USD) for the same tokens: the likely cause is the one-hour cache-write
+  rate against the table's five-minute rate (a guess; the arithmetic was not
+  matched). Both figures are on file.
+- **Size.** One Sonnet hand-arm run of scenario 03 took 25 turns, 1.59 million
+  tokens (1.42 million of them cache reads) and 84 seconds; the Haiku run took
+  16 turns, 1.37 million tokens and 242 seconds. The harness baseline
+  (about 40 to 55 thousand tokens a turn from tool definitions) is paid on
+  every turn, so a run's measured tokens are not comparable with the Agent
+  path's single total.
