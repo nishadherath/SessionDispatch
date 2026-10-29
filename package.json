@@ -10,6 +10,7 @@
   },
   "scripts": {
     "check": "node scripts/check.mjs",
+    "test": "node --test \"scripts/*.test.mjs\"",
     "install-skill": "node scripts/install.mjs",
     "pricing-new": "node scripts/pricing-new.mjs"
   }

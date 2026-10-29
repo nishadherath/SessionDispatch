@@ -22,7 +22,7 @@ the model's confidence.
 | `pricing/` | Dated price tables, `YYYY-MM-DD.json`. The newest is in force; stale or null means refuse, never guess. |
 | `templates/` | `decision-record.md` (the section pasted into a handoff) and `handoff.md`. |
 | `examples/` | Filled records. The first is the fork_graft decision of 2026-10-27 that this skill generalises. |
-| `scripts/` | `check.mjs` (the gate), `install.mjs` (copies the skill where each harness looks), `pricing-new.mjs` (starts a refresh). |
+| `scripts/` | `check.mjs` (the gate), `install.mjs` (installs the skill, checks installed copies, seeds a new project), `pricing-new.mjs` (starts a refresh), `*.test.mjs` with `fixtures/` (tests for the three). |
 | `docs/` | `operator-protocol.md` (the operator's standing instructions), `handoffs/`, `status.md` (the live status), `operator-preferences.json` (the two questions asked once) and the dated assessments. |
 | `ENGINEERING_PERSONA.*.md`, `ENGINEERING_PERSONA_LANGUAGES/` | The engineering persona, one edition per model class, copied from the operator's Orchestrator repository. |
 
@@ -34,9 +34,11 @@ Node 20 or later. Nothing to `npm install`.
 node scripts/install.mjs
 ```
 
-That copies `SKILL.md`, `pricing/`, `templates/` and `examples/` to
+That copies `SKILL.md`, `pricing/`, `templates/`, `examples/` and the
+scripts an installed copy can run (`pricing-new.mjs` and, when present,
+the calculator; not the gate, the installer or the tests) to
 `~/.claude/skills/session-dispatch/`, where every Claude Code session on
-the machine sees it. Other targets:
+the machine sees it. `--user` is the same thing spelt out. Other targets:
 
 ```bash
 node scripts/install.mjs --project D:/path/to/repo
@@ -51,6 +53,34 @@ the pointer block, with the absolute path filled in, for you to paste
 into that harness's `AGENTS.md`, `GEMINI.md` or rules file. `--dry-run`
 prints without copying. `adapters/<harness>.md` has the detail and says
 which locations were verified on the operator's machine.
+
+After a price refresh or any change to the skill, find which installed
+copies are behind (size and SHA-256, file by file; exit 1 if any):
+
+```bash
+node scripts/install.mjs --check
+```
+
+It looks at every known harness folder that exists; `--harness` or
+`--project <repo>` narrows it, and then a missing copy counts as behind.
+The fix it prints is the install command for that copy.
+
+## Seed a new project
+
+```bash
+node scripts/install.mjs --seed D:/path/to/new-repo --dry-run
+```
+
+Copies the operator-protocol kit of `docs/operator-protocol.md` section 9
+into an existing, empty project folder: the pointer paragraph and the
+"Operator protocol" section as `AGENTS.md`, the protocol, the handoff
+template, the session-start hook and its `settings.json` entry, the four
+persona editions and the language profiles, a blank `docs/status.md` and
+`docs/operator-preferences.json` with both answers null. It refuses to
+overwrite a file that differs; `--force` replaces it, except that an
+existing `AGENTS.md` and `.claude/settings.json` are merged and never
+replaced. Run `node .claude/helpers/operator-protocol.cjs` in the new
+project to see the reminder lines.
 
 ## Use
 
@@ -81,8 +111,23 @@ node scripts/check.mjs
 Exit 0 is green. Exit 2 means only that the table is past its 14 days.
 Exit 1 names each finding and its fix.
 
+The scripts have tests (`node:test`, Node 21 or later for the glob):
+
+```bash
+npm test
+```
+
+They run each script as a child process against a temporary copy, never
+writing into the working tree.
+
 ## Changelog
 
+- 2026-10-29: `install.mjs` ships `scripts/` in the payload (the installed
+  copy can run its own price refresh), adds `--check` (installed copies
+  against the repository by hash) and `--seed <repo>` (the protocol kit
+  into a new project), parses `--user` and rejects unknown flags;
+  `pricing-new.mjs` names tables by the local day; tests for the gate, the
+  installer and the refresh script (`npm test`).
 - 2026-10-29: first assessment, `docs/assessment-2026-10-29.md`, with a
   priced roadmap staged by model class. Operator protocol revised: the
   standing instructions of 2026-10-29 recorded, session mechanics
