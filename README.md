@@ -125,6 +125,16 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-10-30: evaluation runner and scorer (Stage S2). `eval/score.mjs`
+  scores one record into the rubric's four measures and writes the report
+  with Wilson intervals; `eval/run.mjs` prepares a sandbox and prompt per
+  run (`prepare`), records the sub-agents' usage (`usage`), copies the
+  records (`collect`) and scores (`score`);
+  `scripts/eval-score.test.mjs` pins both to a perfect block on all 20
+  scenarios, seven mutations and the Wilson values. A dry run on scenario 03
+  with a Haiku and a Sonnet sub-agent scored both correct
+  (`eval/results-2026-10-30.md`). Stage H1 runs the set from
+  `docs/handoffs/2026-10-30-stage-h1-eval-runs.md`.
 - 2026-10-30: evaluation design (Stage O2). New `eval/`: 20 scenarios in
   the calculator's input shape, each with a brief, the calculator's figures
   and the expected verdict and binding guardrails after them; a stale
