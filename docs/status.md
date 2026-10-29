@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, tenth update, by Stage S2 (claude-sonnet-5-5, medium) at its close.
+Last updated: 2026-10-30, tenth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after pushing S2 and starting Stage H1.
 
 ## Done
 
@@ -26,7 +26,7 @@ Last updated: 2026-10-30, tenth update, by Stage S2 (claude-sonnet-5-5, medium) 
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| H1: evaluation runs | to be started by the coordinating session from `docs/handoffs/2026-10-30-stage-h1-eval-runs.md` | Sonnet, medium | this checkout, `main` | 30 to 60 min; 6 to 20 USD by D7 (estimate) |
+| H1: evaluation runs | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-h1-eval-runs.md`; session `local_e0fdc95a`, name `stage-h1`, sharing this checkout; S2's commit `00b6b6d` pushed. Runs the 40 calculator-arm runs first, then the hand arm as D7 allows; stops and reports if D7 is unanswered after the 40 | Sonnet, medium | this checkout, `main` | 30 to 60 min; 6 to 20 USD by D7 (estimate) |
 
 Stage S1 is merged into `main` (`73393b8`): the installer ships `scripts/`,
 has `--check` and `--seed`, and `npm test` runs 22 tests; the gate takes
