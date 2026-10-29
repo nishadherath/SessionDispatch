@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, tenth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after pushing S2 and starting Stage H1.
+Last updated: 2026-10-30, eleventh update, by the Fable coordinating session (claude-fable-5-1, xhigh) after the operator answered D7.
 
 ## Done
 
@@ -26,7 +26,7 @@ Last updated: 2026-10-30, tenth update, by the Fable coordinating session (claud
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| H1: evaluation runs | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-h1-eval-runs.md`; session `local_e0fdc95a`, name `stage-h1`, sharing this checkout; S2's commit `00b6b6d` pushed. Runs the 40 calculator-arm runs first, then the hand arm as D7 allows; stops and reports if D7 is unanswered after the 40 | Sonnet, medium | this checkout, `main` | 30 to 60 min; 6 to 20 USD by D7 (estimate) |
+| H1: evaluation runs | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-h1-eval-runs.md`; session `local_e0fdc95a`, name `stage-h1`, sharing this checkout; S2's commit `00b6b6d` pushed. Runs the 40 calculator-arm runs first, then under D7 = B the Haiku hand arm (20), and the Sonnet hand arm only if Haiku fails by hand | Sonnet, medium | this checkout, `main` | 30 to 60 min; 6 to 20 USD by D7 (estimate) |
 
 Stage S1 is merged into `main` (`73393b8`): the installer ships `scripts/`,
 has `--check` and `--seed`, and `npm test` runs 22 tests; the gate takes
@@ -89,4 +89,5 @@ Options:       A all 80 / B calculator arm on both classes plus hand arm on Haik
 Pros and cons: A answers every cell at once; about 23 USD (estimate). B about 14 USD; answers whether the skill is a procedure at the cheapest class first, and the Sonnet hand arm (about 10 USD) runs only when it would change the answer. C about 13 USD; never tests the skill without its calculator, which is the assessment's open question.
 Blast radius:  A spends about 10 USD that B may not need. B a second H1 pass, one more handoff. C F2 cannot say whether the skill is a procedure.
 Recommended:   B, because a Sonnet subject that passes where Haiku passes adds nothing, and the Sonnet hand arm is the dearest quarter of the runs.
+Decided:       B, by the operator on 2026-10-30 ("B: 60 runs"); relayed to the H1 session by the coordinating session.
 ```
