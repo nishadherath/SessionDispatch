@@ -76,6 +76,7 @@ moved expectation is regenerated, with the reason added to `notes`.
 | 18 | Six turns left and no trigger: the skill does not run | continue by break-even, 46.2% | not-run, sonnet-5-5 medium | none |
 | 19 | Taking over a handoff on the wrong model | fresh by class, 259.0% | stop, sonnet-5-5 medium | 8 |
 | 20 | A harness that reports no usage: every figure estimated | fresh by cost, 11.7% | fresh, sonnet-5-5 medium | none |
+| 21 | The decision has used its budget before any draft (added in S4; 01 to 20 unchanged) | fresh by cost, 134.8% (priced for the gate, not drafted by the subject) | continue, fable-5-1 xhigh | 7 |
 
 Model ids drop the `claude-` prefix here; the files carry them whole.
 
@@ -85,7 +86,7 @@ both sides by each of class, cost, quality and break-even; every final
 outcome; guardrails 1, 2, 3, 5, 6, 7 and 8 binding (4 is scored on every
 run); compaction behind (01, 11), ahead (01, 12, 20) and neither; the
 long-context tier (06, 16); a null price (15); a stale table (14); an
-outward step (16); the decision cap (17); five harnesses; the defaults for
+outward step (16); the decision cap (17, with a draft written; 21, with none); five harnesses; the defaults for
 an unmeasured B, K and C0 (01, 15, 20). Within or near the band: 01 (3.1
 percent), 10 (6.3, acceptance note F1-1), 11 (3.2), 06 (11.5), 20 (11.7).
 Growth F plus visible output: 13 (acceptance note F1-2). Seeded from the
@@ -94,9 +95,9 @@ the calculator's draft: a guardrail overrides it in 04, 09, 12 and 19, the
 stale table leaves no draft in 14, the split replaces it in 07, and the
 skill does not run in 18. Those are where a subject that only copies the
 calculator's line fails. In 17 guardrail 7 binds and keeps the draft (since
-O3); the branch where the cap passes before any draft is not in the set.
-F3 and F4 decide whether a 21st scenario covers it in a later rerun; D9
-sized H2 at 20 scenarios, so nothing is added now.
+O3); in 21 the cap passes before any draft and the default stands. F4
+(section 2.4) added 21 in Stage S4; H2 ran the first twenty, so 21 has no
+measured result until H3.
 
 ## Where SKILL.md gave two answers: settled by F2, text in O3
 
@@ -135,12 +136,23 @@ should be on.
 ## The measured position on Haiku
 
 The skill's claim is "one or two classes below the frontier": Opus and
-Sonnet. Haiku is three below and was never in the claim. As scored on
-2026-10-30, Haiku agreed on 11 of 20 runs with the calculator and 10 of 20
-by hand; every miss took guardrail 7's default under the 8,000-token cap
-that O3 replaced, after a draft that was correct in 14 of 17 scored cases
-(F2 section 3.2). No class floor goes into the text until Stage H2
-measures Haiku on the revised cap.
+Sonnet. Haiku is three below and was never in the claim.
+
+- H1 (2026-10-30, the original text): Haiku agreed on 11 of 20 runs with
+  the calculator and 10 of 20 by hand; every miss took guardrail 7's
+  default under the 8,000-token cap that O3 replaced.
+- H2 (2026-10-31, the text O3 revised): Haiku reaches 17 of 20 with the
+  calculator (64.0 to 94.8 percent) and 19 of 20 by hand (76.4 to 99.1
+  percent). Two of the three calculator misses are unscorable format
+  failures (the block inside a table cell, a null `usd`) whose outcomes
+  match the expectation when read by hand, which makes 19 of 20. Sonnet
+  reaches 40 of 40 in both arms.
+- F4's ruling (`docs/assessment-2026-10-30-f4.md` section 1): the
+  pre-registered threshold was the scorer's count, so Haiku's threshold
+  was not met and the text gains a class floor (Stage S5). The contract
+  fixes that remove the two format failures are Stage S4's; they change
+  the prompt, so the first twenty scenarios are rerun in H3 on a clean
+  harness.
 
 ## Running it
 

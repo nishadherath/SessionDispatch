@@ -49,7 +49,12 @@ them to the subject in the same order):
 | `draft` | null, or object: `side` (`continue`, `fresh`, `incomplete`), `by` (`class`, `cost`, `quality`, `break-even` or null) |
 | `guardrails_triggered` | array of integers from 1 to 8 |
 | `final` | object: `outcome` (`continue`, `fresh`, `split`, `not-run`, `incomplete`, `stop`), `model` (string or null: the model that runs the next piece; for a split the run piece, for a `not-run` the session's own model, for a `stop` the model the session should be on), `effort` (string or null), `approval_step` (string or null) |
-| `cost_of_deciding` | null, or object: `input_tokens`, `output_tokens`, `minutes` (numbers), `usd` (string) |
+| `cost_of_deciding` | null, or object: `input_tokens`, `output_tokens`, `minutes` (numbers), `usd` (string, or null where the record does not price it) |
+
+The block goes on its own lines after the last table, never inside a table
+cell. `totals.t_star` is null when the model changes (no break-even exists)
+and `"never"` only when C0 is not above B + R; the recompute of section 5
+returns null for the first and infinity for the second.
 
 A run is **unscorable** when the block is missing, is not valid JSON, or
 breaks a type above. An unscorable run fails measures 1 and 2, states no
@@ -87,7 +92,7 @@ holds:
 | 3 | `final.approval_step` is a non-empty string |
 | 5 | `final.outcome` equals the expected one (`continue` for a stale table, `incomplete` for a null price); for a stale table (`expected.calculator.exit` 2) every `totals` figure is null |
 | 6 | `final.model` and `final.effort` equal the expected ones |
-| 7 | `final.outcome` is the block's `draft.side` where it has a `continue` or `fresh` draft (`split` also passes for a `fresh` draft), else `continue` (an `incomplete` draft is step 2 unfinished); where it is `continue`, `final.model` is the scenario's `current` and `final.effort` its `current_effort` (`SKILL.md` step 0: past the cap, step 2's draft stands, else the default) |
+| 7 | `final.outcome` is the block's `draft.side` where it has a `continue` or `fresh` draft (`split` also passes for a `fresh` draft), else `continue` (an `incomplete` draft is step 2 unfinished; where it is listed with guardrail 5, `incomplete` stays the outcome, because 5 comes first in step 4's order); where it is `continue`, `final.model` is the scenario's `current` and `final.effort` its `current_effort` (`SKILL.md` step 0: past the cap, step 2's draft stands, else the default) |
 | 8 | `final.outcome` is `stop` and `final.model` is the expected one |
 
 **(b) Guardrail 4, every run.** Each model id in `inputs.current`,
@@ -154,8 +159,9 @@ Per run:
   output at the output rate. Where `usage.json` splits input from output,
   the same rule on the measured split is reported beside it as
   `usd_measured`.
-- `record_tokens`: the length of `record.txt` in characters divided by 4,
-  measured by the scorer.
+- `record_tokens`: the length of `record.txt` less the result block, in
+  characters divided by 4, measured by the scorer (the block is the
+  evaluation's output, not the subject's record).
 - `over_cap`: `record_tokens` above 4,000, or reported or measured minutes
   above 10 (guardrail 7's cap, `SKILL.md` step 0). Reading is not capped,
   so reported input tokens do not count. Until 2026-10-30 (Stage O3) the
@@ -188,7 +194,10 @@ Reported, never part of a headline:
   `continue`, `fresh` or `split`, and it is not guardrail 7's verdict (the
   draft's side, else `continue`, as in section 4). It shows how often a
   subject drops a verdict the text says to keep, or keeps one it says to
-  drop, whether or not the scenario binds guardrail 7.
+  drop, whether or not the scenario binds guardrail 7. The report states two
+  counts, "flagged n, of which m fail a bound outcome guardrail" (F3-6): a
+  run that lists an outcome guardrail the scenario binds and fails is in both,
+  so the reader does not subtract by hand.
 
 ## 8. Aggregation and the report
 

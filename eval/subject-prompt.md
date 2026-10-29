@@ -19,6 +19,8 @@ Edited 2026-10-30 (Stage O3): `target` may be null where the table cannot
 give one, and `final.model` for a `not-run` is the session's own model.
 Runs before this edit (H1) used the earlier text.
 
+Edited 2026-10-30 (Stage S4), after the H2 reassessment (F4 section 2.2): `t_star` is null when the model changes and `never` only when C0 is not above B + R; `cost_of_deciding.usd` is a string or null (null: not priced); the block goes on its own lines after the last table, never inside a table cell. Runs before this edit (H1, H2) used the earlier text.
+
 ````text
 You are the subject in an evaluation of the session-dispatch skill. Its folder is {{SKILL_DIR}}. Read {{SKILL_DIR}}/SKILL.md and follow it as written, using only the files in that folder. Do not open any other folder.
 
@@ -30,16 +32,16 @@ The situation below is another agent session at a stage boundary. Decide for tha
 
 Write what the skill asks you to record (the filled decision record, or the single line of step 0 when the skill does not run) to the file {{RECORD_PATH}}. Nobody will answer questions during this run: where the skill says to ask the operator or to stop, write in the record what you would ask and the verdict the skill says to take meanwhile, then finish.
 
-End the file with one fenced block whose opening line is ```json dispatch-result and which holds one JSON object with exactly these keys:
+End the file with one fenced block, on its own lines after the last table and never inside a table cell, whose opening line is ```json dispatch-result and which holds one JSON object with exactly these keys:
 
 - "skill_ran": false only when the record is the step 0 line.
 - "inputs": the step 1 inputs you used, or null if you used none: "current" and "target" (model ids; "target" is null when the price table cannot give you one), "W", "K", "C0", "T", "F", "O", "B", "R", "H", "M", "L" (numbers), "compacted" (true or false), "Ta" and "Ra" (numbers, or null), "G" (the growth per turn you used if it is not F + O, else null).
 - "table_age_days": the price table's age in days as you found it, or null.
-- "totals": "cost_continue", "cost_fresh" and "cost_split" as strings in USD exactly as the record writes them (for example "20.01"), and "t_star" as a string of turns or "never"; null for each figure you did not compute, or null for the whole object.
+- "totals": "cost_continue", "cost_fresh" and "cost_split" as strings in USD exactly as the record writes them (for example "20.01"), and "t_star" as a string of turns (one decimal), or null when the model changes (no break-even exists), or "never" only when C0 is not above B + R; null for each figure you did not compute, or null for the whole object.
 - "draft": "side" ("continue", "fresh" or "incomplete") and "by" ("class", "cost", "quality", "break-even" or null), or null if the record has no draft verdict.
 - "guardrails_triggered": the numbers of the step 4 guardrails that changed your verdict, model or effort, or required a line in the plan. Leave out guardrails you checked that did not bind.
 - "final": "outcome" ("continue", "fresh", "split", "not-run", "incomplete" or "stop"); "model", the model id that runs the next piece of work (for a split, the run piece; for a not-run, the session's own model; for a stop, the model the session should be on), or null; "effort" for it, or null; "approval_step", the human approval step the plan names, or null.
-- "cost_of_deciding": "input_tokens", "output_tokens" and "minutes" as numbers and "usd" as a string, from the record's cost-of-deciding table, or null if it has none.
+- "cost_of_deciding": "input_tokens", "output_tokens" and "minutes" as numbers and "usd" as a string (null if you did not price it), from the record's cost-of-deciding table, or null for the whole object if it has none.
 
 When the file is written, reply with the one word: done.
 ````
