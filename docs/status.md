@@ -24,9 +24,10 @@ Last updated: 2026-10-29, fourth update, by the Stage F1 session (claude-fable-5
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| O2: evaluation design (scenario set, rubric, runner brief) | started by F1 under autonomy; id in the F1 stage report | Opus, high | this checkout, `main` | 30 to 60 min, 5 to 10 USD (6.17 by the calculator) |
+| O2: evaluation design (scenario set, rubric, runner brief) | proposed as a card by F1 (`task_17911920`); the app refuses a direct start from a session another session started, so the operator or the Fable coordinating session starts it | Opus, high | this checkout, `main` | 30 to 60 min, 5 to 10 USD (6.17 by the calculator) |
 
-O2 was started by the F1 session under the autonomy yes, with
+O2 was proposed by the F1 session under the autonomy yes (a card, since the
+app allows a direct start only on the operator's own words), with
 `docs/handoffs/2026-10-29-stage-o2-eval-design.md` as its brief. It
 writes `eval/` and the S2 handoff and starts S2 itself (Sonnet is below
 Opus). S1 is complete on branch `claude/modest-swirles-cae434` and is
