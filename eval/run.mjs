@@ -73,6 +73,10 @@ const newestTable = (dir) => fs.readdirSync(dir).filter((n) => /^\d{4}-\d{2}-\d{
  * variant's folder); `repoRoot` where scenarios and the prompt template live.
  * `repeat` runs each scenario, subject and arm that many times: the first keeps
  * the id `<scenario>.<subject>.<arm>`, the nth after it takes the suffix `.n`.
+ * A day's manifest that already exists is merged into, not rewritten (F2-10): runs
+ * with new ids are added, a run prepared again with `force` replaces its entry, and
+ * the call refuses when the skill text or the prompt differs from the manifest's, since
+ * one manifest records one text under test. The result's `runs` are this call's own.
  */
 export function prepare({ date, subjects, arms, only, skillRoot = REPO, repoRoot = REPO, runsRoot = path.join(REPO, "eval", "runs"), sandboxRoot = path.join(os.tmpdir(), "sd-eval"), force = false, repeat = 1 }) {
   if (!Number.isInteger(repeat) || repeat < 1) throw new Error(`--repeat must be a whole number of 1 or more, found ${JSON.stringify(repeat)}`);
@@ -118,9 +122,16 @@ export function prepare({ date, subjects, arms, only, skillRoot = REPO, repoRoot
   const manifestFile = path.join(dayDir, "manifest.json");
   fs.mkdirSync(dayDir, { recursive: true });
   const head = { date, commit, table_in_force: newestTable(path.join(repoRoot, "pricing")), skill_source: skillRoot === REPO ? "repository" : skillRoot, skill_sha256: sha256(fs.readFileSync(skillMd)), prompt_sha256: promptSha };
+  let all = runs;
+  if (fs.existsSync(manifestFile)) {
+    const old = readJson(manifestFile);
+    for (const k of ["skill_sha256", "prompt_sha256", "skill_source"]) if (old[k] !== head[k]) throw new Error(`${manifestFile} records a different ${k}; one manifest records one text under test, so prepare this set under another --date`);
+    const fresh = new Map(runs.map((r) => [r.run, r]));
+    all = [...old.runs.map((r) => fresh.get(r.run) ?? r), ...runs.filter((r) => !old.runs.some((o) => o.run === r.run))];
+  }
   // One line per run, so a diff of two manifests reads run by run.
   const body = Object.entries(head).map(([k, v]) => `  ${JSON.stringify(k)}: ${JSON.stringify(v)},`).join("\n");
-  fs.writeFileSync(manifestFile, `{\n${body}\n  "runs": [\n${runs.map((r) => `    ${JSON.stringify(r)}`).join(",\n")}\n  ]\n}\n`);
+  fs.writeFileSync(manifestFile, `{\n${body}\n  "runs": [\n${all.map((r) => `    ${JSON.stringify(r)}`).join(",\n")}\n  ]\n}\n`);
   return { runs, manifestFile };
 }
 
@@ -318,7 +329,7 @@ function main() {
     if (cmd === "prepare") {
       const { runs, manifestFile } = prepare({ date, subjects: list(v.subjects) ?? SUBJECT_CLASSES, arms: list(v.arms) ?? ARMS, only: list(v.only), skillRoot: v.skill ? path.resolve(v.skill) : REPO, force: v.force, repeat: v.repeat === undefined ? 1 : Number(v.repeat) });
       for (const r of runs) console.log(`${r.run}\t${r.subject}\t${r.prompt}`);
-      console.log(`prepared ${runs.length} run(s); manifest ${manifestFile}`);
+      console.log(`prepared ${runs.length} run(s); manifest ${manifestFile} now lists ${readJson(manifestFile).runs.length}`);
     } else if (cmd === "run") {
       if (v.runner !== "cli") die("run needs --runner cli; the Agent path is driven by the orchestrating session (prompt.txt, then `usage`), not by this script");
       const num = (x, d) => (x === undefined ? d : Number(x));
