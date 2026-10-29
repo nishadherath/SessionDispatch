@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, eighteenth update, by the H2 session (claude-sonnet-5-5, medium) at the close of Stage H2.
+Last updated: 2026-10-30, eighteenth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after pushing H2 and starting Stage F4.
 
 ## Done
 
@@ -31,7 +31,7 @@ Last updated: 2026-10-30, eighteenth update, by the H2 session (claude-sonnet-5-
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| F4: reassessment on the H2 results; decides O4 and C1 | to be started by the coordinating session from `docs/handoffs/2026-10-30-stage-f4-reassessment.md` | Fable, high | this checkout, `main` | 45 to 75 min, 9 to 15 USD (14.71 by `docs/dispatch/2026-10-30-h2-f4.json`) |
+| F4: reassessment on the H2 results; decides O4 and C1 | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-f4-reassessment.md`; session `local_1edc5e80`, name `stage-f4`, sharing this checkout; H2's commits pushed (`0eb590b`) | Fable, high | this checkout, `main` | 45 to 75 min, 9 to 15 USD (14.71 by `docs/dispatch/2026-10-30-h2-f4.json`) |
 
 The three installed copies (claude, codex, opencode) were refreshed with
 `node scripts/install.mjs` on 2026-10-30 after O3; `--check` reports 0
