@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, twenty-seventh update, by the Fable coordinating session (claude-fable-5-1, xhigh) after verifying and pushing F5's close; S3 waits on the operator being at the machine; D10 and D11 wait on the operator.
+Last updated: 2026-10-30, twenty-eighth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after starting S3 on the operator's yes; D10 and D11 wait on the operator.
 
 ## Done
 
@@ -34,7 +34,9 @@ Last updated: 2026-10-30, twenty-seventh update, by the Fable coordinating sessi
 
 ## In progress
 
-Nothing. F5 closed on 2026-10-30; S3 waits for the operator to be at the machine (its handoff is ready) and the coordinating session to start it.
+| Stage | Session | Class, effort | Where | Estimate |
+|---|---|---|---|---|
+| S3: adapter verification with the operator present | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-s3-adapter-verification.md` on the operator's "Yes, start S3"; session `local_a4f7b0cc`, name `stage-s3`, sharing this checkout; the operator answers it directly (installed harnesses, the pastes, the Stage 0 paste question) | Sonnet, medium | this checkout, `main` | 30 to 45 min of model time plus the operator's installs; 1.31 USD (quote 1 to 2.5) |
 
 The three installed copies (claude, codex, opencode) were refreshed with
 `node scripts/install.mjs` on 2026-10-30 after O3; `--check` reports 0
