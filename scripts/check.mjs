@@ -1,14 +1,17 @@
 #!/usr/bin/env node
 // The gate for this repository: validates the price table in force, the
-// templates, the worked examples, the skill's front matter, the adapters,
-// the session-start hook, the operator preferences and live status files,
-// and the prose rules. Standard library only, Node
-// 20 or later. Exit codes: 0 green; 2 the table is stale and nothing else
-// is wrong (an expected state after max_age_days, see pricing/README.md);
-// 1 any other finding. Every finding names the file and the fix.
+// templates, the worked examples (headings, cost rows, and their Step A
+// figures recomputed from their own Inputs table by dispatch-core.mjs), the
+// skill's front matter, the adapters, the session-start hook, the operator
+// preferences and live status files, and the prose rules. Standard library
+// only, Node 20 or later. Exit codes: 0 green; 2 the table is stale and
+// nothing else is wrong (an expected state after max_age_days, see
+// pricing/README.md); 1 any other finding. Every finding names the file and
+// the fix.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { FORMULAS, FORMULA_IN_FORCE, REQUIRED_SYMBOLS, OPTIONAL_SYMBOLS, validateInputs, findModel, missingPrices, stepA, splitCost, breakEven, modelForClass, CLASS_RANK } from "./dispatch-core.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CLASSES = new Set(["haiku", "sonnet", "opus", "fable"]);
@@ -28,6 +31,12 @@ const RECORD_HEADINGS = [
   "### Adversarial pass", "### Final verdict", "### Cost of deciding",
 ];
 const COST_ROWS = ["Context at start", "Context at end", "Input tokens read", "Output tokens", "Wall clock", "Priced"];
+// Inputs table rows the recompute reads. Labels end in the step 1 symbol.
+const INPUT_ROWS = [
+  "Formula", "Current model", "Target model", "Window W", "Compaction point K", "Current context C0",
+  "Compacted already", "Expected turns T", "Fresh input per turn F", "Output per turn O", "Fresh baseline B",
+  "Re-read set R", "Handoff size H", "Cache misses M", "Rediscovery turns L",
+];
 const ADAPTER_HEADINGS = ["## Where it goes", "## How it loads", "## Pointer block", "## Numbers"];
 
 // Prose rules from the persona's section 14.1. The list is spelt out here
@@ -101,8 +110,10 @@ function checkHeadings(file, headings, label) {
 
 function checkTemplates() {
   checkHeadings(path.join(ROOT, "templates", "handoff.md"), HANDOFF_HEADINGS, "handoff");
-  const record = checkHeadings(path.join(ROOT, "templates", "decision-record.md"), RECORD_HEADINGS, "decision-record");
-  for (const row of COST_ROWS) if (!record.includes(`| ${row} |`)) fail(path.join(ROOT, "templates", "decision-record.md"), `missing cost-of-deciding row "${row}"`);
+  const tfile = path.join(ROOT, "templates", "decision-record.md");
+  const record = checkHeadings(tfile, RECORD_HEADINGS, "decision-record");
+  for (const row of COST_ROWS) if (!record.includes(`| ${row} |`)) fail(tfile, `missing cost-of-deciding row "${row}"`);
+  for (const row of INPUT_ROWS) if (!record.includes(`| ${row} |`)) fail(tfile, `missing inputs row "${row}"`);
 }
 
 function checkExamples() {
@@ -115,6 +126,100 @@ function checkExamples() {
     for (const row of COST_ROWS) if (!text.includes(`| ${row} |`)) fail(file, `missing cost-of-deciding row "${row}"`);
     if (!/^Draft verdict: (continue|fresh)/m.test(text)) fail(file, 'missing a line starting "Draft verdict: continue" or "Draft verdict: fresh"');
     if (!/^Verdict holds: (yes|no)/m.test(text)) fail(file, 'missing a line starting "Verdict holds: yes" or "Verdict holds: no"');
+    recomputeExample(file, text);
+  }
+}
+
+// The text between a heading line and the next heading of the same or a
+// higher level; "" when the heading is absent.
+function section(text, heading) {
+  const lines = text.split(/\r?\n/);
+  const i = lines.findIndex((l) => l.trim() === heading);
+  if (i < 0) return "";
+  const level = heading.match(/^#+/)[0].length;
+  const end = lines.findIndex((l, k) => k > i && /^#+ /.test(l) && l.match(/^#+/)[0].length <= level);
+  return lines.slice(i + 1, end < 0 ? undefined : end).join("\n");
+}
+
+// A stated figure matches when it is within half a unit of its own last
+// decimal place: "9.74" accepts 9.735 to 9.745, "72.2" accepts 72.15 to 72.25.
+function matchesStated(stated, computed) {
+  const places = (stated.split(".")[1] ?? "").length;
+  return Math.abs(Number(stated.replace(/,/g, "")) - computed) <= 0.5 * 10 ** -places + 1e-9;
+}
+
+// Reads the example's Inputs table, recomputes Step A with dispatch-core.mjs
+// against the table the example names, and compares every figure it states:
+// the cost_continue, cost_fresh and cost_split totals, T*, the draft
+// verdict's side, and any "| Figure | Formula <date> |" comparison table.
+function recomputeExample(file, text) {
+  const tableRef = text.match(/Price table: `(pricing\/\d{4}-\d{2}-\d{2}\.json)`/);
+  if (!tableRef) return fail(file, 'header must name its table as "Price table: `pricing/YYYY-MM-DD.json`" so its figures can be recomputed');
+  let table;
+  try { table = JSON.parse(read(path.join(ROOT, ...tableRef[1].split("/")))); } catch (e) { return fail(file, `cannot read ${tableRef[1]} (${e.message}); keep the table an example names`); }
+
+  const rows = new Map();
+  for (const l of section(text, "### Inputs").split(/\r?\n/)) {
+    const cells = l.split("|").slice(1, -1).map((c) => c.trim());
+    if (cells.length >= 2 && !/^-+$/.test(cells[0])) rows.set(cells[0], cells[1]);
+  }
+  const inp = {};
+  for (const [label, value] of rows) {
+    const sym = label.split(/\s+/).pop();
+    const num = value.match(/\d[\d,]*(?:\.\d+)?/);
+    if ([...REQUIRED_SYMBOLS, ...OPTIONAL_SYMBOLS].includes(sym) && num) inp[sym] = Number(num[0].replace(/,/g, ""));
+  }
+  const cell = (label) => rows.get(label)?.replace(/`/g, "") ?? "";
+  inp.formula = cell("Formula").match(/\d{4}-\d{2}-\d{2}/)?.[0];
+  inp.compacted = { yes: true, no: false }[cell("Compacted already").split(/\W/)[0].toLowerCase()];
+  const errors = validateInputs(inp);
+  if (inp.formula === FORMULA_IN_FORCE && inp.M === undefined) errors.push("M must be stated under the formula in force (0 when unmeasured, and say so)");
+  const current = findModel(table, cell("Current model").split(/\s/)[0]);
+  const target = findModel(table, cell("Target model").split(/\s/)[0]);
+  if (!current) errors.push(`"Current model" must open with a model id from ${tableRef[1]}, found "${cell("Current model")}"`);
+  if (!target) errors.push(`"Target model" must open with a model id from ${tableRef[1]}, found "${cell("Target model")}"`);
+  if (errors.length) return errors.forEach((e) => fail(file, `Inputs table: ${e}`));
+  for (const m of [current, target]) if (missingPrices(m).length) return fail(file, `${m.id} has null prices in ${tableRef[1]}; an example must be computable`);
+
+  const compute = (formula) => {
+    const x = { ...inp, formula };
+    const a = stepA(x, current, target);
+    const runner = modelForClass(table, current.family, "sonnet");
+    const acceptor = modelForClass(table, current.family, "opus");
+    const split = CLASS_RANK[target.class] >= CLASS_RANK.opus && runner && acceptor ? splitCost(x, current, runner, acceptor) : null;
+    return { cost_continue: a.cont.total, cost_fresh: a.fresh.total, cost_split: split?.total, a, be: breakEven(x, current, target, a) };
+  };
+  const own = compute(inp.formula);
+  const stepAText = section(text, "### Step A: continue or hand off");
+  for (const name of ["cost_continue", "cost_fresh", "cost_split"]) {
+    const at = stepAText.search(new RegExp(`^\\s*${name}\\b`, "m"));
+    if (at < 0) { if (name !== "cost_split") fail(file, `Step A states no ${name} total`); continue; }
+    const stated = stepAText.slice(at).match(/=\s*(\d[\d,]*\.\d+)\s*USD/)?.[1];
+    if (!stated) fail(file, `Step A: no "= <amount> USD" total after ${name}`);
+    else if (own[name] === undefined) fail(file, `Step A states ${name} ${stated} USD but the inputs do not give one (Ta, Ra, and a target of opus or fable)`);
+    else if (!matchesStated(stated, own[name])) fail(file, `Step A: ${name} is ${stated} USD, the inputs give ${own[name].toFixed(4)} under formula ${inp.formula}; fix the figure or the inputs`);
+  }
+  const tStar = stepAText.match(/^T\* =.*\s(\d[\d,]*(?:\.\d+)?) turns$/m)?.[1];
+  if (tStar && !(own.be.turns !== null && matchesStated(tStar, own.be.turns))) fail(file, `Step A: T* is ${tStar} turns, the inputs give ${own.be.turns === null ? "none (the model changes)" : own.be.turns.toFixed(2)}`);
+  const side = text.match(/^Draft verdict: (continue|fresh)/m)?.[1];
+  if (side && side !== own.a.verdict.side) fail(file, `Draft verdict says ${side}, the arithmetic says ${own.a.verdict.side} (by ${own.a.verdict.by}); a guardrail changes the final verdict, not the draft`);
+
+  const lines = text.split(/\r?\n/);
+  const h = lines.findIndex((l) => /^\| Figure \|/.test(l));
+  if (h >= 0) {
+    const cols = lines[h].split("|").slice(1, -1).map((c) => c.trim());
+    for (let k = h + 2; k < lines.length && lines[k].startsWith("|"); k += 1) {
+      const cells = lines[k].split("|").slice(1, -1).map((c) => c.trim().replace(/`/g, ""));
+      cols.forEach((col, j) => {
+        const formula = col.match(/^Formula (\d{4}-\d{2}-\d{2})$/)?.[1];
+        const stated = cells[j]?.match(/^(\d[\d,]*\.\d+)/)?.[1];
+        if (!formula || !stated) return;
+        if (!FORMULAS.includes(formula)) return fail(file, `comparison table: unknown formula ${formula}; known ${FORMULAS.join(", ")}`);
+        const want = compute(formula)[cells[0]];
+        if (want === undefined) fail(file, `comparison table: row "${cells[0]}" is not a figure the recompute knows (cost_continue, cost_fresh, cost_split)`);
+        else if (!matchesStated(stated, want)) fail(file, `comparison table: ${cells[0]} under formula ${formula} is ${stated}, the inputs give ${want.toFixed(4)}`);
+      });
+    }
   }
 }
 
@@ -178,13 +283,23 @@ function checkPreferences() {
   if (!/^Last updated: \d{4}-\d{2}-\d{2}/m.test(text)) fail(status, 'missing a "Last updated: YYYY-MM-DD" line');
 }
 
-// Prose rules over every Markdown file except the generated persona
-// editions (which quote the banned list) and verbatim quote lines.
-function walkMd(dir, out = []) {
+// Prose rules over every Markdown file the repository ships, except the
+// generated persona editions (which quote the banned list) and verbatim
+// quote lines. Directories the root .gitignore names (`dir/` or `/dir/`)
+// hold local tool output, such as an index cache, and are not linted; nor
+// is a nested checkout (a directory with its own .git, such as a worktree a
+// parallel session works in), whose own gate run covers it.
+function ignoredDirs() {
+  const file = path.join(ROOT, ".gitignore");
+  if (!fs.existsSync(file)) return new Set();
+  return new Set(fs.readFileSync(file, "utf8").split(/\r?\n/).map((l) => l.trim().match(/^\/?([\w.-]+)\/$/)?.[1]).filter(Boolean));
+}
+
+function walkMd(dir, out = [], skip = new Set([".git", "node_modules", ...ignoredDirs()])) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (e.name === "node_modules" || e.name === ".git") continue;
+    if (skip.has(e.name) && e.isDirectory()) continue;
     const p = path.join(dir, e.name);
-    if (e.isDirectory()) walkMd(p, out);
+    if (e.isDirectory()) { if (!fs.existsSync(path.join(p, ".git"))) walkMd(p, out, skip); }
     else if (e.name.endsWith(".md") && !/^ENGINEERING_PERSONA/.test(e.name)) out.push(p);
   }
   return out;
