@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, fifteenth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after the operator answered D8.
+Last updated: 2026-10-30, sixteenth update, by Stage O3 (claude-opus-5-5, high) at its close.
 
 ## Done
 
@@ -23,16 +23,17 @@ Last updated: 2026-10-30, fifteenth update, by the Fable coordinating session (c
 | Stage S2: evaluation runner and scorer | 2026-10-30 | `eval/score.mjs` (the four measures, Wilson intervals, the report), `eval/run.mjs` (`prepare`, `usage`, `collect`, `score`), `scripts/eval-score.test.mjs` (a perfect block on all 20 scenarios, seven mutations, the Wilson values, sandbox dating). Dry run, scenario 03 on a Haiku and a Sonnet sub-agent, calculator arm: both continue, 3 of 3 figures correct, 14 of 14 inputs matched (`eval/results-2026-10-30.md`). Four open facts settled in the H1 handoff. Gate 89 files, 0 findings; 31 tests pass. About 40 minutes; about 2.4 USD by the calculator at T 45 (estimate), subjects' split unreported. H1 handoff written. |
 | Stage H1: evaluation runs | 2026-10-30 | 80 sub-agent runs scored (D7 = B; Haiku failed by hand, so the Sonnet hand arm ran): `eval/results-2026-10-30.md`. Final agreement, n = 20 per cell: Sonnet 20/20 with the calculator and 17/20 by hand; Haiku 11/20 and 10/20. Cap exceeded in 11 to 19 of 20 runs per cell; two runs unscorable (null `target`); sub-agents load `AGENTS.md` and `MEMORY.md` (validity threat). Commits `60a87f2` and `b9c40c8`. Gate 90 files, 0 findings; 31 tests pass. About 33 minutes wall clock; about 6.3 USD (estimate: orchestration 4.0, subjects 2.3 on the harness token totals). F2 handoff written. |
 | Stage F2: reassessment on the evaluation results | 2026-10-30 | `docs/assessment-2026-10-30-f2.md`: the skill is a procedure Sonnet can run (20/20 with the calculator, 17/20 by hand, not separable, p = 0.23); every one of Haiku's 19 misses took guardrail 7's default after a draft correct in 14 of 17, so the 8,000-token cap, not Haiku, is the finding. Verdicts on the three two-answer places and a fourth (step 5.4), the cap (record under 4,000 tokens and 10 minutes, step 5 cut past it, the draft stands), the null target (string or null, two runs rescored by O3 with both figures), repeating cells (on the revised text only, 120 runs with pre-registered thresholds), F1-1 (O4 after H2), F1-3 (S4), F1-4 (one rule in matrix row 4), F1-5 (O3), the `AGENTS.md` load (S4's CLI runner); D5 accepted with four contract findings. Roadmap re-priced from `docs/dispatch/2026-10-30-f2-roadmap.json`. O3 handoff written. Gate and tests at close in the stage report. |
+| Stage O3: skill text revision and evaluation contract | 2026-10-30 | F2's verdicts in `SKILL.md` (cap on the record, 4,000 tokens and 10 minutes, the draft standing past it; guardrail 1 at the same class; the guardrail order; one acceptance effort rule in matrix row 4; step 5.4's adverse-value rule; F1-5; the null target; measured cost-of-deciding figures), the template, protocol section 2 and `AGENTS.md` rule 5 (`271edfd`). Evaluation contract (`53da875`): null `target`, `not-run` model, `over_cap` on the record's measured size, guardrail 7's new consequence, the F2-6 diagnostic; scenario 17's expected final moved to fresh on Opus at high, escalated and ruled option A by the coordinating session. Two runs rescored with both figures (`3e78e26`): Sonnet by hand 17/20 as scored, 18/20 rescored. Gate 92 files, 0 findings; 34 tests pass. About 50 minutes; about 5 USD (estimate, stage report). F3 handoff written. |
 
 ## In progress
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| O3: skill text revision and evaluation contract | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-o3-skill-text-revision.md`; session `local_0b6855b7`, name `stage-o3`, sharing this checkout; F2's commit `bc9327b` pushed | Opus, high | this checkout, `main` | 45 to 75 min, 7 to 12 USD (8.62 by the calculator) |
+| None. F3 is next: `docs/handoffs/2026-10-30-stage-f3-acceptance.md`, started by the coordinating session after it pushes O3's commits | | | |
 
-The installed user copy at `~/.claude/skills/session-dispatch/` matches
-the repository as of S1; O3's text change will put it behind until
-`node scripts/install.mjs` runs again.
+The installed user copy at `~/.claude/skills/session-dispatch/` is behind
+the repository since O3's text change, until `node scripts/install.mjs`
+runs again (the coordinating session's step).
 
 ## To do
 
@@ -43,22 +44,20 @@ wall clock is the model's, operator review separate.
 
 | Stage | Class, effort | Cost (USD) | Wall clock | Depends on |
 |---|---|---|---|---|
-| O3: skill text revision and evaluation contract (F2 section 3.6) | Opus, high | 8.62 (quote 7 to 12) | 45 to 75 min | F2 |
-| S4: harness hardening (CLI runner from the sandbox with measured usage, manifest merge, gate term lines F1-3) | Sonnet, medium | 3.05 (2.5 to 5) | 30 to 45 min | none; beside O3 |
-| F3: acceptance of O3 | Fable, high | 6.29 (5 to 8) | 20 to 30 min | O3 |
+| S4: harness hardening (CLI runner from the sandbox with measured usage, manifest merge, gate term lines F1-3) | Sonnet, medium | 3.05 (2.5 to 5) | 30 to 45 min | none |
+| F3: acceptance of O3 | Fable, high | 6.40 as a piece, 6.47 with the handoff (`docs/dispatch/2026-10-30-o3-f3.json`; quote 5 to 9) | 20 to 40 min | O3 (done) |
 | H2: rerun on the revised text, 120 runs, thresholds fixed in F2 section 3.6 | Sonnet, medium, orchestrating | 2.40 plus subjects 3 to 18 (estimate) | 30 to 60 min | F3, S4, D9 |
 | F4: reassessment on H2; decides O4 and C1 | Fable, high | 9.46 (8 to 12) | 45 to 75 min | H2 |
 | S3: adapter verification on each harness | Sonnet, medium, operator present | 1.31 (1 to 2.5) | 30 to 45 min plus installs | none |
 | O4 (conditional): fresh-side fixed-cost terms F1-1, new worked example | Opus, high | 5.50 (4.5 to 8) | 30 to 60 min | F4 |
 | C1 (conditional, D8): variant C rewrite under STE100's writing rules, scored on Haiku | Opus, high | 6.02 plus 40 Haiku runs | 30 to 60 min | F4 |
 
-Totals: firm stages about 34 to 49 USD (sessions 31.13 plus subject
-runs 3 to 18), conditional stages about 12 to 15 more. Done stages
-about 48 USD (estimates where the stage said so; F2's own figure in its
-stage report). Whole roadmap about 82 to 97 USD firm, 95 to 110 with
-the conditional stages. Serial chain left (O3, F3, H2, F4) about 2.5 to
-4 hours of model time, S4 and S3 beside it; operator review about 2.5
-hours (rough).
+Totals: firm stages left about 26 to 41 USD (sessions 22.62 plus
+subject runs 3 to 18), conditional stages about 12 to 15 more. Done
+stages about 53 USD (estimates where the stage said so). Whole roadmap
+about 79 to 94 USD firm, 91 to 109 with the conditional stages. Serial
+chain left (F3, H2, F4) about 1.6 to 3 hours of model time, S4 and S3
+beside it; operator review about 2 hours (rough).
 
 ## Decisions waiting
 
