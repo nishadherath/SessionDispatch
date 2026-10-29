@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, twentieth update, by Stage S4 (claude-sonnet-5-5, medium) at its close; S5 is next in this checkout, then H3.
+Last updated: 2026-10-30, twentieth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after pushing S4 and starting Stage S5.
 
 ## Done
 
@@ -33,7 +33,7 @@ Last updated: 2026-10-30, twentieth update, by Stage S4 (claude-sonnet-5-5, medi
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| S5: skill text, the class floor and two definitions | queued: starts in this checkout when S4's note arrives, from `docs/handoffs/2026-10-30-stage-s5-skill-text.md`. The coordinating session chose one after the other rather than side by side: two writers in one working tree would share `README.md` and the gate runs, and a worktree for S5 would need a merge step; the cost is S5's 15 to 25 minutes on the chain | Sonnet, medium | this checkout, `main` | 15 to 25 min, 0.7 to 1.5 USD (0.85 by the calculator) |
+| S5: skill text, the class floor and two definitions | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-s5-skill-text.md` once S4 had landed; session `local_7b386dd8`, name `stage-s5`, sharing this checkout; S4's five commits pushed (`8b4d6b3`). H3 follows from its existing handoff, after the operator confirms its subject budget (about 14 USD measured from one run per class, against F4's 1 to 5 estimate) | Sonnet, medium | this checkout, `main` | 15 to 25 min, 0.7 to 1.5 USD (0.85 by the calculator) |
 
 The three installed copies (claude, codex, opencode) were refreshed with
 `node scripts/install.mjs` on 2026-10-30 after O3; `--check` reports 0
