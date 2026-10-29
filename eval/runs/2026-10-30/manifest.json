@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-30",
+  "commit": "bf189b6",
+  "table_in_force": "2026-10-29.json",
+  "skill_source": "repository",
+  "skill_sha256": "d033a33c17c9c5c8a61e3f5a1897d68145564881d790713491f7d398d33e541a",
+  "prompt_sha256": "ed8737973503ff905ef57e699cef87ce9e0e0879307f24841f3b9db8c6ea5f8c",
+  "runs": [
+    {"run":"03-break-even-continue.haiku.calculator","scenario":"03-break-even-continue","subject":"haiku","arm":"calculator","sandbox":"C:\\Users\\Bob\\AppData\\Local\\Temp\\sd-eval\\2026-10-30\\03-break-even-continue.haiku.calculator","record":"C:\\Users\\Bob\\AppData\\Local\\Temp\\sd-eval\\2026-10-30\\03-break-even-continue.haiku.calculator\\record.md","prompt":"D:\\Code\\Claude\\SessionDispatch\\eval\\runs\\2026-10-30\\03-break-even-continue.haiku.calculator\\prompt.txt"},
+    {"run":"03-break-even-continue.sonnet.calculator","scenario":"03-break-even-continue","subject":"sonnet","arm":"calculator","sandbox":"C:\\Users\\Bob\\AppData\\Local\\Temp\\sd-eval\\2026-10-30\\03-break-even-continue.sonnet.calculator","record":"C:\\Users\\Bob\\AppData\\Local\\Temp\\sd-eval\\2026-10-30\\03-break-even-continue.sonnet.calculator\\record.md","prompt":"D:\\Code\\Claude\\SessionDispatch\\eval\\runs\\2026-10-30\\03-break-even-continue.sonnet.calculator\\prompt.txt"}
+  ]
+}

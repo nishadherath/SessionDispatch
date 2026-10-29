@@ -2,7 +2,7 @@
 stage: "Stage S2: evaluation runner and scorer"
 model: claude-sonnet-5-5
 effort: medium
-status: ready
+status: done
 created: 2026-10-30
 from: "Session local_d10b709b (Opus 5.5, high): Stage O2, evaluation design"
 ---

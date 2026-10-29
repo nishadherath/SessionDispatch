@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, ninth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after pushing O2 and starting Stage S2.
+Last updated: 2026-10-30, tenth update, by Stage S2 (claude-sonnet-5-5, medium) at its close.
 
 ## Done
 
@@ -20,12 +20,13 @@ Last updated: 2026-10-30, ninth update, by the Fable coordinating session (claud
 | Stage S1: install portability, seed command, script tests | 2026-10-29 | On branch `claude/modest-swirles-cae434` (`9734bfd`, `9b2cdc3`): `scripts/` in the payload, `install --check` and `--seed`, 22 tests green, gate 53 files and 0 findings there. Merged into `main` as `73393b8` with a clock seam (`check.mjs --today`) so the gate tests keep the repository's tables, and one date convention (local day) across the scripts. |
 | Stage F1: adversarial acceptance of Stage O1 | 2026-10-29 | `docs/acceptance-2026-10-29-stage-o1.md`: step 2 derived by hand, every figure recomputed without the shared module, guardrails re-read, calculator probed, four gate mutations caught. Fourteen claims accepted, none rejected. Six findings handed on (fresh-side fixed cost understated by 2 to 11 percent of the smaller side; reasoning retention unmeasured; the gate's recompute stops at totals; three effort rules for acceptance; two sentences for step 2.1; one claim's wording). Commit `17c9526`. Gate 59 files, 0 findings. About 25 minutes; about 5 USD counting visible output, about 7.4 with reasoning (estimate). |
 | Stage O2: evaluation design | 2026-10-30 | `eval/`: 20 scenarios the calculator scores (every matrix row, every final outcome, guardrails 1 to 3 and 5 to 8 binding, a stale fixture table, a null price, the cap, the band, growth F plus visible output), `rubric.md` (four measures scored from a result block, no model in the loop), `subject-prompt.md`, an index. The gate's `checkEval` reruns the calculator on each scenario; `scripts/eval.test.mjs` seeds three faults. The scorer's recompute path reproduces all 18 computable scenarios. Gate 87 files, 0 findings; 24 tests pass. S2 handoff written. About 40 minutes. |
+| Stage S2: evaluation runner and scorer | 2026-10-30 | `eval/score.mjs` (the four measures, Wilson intervals, the report), `eval/run.mjs` (`prepare`, `usage`, `collect`, `score`), `scripts/eval-score.test.mjs` (a perfect block on all 20 scenarios, seven mutations, the Wilson values, sandbox dating). Dry run, scenario 03 on a Haiku and a Sonnet sub-agent, calculator arm: both continue, 3 of 3 figures correct, 14 of 14 inputs matched (`eval/results-2026-10-30.md`). Four open facts settled in the H1 handoff. Gate 89 files, 0 findings; 31 tests pass. About 40 minutes; about 2.4 USD by the calculator at T 45 (estimate), subjects' split unreported. H1 handoff written. |
 
 ## In progress
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| S2: evaluation runner and scorer | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-s2-eval-runner.md`; session `local_33dacb0c`, name `stage-s2`, sharing this checkout; O2's commit `988537f` pushed | Sonnet, medium | this checkout, `main` | 30 to 45 min, 3 to 7 USD (3.07 by the calculator) |
+| H1: evaluation runs | to be started by the coordinating session from `docs/handoffs/2026-10-30-stage-h1-eval-runs.md` | Sonnet, medium | this checkout, `main` | 30 to 60 min; 6 to 20 USD by D7 (estimate) |
 
 Stage S1 is merged into `main` (`73393b8`): the installer ships `scripts/`,
 has `--check` and `--seed`, and `npm test` runs 22 tests; the gate takes
@@ -42,7 +43,6 @@ review separate.
 
 | Stage | Class, effort | Cost (USD) | Wall clock | Depends on |
 |---|---|---|---|---|
-| H1: evaluation runs with Haiku and Sonnet as subjects | Sonnet orchestrating | 14 to 23 (estimate, O2's calculator pieces; the assessment's 3 to 6 left out Sonnet subjects' output); scope is D7 | 30 to 60 min | S2 |
 | S3: adapter verification on each harness | Sonnet, medium, operator present | 1 to 2.5 | 30 to 45 min plus the operator's installs | none |
 | F2: reassessment on the evaluation results | Fable, high | 12 to 20 | 60 to 120 min | H1 |
 | Variant C (D2, conditional): `SKILL.md`, adapters and templates rewritten under STE100's writing rules, scored on the evaluation scenarios | Opus, high | 3 to 5 (estimate) | 30 to 60 min | H1 |

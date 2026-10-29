@@ -117,8 +117,19 @@ session should be on.
 
 ## Running it
 
-Stage S2's handoff (`docs/handoffs/2026-10-30-stage-s2-eval-runner.md`)
-holds the runner's contract. In short: `eval/run.mjs` prepares one sandbox
-and prompt per run, the orchestrating session runs each prompt on a
-sub-agent of the subject's class, and the scorer writes
-`eval/results-<date>.md` by `rubric.md`.
+`eval/run.mjs` prepares one sandbox and prompt per run, the
+orchestrating session runs each prompt on a sub-agent of the subject's class
+(the `Agent` tool, `model` haiku or sonnet), and the scorer writes
+`eval/results-<date>.md` by `rubric.md`:
+
+```
+node eval/run.mjs prepare --date YYYY-MM-DD --subjects haiku,sonnet --arms calculator,hand [--only 03,04] [--skill <dir>]
+node eval/run.mjs usage   --date YYYY-MM-DD --file usage.json --models haiku=<id>,sonnet=<id>
+node eval/run.mjs collect --date YYYY-MM-DD
+node eval/run.mjs score   --date YYYY-MM-DD
+```
+
+`--skill` takes the payload from another folder, so a variant of `SKILL.md`
+can be scored on the same scenarios. `scripts/eval-score.test.mjs` is the
+scorer's oracle. Stage H1's handoff holds the dry run's findings (the
+`Agent` result's fields, what a sub-agent loads).
