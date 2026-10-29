@@ -1,0 +1,152 @@
+## Session dispatch decision
+
+Date: 2026-10-30. Decided by: claude-haiku-5-5, effort not reported to this session, in the evaluation harness.
+Price table: `pricing/2026-10-29.json` (age 1 day of 14; fetched 2026-10-29, Anthropic rows complete).
+
+### Decision budget overrun (step 0 and guardrail 7)
+
+The decision is capped at 8,000 tokens of reading and writing. Estimated reading before step 4 was complete: `SKILL.md` about 6,000 tokens, the price table about 700, the record template about 750, the calculator source and its output about 3,000 (estimates, characters divided by 4). That is about 10,500 tokens read, above the cap before this record is written. The cap is passed, so the default applies: continue, same model, same effort. Steps 4 and 5 are not completed in full. The arithmetic below is kept as the record of the overrun and for the operator to judge the default against.
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as of that date |
+| Current model | claude-opus-5-5, effort high | Measured: harness report, as the situation states |
+| Target model | claude-sonnet-5-5 | Matrix row "scoped module work with a stated test": Sonnet, medium; the module touches no auth, payments, storage formats or public interface. Model id from the table in force |
+| Window W | 1,000,000 | Measured: session header |
+| Compaction point K | 970,000 | Measured: documentation states compaction at 97 percent of W |
+| Current context C0 | 600,000 | Measured: session header |
+| Compacted already | no | Situation: not compacted |
+| Unrecorded context | none | Situation: everything the next stage needs is in files on disk |
+| Expected turns T | 90 | Situation: plan estimate |
+| Fresh input per turn F | 3,000 | Measured: harness usage log, averaged over the last 10 turns |
+| Output per turn O | 3,000 | Measured: harness usage log, reasoning included; billed at the output rate. Effort high |
+| Growth per turn G | 3,800 | Measured: session header growth over 10 turns. Harness drops earlier reasoning, so growth is F plus visible output (3,000 + 800), not F + O |
+| Fresh baseline B | 86,450 | Measured: fresh session header before any message |
+| Re-read set R | 20,000 | Situation: handoff and module, total |
+| Handoff size H | 2,500 | Rule: handoff under 120 lines (about 80 lines) |
+| Cache misses M | 0 | Unmeasured; situation expects no review pauses |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta, re-read Ra | not applicable | Target is below Opus; no split |
+| Task type | scoped module work, Sonnet, medium | Matrix row 2 |
+| Design-heavy | no | Scoped subcommand and tests |
+| Irreversible or outward-facing steps | none | Local commits only; nothing leaves the machine |
+
+Note on G: the calculator takes growth as F + O and has no growth flag. The figures below use G = 3,800 by hand. The calculator run for them set F to 800 so that F + O = 3,800; its output matches the hand figures.
+
+### Step A: continue or hand off
+
+```
+G       = 3,800                       (measured: F + visible output)
+C_end   = 600,000 + 90 * 3,800        = 942,000
+crosses = 942,000 > 970,000           = false
+C_cont  = 600,000 + 90 * 3,800 / 2    = 771,000
+C_fresh = 86,450 + 20,000 + 171,000   = 277,450
+
+cost_continue on claude-opus-5-5 (cache_read 0.20, cache_write 5.00, output 20.00 per M)
+  90 * 771,000 * 0.20 / 1e6           = 13.878   (cache reads)
+  90 * 3,800   * 5.00 / 1e6           =  1.710   (new context written to cache)
+  90 * 3,000   * 20.00 / 1e6          =  5.400   (output)
+  misses, penalty_compaction          =  0.000
+              = 20.99 USD
+
+cost_fresh on claude-sonnet-5-5 (cache_read 0.10, cache_write 2.50, output 10.00 per M)
+  handoff 2,500 * 20.00 / 1e6         =  0.050   (at the current model's output rate)
+  (86,450 + 20,000) * 2.50 / 1e6      =  0.266   (first read)
+  90 * 277,450 * 0.10 / 1e6           =  2.497   (cache reads)
+  90 * 3,800   * 2.50 / 1e6           =  0.855   (new context written to cache)
+  90 * 3,000   * 10.00 / 1e6          =  2.700   (output)
+  misses, penalty_loss                =  0.000
+              = 6.37 USD
+
+T* = n/a: the model changes; compare the totals
+cost_split = not computed: the target is below Opus
+```
+
+Draft verdict: fresh, by cost, margin 14.62 USD (229.6 percent of the smaller).
+
+Calculator check, run against `scripts/dispatch.mjs` with `--today 2026-10-30`: the run with F 800 gives continue 20.99, fresh 6.37 (with the handoff), table age 1 day, no tier applies (neither Opus nor Sonnet has a long-context block).
+
+### Draft plan for the fresh option (not taken, recorded for the operator)
+
+One piece: claude-sonnet-5-5, effort medium, oracle the module's test command, serial, 90 turns, cost 6.32 USD plus the handoff 0.05 USD. Wall clock: handoff about 10 minutes to write and commit, about 5 minutes to read, then the 90-turn run. The operator starts the fresh session by hand. No approval step is named, since nothing leaves the machine. The handoff must state the model id and effort on its first lines.
+
+### Adversarial pass
+
+Not completed: the decision budget was passed before step 4. One result from the calculator is noted: with G = F + O = 6,000 (the adverse reading), the stage crosses K and the figures become continue 23.91 USD and fresh 7.75 USD. Fresh still wins on cost in that case, so the draft verdict does not turn on the growth figure.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 90.
+2. Design-heavy across a compaction: not design-heavy; no compaction in the primary case.
+3. Irreversible steps: none.
+4. Model from the table: claude-sonnet-5-5 chosen from the table, not memory.
+5. Table age and nulls: 1 day old; Anthropic rows complete. Not binding.
+6. Acceptance: not applicable.
+7. Decision budget: passed. Binding. The default applies.
+8. Class and effort match the harness: the harness reports claude-opus-5-5 at high; no mismatch to report.
+
+### Final verdict
+
+Continue, claude-opus-5-5, effort high, pieces 1 (the stage runs in this session), serial. Exact next action: continue the stage in this session. The default was taken because the decision budget was passed; the arithmetic draft is fresh by cost, about 14.62 USD cheaper on the Sonnet route. The operator may override this with a fresh session on claude-sonnet-5-5 at medium, using the draft plan above.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | about 20,000 tokens (guess) | Subject session usage not reported; estimate |
+| Context at end | about 40,000 tokens (guess) | Estimate: start plus reading and writing |
+| Input tokens read | about 11,000 (estimate) | `SKILL.md`, price table, template, calculator source and output |
+| Output tokens | about 3,000 (estimate) | Characters divided by 4 |
+| Wall clock | about 8 minutes (estimate) | Estimate |
+| Priced | 0.0029 USD | Input 11,000 at 0.125 cache write plus output 3,000 at 0.50, claude-haiku-5-5, table `pricing/2026-10-29.json` |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-opus-5-5",
+    "target": "claude-sonnet-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 600000,
+    "T": 90,
+    "F": 3000,
+    "O": 3000,
+    "B": 86450,
+    "R": 20000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": null,
+    "Ra": null,
+    "G": 3800
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "20.99",
+    "cost_fresh": "6.37",
+    "cost_split": null,
+    "t_star": null
+  },
+  "draft": {
+    "side": "fresh",
+    "by": "cost"
+  },
+  "guardrails_triggered": [7],
+  "final": {
+    "outcome": "continue",
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 11000,
+    "output_tokens": 3000,
+    "minutes": 8,
+    "usd": "0.0029"
+  }
+}
+```

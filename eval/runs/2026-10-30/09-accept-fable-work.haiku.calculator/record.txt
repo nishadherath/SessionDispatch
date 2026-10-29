@@ -1,0 +1,142 @@
+## Session dispatch decision
+
+Date: 2026-10-30. Decided by: claude-haiku-5-5 (the model running this decision, acting for the subject session), effort not stated, in Claude Code desktop app.
+Price table: `pricing/2026-10-29.json` (age 1 day, max 14).
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as of that date (in force) |
+| Current model | claude-fable-5-1, effort high | Measured: harness report for the subject session |
+| Target model | claude-fable-5-1, effort xhigh, fresh session | Matrix row 5 (cost models, Fable). Guardrail 6: author is top class, so acceptance runs at top class in a fresh session at xhigh |
+| Window W | 1,000,000 | Measured: session usage tool `contextWindow` |
+| Compaction point K | 970,000 | Measured: usage tool `autoCompactsAtPercent` 97 times W |
+| Current context C0 | 150,000 | Measured: usage tool `tokensUsed` |
+| Compacted already | no | Measured: situation states the session has not been compacted |
+| Unrecorded context | none | Situation: everything the next stage needs is already in files on disk. L = 0 |
+| Expected turns T | 12 | Plan estimate from the situation |
+| Fresh input per turn F | 5,000 | Estimated: situation's expected fresh input per turn |
+| Output per turn O | 3,000 | Estimated: situation's output per turn. Assumes writing-heavy work at high effort; at xhigh reasoning is longer, so O is a guess and is tested in the adversarial pass |
+| Fresh baseline B | 86,450 | Measured: situation gives the fresh session start (usage total less Messages) |
+| Re-read set R | 30,000 | Situation: a fresh session reads about 30,000 tokens (cost model, its inputs, the handoff) |
+| Handoff size H | 2,500 | Default for a handoff under 120 lines (about 80 lines here) |
+| Cache misses M | 0 | Unmeasured; situation says no review pauses are expected during the stage |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta | 12 | Situation: a further acceptance session would take about 12 turns (split figure only) |
+| Acceptance re-read Ra | 30,000 | Situation: about 30,000 tokens (split figure only) |
+| Task type | Matrix row 5, whole-project assessment and cost model (Fable, high; acceptance by guardrail 6, xhigh) | Stage is adversarial acceptance of a cost model |
+| Design-heavy | yes | The stage is an assessment (step 1.2 definition) |
+| Irreversible or outward-facing steps | none | Stage writes files and commits locally; nothing leaves the machine |
+
+### Step A: continue or hand off
+
+Calculator run: `node scripts/dispatch.mjs --current claude-fable-5-1 --target fable --W 1000000 --K 970000 --C0 150000 --T 12 --F 5000 --O 3000 --B 86450 --R 30000 --H 2500 --M 0 --L 0 --Ta 12 --Ra 30000 --compacted no --today 2026-10-30` (exit 0)
+
+```
+G       = F + O                   = 8,000
+C_end   = C0 + T * G              = 246,000
+crosses = C_end > K               = false   (K 970,000)
+C_cont  = C0 + T * G / 2          = 198,000
+C_fresh = B + R + T * G / 2       = 164,450
+
+cost_continue on claude-fable-5-1
+  T*C_cont*p_cr                   = 0.594   (cache reads)
+  T*G*p_cw                        = 1.200   (new context written to cache)
+  T*O*p_out                       = 1.800   (output)
+  M*C_cont*(p_cw - p_cr)          = 0.000   (M 0)
+  penalty_compaction              = 0.000   (no compaction ahead)
+  = 3.59 USD
+cost_fresh on claude-fable-5-1
+  H*p_out                         = 0.125   (the handoff, at claude-fable-5-1)
+  (B+R)*p_cw                      = 1.456   (the fresh session's first read)
+  T*C_fresh*p_cr                  = 0.493   (cache reads)
+  T*G*p_cw                        = 1.200   (new context written to cache)
+  T*O*p_out                       = 1.800   (output)
+  M*C_fresh*(p_cw - p_cr)         = 0.000   (M 0)
+  penalty_loss                    = 0.000   (L 0)
+  = 5.07 USD
+Prices per million: claude-fable-5-1 cache_read 0.25, cache_write 12.50, output 50.00 (no long-context tier in the table for fable)
+
+T* = (H*p_out + (B+R)*p_cw) / ((C0 - B - R) * p_cr) = 1.581 / (33,550 * p_cr) = 188.5 turns
+Short path: T 12 is under T*, so continue is cheaper; step A is settled.
+Draft verdict: continue, by break-even, T 12 under T* 188.5, margin 1.48 USD (41.2 percent of the smaller; band 10).
+```
+
+Hand check: continue 0.594 + 1.200 + 1.800 = 3.594; fresh 0.125 + 1.455625 + 0.49335 + 1.200 + 1.800 = 5.074; margin 1.480, which is 41.2 percent of 3.594. Matches the calculator.
+
+Short-path conditions hold: model unchanged, no long-context tier for fable, crosses false, not compacted, L 0.
+
+Draft verdict as arithmetic: continue, by break-even. Guardrail 6 changes it (see Guardrails checked).
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Re-derive and recompute the cost model, argue against each assumption, write the acceptance result | Fable (top class) | claude-fable-5-1 | xhigh | The recomputed figures match the calculator block above; the record shows each assumption with a verdict | Serial, one session | 4.95 USD (fresh-session terms, T 12, F 5,000, O 3,000, R 30,000) plus the handoff 0.125 USD = 5.07 USD |
+
+Serial chain and its wall clock: 12 serial turns in one fresh session. Wall clock per turn was not measured in this run, so the stage's run time is not estimated. Handoff: about 10 minutes to write and commit, plus about 5 minutes for the fresh session to read (step 2.1 convention). The operator must start the fresh session: no autonomy answer is recorded in this run, so the session is not started here. Operator review time: none expected by the situation.
+
+Effort raised or lowered because: raised to xhigh by guardrail 6 (top-class author, acceptance at xhigh in a fresh session). Matrix row 4 says high for acceptance generally, and xhigh only for a release or merge, so the guardrail sets the effort here.
+
+Split (step 2.1): computed for the record and not an option. Brief by claude-fable-5-1, run on claude-sonnet-5-5, accept on claude-opus-5-5. Calculator: brief 0.125, run 1.088, acceptance 2.177, total 3.39 USD, which is 1.68 USD (49.7 percent) cheaper than fresh. It is not admissible for two reasons. (a) Matrix row 5 puts cost models on Fable, so a Sonnet run is below the class the work needs. (b) Guardrail 6: acceptance of a Fable-authored work runs at Fable in a fresh session, and an Opus acceptance breaks that.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 12. Trigger holds, skill runs.
+2. Design-heavy across a compaction: design-heavy is yes, but crosses is false and the session has not compacted. Does not bind.
+3. Irreversible steps and their approval step: none. The stage writes files and commits locally, so nothing leaves the machine. No approval step is required. Does not bind.
+4. Model chosen from the table, not memory: claude-fable-5-1 is the table's fable row, the only fable model listed. Holds.
+5. Table age and nulls: table 1 day old against a 14-day maximum. The fable row has no null figure. Holds.
+6. Acceptance one class above the author: BINDS. The author of the cost model is this session at Fable, the top class, so acceptance runs at Fable in a fresh session at xhigh. Continuing would have this session accept its own cost model in the same context, which the guardrail forbids. The draft verdict (continue) is therefore wrong whatever the arithmetic says. Verdict changed to fresh.
+7. Decision budget: the reads for this decision (SKILL.md, the price table, the decision template, dispatch.mjs, and the calculator output) are estimated at about 14,000 input tokens, plus about 5,000 output tokens. That exceeds the 8,000-token cap. Wall clock is estimated at about 8 minutes, within the 10-minute cap. Overrun recorded. Under step 0 the cap default is continue, same model, same effort. That default would break guardrail 6, so it cannot be applied here. See the question below.
+8. Class and effort match the harness: the harness reports claude-fable-5-1 at effort high for the subject session. The fresh session's handoff must state claude-fable-5-1 and xhigh on its first lines, and the session must stop on a mismatch.
+
+### Adversarial pass
+
+The opposite verdict, argued: Continue is the cheaper plan by 1.48 USD (41.2 percent), and the margin holds at every adverse input tested below. The session is at 15 percent of its window, far from the compaction point, and every input for the stage is already on disk, so a fresh session gains no information and pays a 2,500-token handoff plus a 30,000-token re-read. The fresh session also starts colder, which is a quality loss the skill's own tie-break counts against it. Continuing is the reversible default the cap prescribes. Against this, guardrail 6 names the same-session acceptance as the thing that must not happen, so the cost case cannot carry the verdict.
+
+Each input, the way it could be wrong:
+
+- C0: measured at 150,000 from the usage tool. If it is 30 percent higher (195,000), continue rises to 3.73 USD and fresh is unchanged at 5.07 USD. Continue still wins on cost.
+- T: if T doubles to 24, continue is 7.48 USD and fresh is 8.86 USD, a margin of 18.4 percent. Continue still wins on cost, and the break-even moves to T* of about 188 turns, so the short path still holds.
+- F and O: O is the weakest input, since xhigh reasoning is longer. At O 6,000, continue is 5.90 USD and fresh is 7.38 USD, a margin of 25 percent. Continue still wins on cost.
+- B and R: R could be larger than 30,000. Each extra 20,000 tokens of re-read adds about 0.31 USD to fresh. This moves the margin toward continue, not away from it.
+- M (review pauses): none are expected. Two cache misses would cost each side about 2.4 USD per miss on the continue side and 2.0 USD on the fresh side. At M 2, continue is 8.45 USD and fresh 9.10 USD, a margin of 7.8 percent, inside the 10 percent band. The tie-break is then quality, and continue still wins that, since neither side has compacted or crosses K. Verdict on cost holds.
+- Task type: the stage is an assessment and hides a design choice (design-heavy yes). Guardrail 2 binds only across a compaction, which does not occur here.
+- Prices: table 1 day old. Fable's cache_write is derived as 1.25 times input, as the table notes. The table lists no long-context tier for fable. If the vendor has one that the table omits, the prices here are understated for turns above its threshold. The figures are not checked against the live page in this run.
+- Unrecorded context: the situation says there is none. If 10 turns of rediscovery (L 10) were needed, fresh would add 2.91 USD and continue would win by more.
+
+Recomputed with the adverse value that moves the result most (M 2, the only input that brings the margin inside the band; O 6,000 moves the margin furthest against fresh's assumptions): at M 2 the margin is 7.8 percent, so the verdict moves from cost to quality, and quality still gives continue. The cost verdict holds.
+
+```
+cost_continue = 8.45 (M 2)
+cost_fresh    = 9.10 (M 2)
+```
+
+Verdict holds on arithmetic: yes. The draft verdict (continue) does not move on cost. It changes on guardrail 6 alone, as the record shows above.
+
+### Final verdict
+
+Fresh, model claude-fable-5-1, effort xhigh, pieces 1 (serial). Approval step: none, since no outward-facing step is in the stage. Exact next action: the operator starts a fresh Claude Code session on claude-fable-5-1 at xhigh with a handoff of about 80 lines written by this session, committed before the handoff, and the first lines of the handoff stating the model and effort. The fresh session performs the acceptance of the cost model in `docs/` and writes its own verdict. Cost projection: 5.07 USD (table 2026-10-29). Time projection: about 15 minutes for handoff writing and reading, plus the 12-turn run, whose wall clock is not measured.
+
+Question I would ask the operator, which is not answered in this run: the cap default (continue) would have this session accept its own cost model, which guardrail 6 forbids. Options: (a) fresh session at claude-fable-5-1, xhigh, as recorded here, costing 5.07 USD. Pro: meets guardrail 6. Con: the decision exceeded its 8,000-token cap, so the operator should review the cap for stages of this size. Blast radius: nothing leaves the machine. (b) continue in this session, costing 3.59 USD. Pro: 1.48 USD cheaper and no handoff. Con: breaks guardrail 6. Recommendation: (a), since the arithmetic difference is 1.48 USD and the guardrail protects the quality of the acceptance.
+
+Meanwhile the verdict taken is (a), fresh.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | not measured in this run | No usage tool was available to the decider. Estimate only |
+| Context at end | not measured in this run | As above |
+| Input tokens read | 14,000 (estimate) | SKILL.md about 6,000; pricing table about 1,100; decision template about 1,300; dispatch.mjs about 5,000; calculator output about 1,000, all estimated from characters |
+| Output tokens | 5,000 (estimate) | Characters divided by 4 for this record and the working notes, estimated |
+| Wall clock | 8 minutes (estimate) | Estimated, not measured |
+| Priced | 0.004 USD | Input 14,000 at the cache-write rate 0.125 per million (0.00175) plus output 5,000 at 0.50 per million (0.0025), for claude-haiku-5-5, table `pricing/2026-10-29.json` |
+
+The decision cost (0.004 USD) is small against the 5.07 USD stage it dispatches, but its token reading (about 14,000) exceeds the 8,000-token cap. The operator should judge whether to skip the skill for stages of this size, or raise the cap.
+
+```json dispatch-result
+{"skill_ran": true, "inputs": {"current": "claude-fable-5-1", "target": "claude-fable-5-1", "W": 1000000, "K": 970000, "C0": 150000, "T": 12, "F": 5000, "O": 3000, "B": 86450, "R": 30000, "H": 2500, "M": 0, "L": 0, "compacted": false, "Ta": 12, "Ra": 30000, "G": null}, "table_age_days": 1, "totals": {"cost_continue": "3.59", "cost_fresh": "5.07", "cost_split": "3.39", "t_star": "188.5"}, "draft": {"side": "continue", "by": "break-even"}, "guardrails_triggered": [6, 7], "final": {"outcome": "fresh", "model": "claude-fable-5-1", "effort": "xhigh", "approval_step": null}, "cost_of_deciding": {"input_tokens": 14000, "output_tokens": 5000, "minutes": 8, "usd": "0.004"}}
+```

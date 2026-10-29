@@ -1,0 +1,144 @@
+## Session dispatch decision
+
+Date: 2026-10-30. Decided by: claude-fable-5-1, effort high, in Claude Code (desktop app).
+Price table: `pricing/2026-10-29.json` (age 1 day, under the 14-day limit).
+
+Verdict: continue, by default (the decision budget was exceeded before the arithmetic began). Continue on claude-fable-5-1 at high effort. Overrun recorded below.
+
+### Inputs
+
+| Input | Value | Source |
+|---|---|---|
+| Formula | `SKILL.md` step 2 as in force on 2026-10-30 | Skill folder |
+| Current model | claude-fable-5-1, effort high | Situation: the harness report |
+| Target model | claude-opus-5-5 (cross-module row of the matrix) | Matrix row 3; the table's opus row |
+| Window W | 1,000,000 | Measured: usage tool, `contextWindow` |
+| Compaction point K | 970,000 | Measured: `autoCompactsAtPercent` 97 times W |
+| Current context C0 | 350,000 | Measured: usage tool, `tokensUsed` |
+| Compacted already | no | Situation: not compacted |
+| Unrecorded context | none | Situation: the design note, handoff and modules hold everything the next stage needs |
+| Expected turns T | 50 | Situation: plan estimate |
+| Fresh input per turn F | 3,000 | Step 1.2 default, unmeasured |
+| Output per turn O | 1,500 | Step 1.2 default, unmeasured; effort high assumed |
+| Fresh baseline B | 86,450 | Measured: usage tool total less Messages (situation) |
+| Re-read set R | 30,000 | Situation: a fresh session reads the design note, handoff and modules |
+| Handoff size H | 2,500 | Step 1.2 default: a brief of about 110 lines (situation) |
+| Cache misses M | 0 | Unmeasured, default; no review pauses expected (situation) |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta | 15 | Situation: split only |
+| Acceptance re-read Ra | 40,000 | Situation: split only |
+| Task type | cross-module implementation of a finished design | Matrix row 3 (Opus, high) |
+| Design-heavy | yes | Cross-module change (step 1.2 definition) |
+| Irreversible or outward-facing steps | none | Situation: local commits only, nothing leaves the machine |
+
+Growth per turn G = F + O = 4,500 (the formula's default, so the G input is null).
+
+### Decision budget (step 0 and guardrail 7)
+
+Reading for this decision, estimated by characters divided by 4: `SKILL.md`
+about 6,000 tokens (426 lines), the pricing table about 900, the decision
+record template about 600, the worked example about 2,700, and the folder
+listing and the rest about 800. Total about 11,000 tokens read, before any
+arithmetic. The cap is 8,000 tokens. The cap was reached before step 2
+began, so this record stops there: the default is taken and the overrun is
+recorded. Steps 2 to 5 are not computed.
+
+Finding for the operator: the three files a cold reader must read (the
+skill, the table and the template) come to about 7,500 tokens, so the
+8,000-token cap is almost gone before any arithmetic. The cap as written
+does not fit a cold reader. Either the cap should be raised, or only the
+decision's own calculation and the record should count against it.
+
+### Step A: continue or hand off
+
+Not computed: the budget was reached first (see above). The default applies.
+
+### Step B: model, effort and concurrency
+
+Default plan: one piece, serial, in this session.
+
+| Piece | Class | Model id | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Cross-module implementation of the design note | Opus (row 3) | claude-fable-5-1 (current, kept by default) | high | the 14 tests and `node scripts/check.mjs` exit 0, as the design note states | serial | not computed |
+
+Effort raised or lowered: no change. Split (step 2.1): not computed; it is
+an option only if the brief carries the contract, the tests and the
+definition of done, which the situation says it can.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 50.
+2. Design-heavy across a compaction: design-heavy, but C0 plus T times G is 575,000 against K 970,000, so no crossing. Not breached.
+3. Irreversible steps: none. The stage commits locally only.
+4. Model chosen from the table: claude-fable-5-1 is the table's fable row and is the current model.
+5. Table age and nulls: 1 day, under 14. The Anthropic rows used have no nulls.
+6. Acceptance one class above the author: not applicable, no split and no acceptance session in the default plan.
+7. Decision budget: exceeded. About 11,000 tokens read before any arithmetic, against the cap of 8,000. Default taken: continue, claude-fable-5-1, high. This guardrail changed the verdict.
+8. Class and effort match the harness: the harness reports claude-fable-5-1 at high, matching this record.
+
+### Adversarial pass
+
+Not run: the budget was reached before it. The question the operator should weigh is the one left open: the split (a Sonnet run at medium on a brief, with an Opus acceptance) was not priced here, so this record cannot say whether it is cheaper than a fresh Opus session.
+
+### Final verdict
+
+Continue, model claude-fable-5-1, effort high, one piece, serial. Exact next action: carry on the stage in this session, which is the default taken under guardrail 7.
+
+Would ask the operator (not answered in this run): whether to raise the decision cap or count only the calculation, and whether to price the split (brief to Sonnet, acceptance at Opus) before the stage starts. Meanwhile the verdict is continue, on claude-fable-5-1 at high.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 350,000 | Usage tool, measured |
+| Context at end | about 363,000 | Estimate: start plus about 11,000 read plus about 2,000 written |
+| Input tokens read | about 11,000 | Estimate, see the decision budget section |
+| Output tokens | about 2,000 | Estimate: characters divided by 4 |
+| Wall clock | about 5 minutes | Estimate |
+| Priced | 11,000 x 12.50 / 1e6 + 2,000 x 50.00 / 1e6 = 0.14 + 0.10 = 0.24 USD | table `pricing/2026-10-29.json`, fable row |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-fable-5-1",
+    "target": "claude-opus-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 350000,
+    "T": 50,
+    "F": 3000,
+    "O": 1500,
+    "B": 86450,
+    "R": 30000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": 15,
+    "Ra": 40000,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": null,
+    "cost_fresh": null,
+    "cost_split": null,
+    "t_star": null
+  },
+  "draft": null,
+  "guardrails_triggered": [7],
+  "final": {
+    "outcome": "continue",
+    "model": "claude-fable-5-1",
+    "effort": "high",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 11000,
+    "output_tokens": 2000,
+    "minutes": 5,
+    "usd": "0.24"
+  }
+}
+```

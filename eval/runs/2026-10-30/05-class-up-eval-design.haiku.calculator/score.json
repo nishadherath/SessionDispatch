@@ -1,0 +1,52 @@
+{
+  "scenario": "05-class-up-eval-design",
+  "subject": "haiku",
+  "arm": "calculator",
+  "outcome_expected": "fresh",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "continue",
+  "final_ok": false,
+  "draft_ok": true,
+  "guardrails_ok": true,
+  "bound": [],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [
+    7
+  ],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 3,
+    "correct": 3,
+    "missing": 0,
+    "max_error_usd": 0.004,
+    "rule_ok": true,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 16,
+    "matched": 16,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 10500,
+    "reported_minutes": 10,
+    "measured_tokens": 106704,
+    "measured_minutes": 2.8252166666666665,
+    "usd_to_decide": 0.0023,
+    "usd_measured": null,
+    "over_cap": true,
+    "report_ratio": 0.098
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "note": "first failed check: final.outcome"
+}

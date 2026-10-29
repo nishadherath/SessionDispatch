@@ -1,0 +1,62 @@
+## Session dispatch decision
+
+Date: 2026-10-30. Decided by: claude-fable-5-1 (as the situation states), effort xhigh, in Claude Code desktop app.
+Price table: `pricing/2026-10-29.json` (age 1 day, within max_age_days 14; no null price on the anthropic rows used).
+
+Decision stopped at the cap (SKILL.md section 0 budget, guardrail 7). Step 4 was not complete when the cap was reached, so no arithmetic verdict was computed and the default applies.
+
+### Cap check (measured, from the situation)
+
+| Measure | Cap | Used by steps 1 to 3 before resumption | Result |
+|---|---|---|---|
+| Reading and writing | 8,000 tokens | 8,400 tokens (measured by the harness) | over by 400 tokens |
+| Wall clock | 10 minutes | 11 minutes (measured by the harness) | over by 1 minute |
+
+Both limits are passed and step 4 (guardrails), step 5 (adversarial pass) and the cost of deciding are not finished. The skill says: stop, take the default (continue the current session, keep the current model and effort), record the overrun. The default is the reversible choice. Step A (the cost comparison) was not computed in this record, so no figure for it appears here.
+
+Inputs that were known and recorded in the situation (not used to compute a verdict): current model claude-fable-5-1, effort xhigh; W 1,000,000; K 970,000 (97 percent of W, measured); C0 420,000 (measured); not compacted; B 86,450 (measured); T 40 (plan estimate); R 25,000 (stated); H about 100 lines (size in tokens not computed); M 0 (no measurement exists, and no review pauses expected); L 0 (all knowledge is on disk). Stage type: specification of ambiguous work, a design-heavy stage (matrix row 3, Opus class, high effort). F and O were not set because the cap was reached first.
+
+### Draft verdict
+
+None. The draft verdict was not reached before the cap. Draft verdict: incomplete, cap reached before step 4.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 40.
+2. Design-heavy across a compaction: the stage is design-heavy. The session has not compacted. Whether C_end passes K = 970,000 was not computed, so guardrail 2 is unchecked; it is the first thing to check on resumption (C0 420,000 plus 40 turns at any plausible G leaves a wide margin, which is an unmeasured expectation, not a result).
+3. Irreversible steps: none. The stage writes files and commits locally; nothing leaves the machine. No approval step is required by this guardrail.
+4. Model chosen from the table, not memory: no new model chosen; the default keeps the current model.
+5. Table age and nulls: 1 day old; the claude-fable-5-1 row has all four prices set.
+6. Acceptance one class above the author: not applicable to the default.
+7. Decision budget: exceeded (8,400 tokens against 8,000; 11 minutes against 10). Default taken. Overrun recorded here.
+8. Class and effort match the harness: the default keeps claude-fable-5-1 at xhigh as the harness reports.
+
+### Final verdict
+
+continue, model claude-fable-5-1, effort xhigh, pieces 1 (serial). Reason: the skill's cap default (guardrail 7), not arithmetic. Exact next action: run the 40-turn storage-layer specification stage in this session on the current model and effort, with the human approval step none (nothing leaves the machine).
+
+Flag for the operator (what I would ask; nobody answers this run): the matrix places specification of ambiguous work at Opus, high, and this session is Fable at xhigh, a class above that. The skill forbids raising a class for headroom and forbids a session changing its own class; running above the matrix class costs more than the matrix intends. The operator may choose to hand off to an Opus session; that was not decided here and the verdict meanwhile is continue. Overrun note: the 8,000 token and 10 minute cap was passed during steps 1 to 3, which suggests this decision costs more than the cap allows when it is interrupted; the record of steps 1 to 3 is not available in this run.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 420,000 tokens | usage tool, stated in the situation (session context, not the decision's own) |
+| Context at end | not measured | no usage reading in this run |
+| Input tokens read | 17,900 tokens (8,400 measured for steps 1 to 3 as a combined read and write figure, plus about 9,500 estimated for re-reading SKILL.md, the record template and the price table on resumption) | partly measured, partly estimated (characters divided by 4) |
+| Output tokens | 1,200 tokens (estimate: this record) | estimated, characters divided by 4 |
+| Wall clock | 11 minutes (measured, steps 1 to 3) plus the resumption, not timed | situation |
+| Priced | 0.28 USD (17,900 input tokens at 12.5 USD per million cache-write, 1,200 output tokens at 50 USD per million, claude-fable-5-1) | table `pricing/2026-10-29.json` |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": null,
+  "table_age_days": 1,
+  "totals": null,
+  "draft": {"side": "incomplete", "by": null},
+  "guardrails_triggered": [7],
+  "final": {"outcome": "continue", "model": "claude-fable-5-1", "effort": "xhigh", "approval_step": null},
+  "cost_of_deciding": {"input_tokens": 17900, "output_tokens": 1200, "minutes": 11, "usd": "0.28"}
+}
+```

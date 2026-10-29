@@ -1,0 +1,169 @@
+## Session dispatch decision
+
+Date: 2026-10-30. Decided by: claude-opus-5-5 (as the situation states), effort high, in Claude Code CLI.
+Price table: `pricing/2026-10-29.json` (age 1 day, max 14).
+
+Step 0: the skill runs. T = 12 (over 10) and the context path crosses K (see below).
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as of that date |
+| Current model | claude-opus-5-5 (opus), effort high | Harness report (situation) |
+| Target model | claude-opus-5-5 (opus) | Matrix row 3 (evaluation design) is Opus, high; the table's opus model |
+| Window W | 200,000 | Measured (/context) |
+| Compaction point K | 160,000 | Measured: settings state 80 percent of W |
+| Current context C0 | 126,450 | Measured (/context) |
+| Compacted already | no | Situation states it |
+| Unrecorded context | none | Situation: everything the next stage needs is in files on disk |
+| Expected turns T | 12 | Plan estimate (estimated) |
+| Fresh input per turn F | 2,500 | Measured on the previous design stage |
+| Output per turn O | 1,500 | Measured on the previous design stage; assumed effort high |
+| Fresh baseline B | 86,450 | Measured last week with /context before any message |
+| Re-read set R | 30,000 (procedure, handoff, prior results) | Situation states it |
+| Handoff size H | 2,500 | Situation says about 80 lines, under 120, so the default |
+| Cache misses M | 0 | Unmeasured, default 0; no review pauses expected |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta | 15 | Situation |
+| Acceptance re-read Ra | 40,000 | Situation |
+| Task type | Matrix row 3: evaluation design | Stage text |
+| Design-heavy | yes | Evaluation design (step 1.2) |
+| Irreversible or outward-facing steps | none | Stage writes files and commits locally; nothing leaves the machine |
+
+### Step A: continue or hand off
+
+Output of `node scripts/dispatch.mjs`:
+
+```
+G       = F + O                   = 4,000
+C_end   = C0 + T * G              = 174,450
+crosses = C_end > K               = true   (K 160,000)
+C_cont  = C0 + T * G / 2          = 150,450
+C_fresh = B + R + T * G / 2       = 140,450
+
+cost_continue = 0.361 + 0.240 + 0.360 + 0 + penalty_compaction 0.200
+              = 1.16 USD
+cost_fresh    = 0.050 + 0.582 + 0.337 + 0.240 + 0.360 + 0 + 0
+              = 1.57 USD
+T* = 0.632 / (10,000 * p_cr') = 316.1 turns (short path does not apply: a compaction is ahead)
+cost_split    = 0.050 + run at sonnet 0.760 + acceptance at opus 1.852
+              = 2.66 USD
+```
+
+Prices used (per million), claude-opus-5-5 for both sides: input 4, output 20, cache_read 0.20, cache_write 5.
+
+Draft verdict: continue, by cost, margin 0.41 USD (35.2 percent of the smaller).
+
+Guardrail 2 then binds: the stage is design-heavy and `crosses` is true, so the verdict is fresh whatever the arithmetic says. The cost side stays in the record: fresh is dearer by 0.41 USD (35.2 percent), the price of not designing across a compaction.
+
+Split (step 2.1): the target is Opus, so it is priced, 2.66 USD, dearer than fresh by 1.09 USD (69.6 percent). It is also not an option: an evaluation design brief cannot carry a contract, an oracle and an observable definition of done that turn the run into matrix row 1 or 2 work, since the design is the work. Not the plan.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Evaluation design: test cases, measures, runner brief | Opus | claude-opus-5-5 | high | The runner brief exists on disk and meets the project's check script; the situation names no check command, so the first action of the stage is to name the oracle | Serial (one piece) | 1.52 USD fresh session, plus handoff 0.050 USD |
+
+Serial chain and its wall clock: one piece, 12 turns; time estimate not measured (guess: 25 to 40 minutes of model time). Add about 10 minutes to write and commit the handoff and about 5 minutes for the new session to read it. Operator review time: none expected; one click if the operator has to start the new session.
+
+Effort raised or lowered because: no change. No outward-facing step, no security or money, no merge or release, no prior failure.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 12.
+2. Design-heavy across a compaction: BINDS. Design-heavy yes, crosses true (C_end 174,450 over K 160,000). Verdict: fresh.
+3. Irreversible steps and their approval step: none (local files and a local commit), so no approval step is needed.
+4. Model chosen from the table, not memory: yes, claude-opus-5-5 is the table's opus row.
+5. Table age and nulls: 1 day old; the opus row has no null price.
+6. Acceptance one class above the author: acceptance is not in the plan. If used later, Opus authors need Fable at xhigh in a fresh session.
+7. Decision budget: over the cap. The skill text read alone is near the 8,000-token cap; the total is about 17,500 tokens (estimate). Step 4 was complete before the cap bit in effect, and the default would reverse guardrail 2, so the guardrail verdict stands. Overrun recorded.
+8. Class and effort match the harness: yes, opus at high, and the target is the same class, so no class change.
+
+### Adversarial pass
+
+The opposite verdict, argued: continue is 0.41 USD (35.2 percent) cheaper, and a handoff is work. The fresh session starts colder, and the session holds the design's context. All of it is on disk, though, and the compaction would hit during a design stage, losing the reasoning behind choices at the point they are made.
+
+Each input, the way it could be wrong:
+
+- C0: measured. If 30 percent lower (88,515), C_end = 136,515, no crossing, continue wins by cost. A 30 percent error on a /context figure is unlikely.
+- T: 12 is an estimate. Crossing needs T of 9 or more. At T = 8 (no crossing) continue wins, break-even; at T = 24, crosses, continue 2.24 against fresh 2.62 USD (17.2 percent), guardrail 2 still gives fresh.
+- F and O: measured on the previous design stage at high effort. Crossing needs G over about 2,800 per turn at T = 12; G is 4,000, so a 30 percent drop (2,800) is the edge.
+- B and R: B measured, R given. R is 30,000; if it doubled, fresh costs more (about 1.7 USD) but guardrail 2 is unaffected.
+- M (review pauses): none expected, default 0 unmeasured. Each miss costs more on the larger continued context, so misses favour fresh.
+- Task type: evaluation design is the matrix's Opus row; no sign the stage hides mechanical work.
+- Prices: table 1 day old, no long-context tier on opus, no nulls.
+- Unrecorded context: none, per the situation.
+
+Recomputed with the adverse value that moves the result most (T = 8, the plan estimate cut by a third, no crossing):
+
+```
+cost_continue = 0.63 USD
+cost_fresh    = 1.24 USD
+```
+
+Verdict holds: yes at the planned T = 12, since the crossing and guardrail 2 stay. The only input that flips it is T of 8 or less (or the stage cut so it ends before 160,000), which the plan estimate does not support and which would put the stage under 10 turns anyway.
+
+### Final verdict
+
+Fresh, model claude-opus-5-5, effort high, pieces 1 (serial). Exact next action: gate green, commit, write the handoff (about 80 lines, front matter naming claude-opus-5-5 and high) with this record pasted in, then start a fresh Opus session at high effort with the handoff path. The operator is asked to start it if this session cannot. Human approval step: none is needed (nothing leaves the machine). Open question for the operator: none; no acceptance session is planned, and the 15-turn Fable acceptance session (Opus authors) is optional.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 126,450 tokens | Situation figure (measured) |
+| Context at end | about 144,000 tokens | Estimate: start plus tokens read and written |
+| Input tokens read | about 14,000 | Estimate: SKILL.md 8,000, price table 1,500, template 1,200, calculator outputs 3,300 |
+| Output tokens | about 3,500 | Estimate: characters divided by 4 |
+| Wall clock | about 6 minutes | Estimate |
+| Priced | 0.14 USD | table `pricing/2026-10-29.json`: 14,000 x 5/1M + 3,500 x 20/1M, opus, estimate |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-opus-5-5",
+    "target": "claude-opus-5-5",
+    "W": 200000,
+    "K": 160000,
+    "C0": 126450,
+    "T": 12,
+    "F": 2500,
+    "O": 1500,
+    "B": 86450,
+    "R": 30000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": 15,
+    "Ra": 40000,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "1.16",
+    "cost_fresh": "1.57",
+    "cost_split": "2.66",
+    "t_star": "316.1"
+  },
+  "draft": {
+    "side": "continue",
+    "by": "cost"
+  },
+  "guardrails_triggered": [2],
+  "final": {
+    "outcome": "fresh",
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 14000,
+    "output_tokens": 3500,
+    "minutes": 6,
+    "usd": "0.14"
+  }
+}
+```

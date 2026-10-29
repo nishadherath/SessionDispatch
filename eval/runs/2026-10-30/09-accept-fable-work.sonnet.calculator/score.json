@@ -1,0 +1,52 @@
+{
+  "scenario": "09-accept-fable-work",
+  "subject": "sonnet",
+  "arm": "calculator",
+  "outcome_expected": "fresh",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "fresh",
+  "final_ok": true,
+  "draft_ok": false,
+  "guardrails_ok": true,
+  "bound": [
+    6
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 4,
+    "correct": 4,
+    "missing": 0,
+    "max_error_usd": 0.004,
+    "rule_ok": false,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 16,
+    "matched": 16,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 13000,
+    "reported_minutes": 5,
+    "measured_tokens": 88593,
+    "measured_minutes": 2.014266666666667,
+    "usd_to_decide": 0.0513,
+    "usd_measured": null,
+    "over_cap": true,
+    "report_ratio": 0.147
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "note": "first failed check: draft"
+}

@@ -1,0 +1,52 @@
+{
+  "scenario": "17-decision-cap",
+  "subject": "sonnet",
+  "arm": "calculator",
+  "outcome_expected": "continue",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "continue",
+  "final_ok": true,
+  "draft_ok": null,
+  "guardrails_ok": true,
+  "bound": [
+    7
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": false,
+    "reason": "no inputs",
+    "stated": 0,
+    "correct": 0,
+    "missing": 0,
+    "max_error_usd": null,
+    "rule_ok": null,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 0,
+    "matched": 0,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 19100,
+    "reported_minutes": 11,
+    "measured_tokens": 83685,
+    "measured_minutes": 1.5122333333333333,
+    "usd_to_decide": 0.0568,
+    "usd_measured": null,
+    "over_cap": true,
+    "report_ratio": 0.228
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "note": ""
+}

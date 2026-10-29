@@ -1,0 +1,169 @@
+## Session dispatch decision
+
+Date: 2026-10-30. Decided by: claude-haiku-5-5, effort not stated, in the evaluation harness (Claude Agent SDK), for a Codex session on gpt-6.1-sol at high.
+Price table: `pricing/2026-10-29.json` (age 1 day of 14). Formula: 2026-10-29.
+
+Step 0: the skill runs. Trigger 1 holds (a 30-turn stage). No other trigger: 300,000 of 1,000,000 is 30 percent of the window, and the session has not been compacted.
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2; table date is on or after 2026-10-29 |
+| Current model | gpt-6.1-sol, effort high | Harness report (situation) |
+| Target | class sonnet; no model id | Matrix row 2 (refactor within a module, test suite as oracle). The `openai` family in the table lists only gpt-6.1-sol, with class null, so no Sonnet-class model id can be taken from the table. Not filled from memory. |
+| Window W | 1,000,000 | Measured: `/status` |
+| Compaction point K | 900,000 | Estimated: the documentation gives no figure, so 0.9 W (step 1.1) |
+| Current context C0 | 300,000 | Measured: `/status` |
+| Compacted already | no | Situation |
+| Unrecorded context | none | Situation: everything needed is in files on disk, so L = 0 |
+| Expected turns T | 30 | Plan estimate (situation); no per-turn measurement exists |
+| Fresh input per turn F | 3,000 | Estimated: default, unmeasured |
+| Output per turn O | 1,500 | Estimated: default, assumes high effort |
+| Fresh baseline B | 25,000 | Estimated: default, unmeasured for this harness and project |
+| Re-read set R | 15,000 | Situation: the handoff and the module a fresh session reads |
+| Handoff size H | 2,500 | Estimated: default for a handoff under 120 lines (situation: about 80 lines) |
+| Cache misses M | 0 | Unmeasured; no review pauses expected (situation) |
+| Rediscovery turns L | 0 | The unrecorded list is empty |
+| Ta, Ra | not used | Split not computed; target is below Opus |
+| Task type | Sonnet, medium | Matrix row 2 |
+| Design-heavy | no | Refactor within one module |
+| Irreversible or outward-facing steps | none | Local commits only; nothing leaves the machine |
+
+Prices: gpt-6.1-sol has null input, output, cache_read, cache_write and class in the table in force. The calculator was also run with `claude-sonnet-5-5` as a probe; that prices the fresh side on a Claude row, which this harness's family does not allow, so it is not used below.
+
+### Step A: continue or hand off
+
+```
+G       = F + O                 = 4,500
+C_end   = C0 + T * G            = 300,000 + 135,000 = 435,000
+crosses = C_end > K             = false (K 900,000)
+C_cont  = C0 + T * G / 2        = 367,500
+C_fresh = B + R + T * G / 2     = 25,000 + 15,000 + 67,500 = 107,500
+cost_continue = unknown: price of gpt-6.1-sol unknown
+cost_fresh    = unknown: price of gpt-6.1-sol (for H) unknown, and no Sonnet-class model in the family
+T*            = not computed (see below)
+```
+
+The calculator run (`node scripts/dispatch.mjs` with `--target sonnet`) stopped with "no model at or above that class in family openai" (exit 1). The probe with `--target claude-sonnet-5-5` printed the token figures above and "Draft verdict: incomplete: price of gpt-6.1-sol (input, output, cache_read, cache_write, class) unknown" (exit 3).
+
+Short path: a fresh session in this harness would run on gpt-6.1-sol, the only configured model, so the model would not change and the short path could apply. It still needs the gpt-6.1-sol prices, so T* is not computed.
+
+Draft verdict: incomplete: price of gpt-6.1-sol (input, output, cache_read, cache_write, class) unknown. Step 1.4 applies: nothing is computed from memory.
+
+Meanwhile, the default is taken: continue, same model (gpt-6.1-sol), same effort (high). It is the reversible choice, and no fresh model can yet be named.
+
+Question I would ask the operator (not asked, no one answers in this run): "Give the gpt-6.1-sol input, output, cache_read, cache_write and class (option a), or authorise a live read of https://openai.com/api/pricing/ into a new pricing file dated 2026-10-30 (option b)?" Recommendation: option (a), since the figures are needed in one step and the live read needs a further yes to commit.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| 1. Refactor within the module | Sonnet | continue on gpt-6.1-sol (the session cannot change class or effort) | high | the module's test suite | serial | unknown |
+
+Serial chain and its wall clock: 30 turns; wall clock not estimated, since no per-turn measurement exists. Operator review time: none expected.
+
+Effort: the matrix gives medium for this task. The session stays at high because it cannot change effort mid-session (guardrail 8). No raise or lowering rule applies.
+
+Split (step 2.1): not an option; the target is not Opus or Fable.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 30. Not binding.
+2. Design-heavy across a compaction: not design-heavy and not crossing. Not binding.
+3. Irreversible steps and their approval step: none; local commits only. Not binding.
+4. Model chosen from the table, not memory: the Sonnet-class model id cannot be taken from the openai family, so the plan leaves the fresh model unresolved. Binding: a plan line is required.
+5. Table age and nulls: table is 1 day old, within 14. The gpt-6.1-sol prices and class are null. Binding: verdict is incomplete.
+6. Acceptance one class above the author: no acceptance pass is planned. Not binding.
+7. Decision budget: reading alone is estimated at about 8,000 tokens (`SKILL.md` about 6,000), and reading plus writing about 11,000 against the 8,000 cap. Overrun recorded; default taken. Binding.
+8. Class and effort match the harness: the harness states gpt-6.1-sol at high, and the session cannot change either. Binding for the plan line: the continue side runs at high, not the matrix's medium.
+
+### Adversarial pass
+
+The opposite verdict, argued: fresh. Continuing averages 367,500 tokens of context over 30 turns, against 107,500 for a fresh session, a ratio of about 3.4. The stage is a Sonnet-class refactor, so if gpt-6.1-sol sits below the Sonnet class, rule 1 gives fresh by class. A handoff of 2,500 tokens buys a fresh start that reads 15,000. With the Sonnet row's ratios (output 100 times cache_read, cache_write 25 times cache_read), T* would be about 4.8 turns, so 30 turns would repay the handoff. Those ratios come from a different row and are not a figure for gpt-6.1-sol, so this does not change the verdict.
+
+Each input, the way it could be wrong:
+
+- C0: measured from `/status`. If it were 30 percent high (390,000), C_cont would rise to 457,500 and the gap to fresh would widen. Verdict direction unchanged.
+- T: if it doubled to 60, C_end would be 570,000, still under K. No crossing.
+- F and O: F at 8,000 (read-heavy) gives G = 9,500 and C_end = 585,000. Still under K at 0.9 W. If the real K were near 0.6 W, the stage would cross and the compaction penalty would apply.
+- B and R: B at 50,000 raises C_fresh to 132,500. Verdict direction unchanged.
+- M (review pauses): none expected. Each miss re-writes the whole context at cache-write rate, which favours fresh, so zero misses is the case least favourable to fresh.
+- Task type: the situation says a refactor within one module. If it turns out to need cross-module changes, the class moves to Opus and fresh wins by class.
+- Prices: unknown. No adverse value can be computed.
+- Unrecorded context: the situation says none. If some exists, each item costs L turns at the fresh average.
+
+Recomputed with the adverse value that moves the result most (F at 8,000, which raises the continue side):
+
+```
+C_cont  = 300,000 + 30 * 9,500 / 2 = 442,500
+C_fresh = 25,000 + 15,000 + 142,500 = 182,500
+cost_continue = unknown (price of gpt-6.1-sol unknown)
+cost_fresh    = unknown (price of gpt-6.1-sol unknown; no Sonnet-class model in the family)
+```
+
+Verdict holds: incomplete, under every adverse value, because the price is absent and no value can be computed.
+
+### Final verdict
+
+Incomplete: price of gpt-6.1-sol (input, output, cache_read, cache_write, class) unknown. Default meanwhile: continue, model gpt-6.1-sol, effort high, one serial piece. Exact next action: the operator chooses option (a) or (b) above; then rerun `node scripts/dispatch.mjs` with the gpt-6.1-sol row filled, and with the target model the table lists in the openai family for the Sonnet class (or the next class up if none).
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 300,000 | `/status` figure of the session the decision is for; the decider's own usage was not reported to this run |
+| Context at end | not reported | Estimate only: about 311,000 (300,000 plus about 11,000 read and written) |
+| Input tokens read | 8,150 | Estimated: `SKILL.md`, the pricing table, the decision template, the calculator help and output |
+| Output tokens | 3,000 | Estimated: characters divided by 4 |
+| Wall clock | about 6 minutes | Estimated |
+| Priced | 0.0025 USD | Estimated: 8,150 * 0.125 + 3,000 * 0.5, per million; table `pricing/2026-10-29.json`, `claude-haiku-5-5` row (cache_write 0.125, output 0.5) |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "gpt-6.1-sol",
+    "target": "sonnet",
+    "W": 1000000,
+    "K": 900000,
+    "C0": 300000,
+    "T": 30,
+    "F": 3000,
+    "O": 1500,
+    "B": 25000,
+    "R": 15000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": null,
+    "Ra": null,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": null,
+    "cost_fresh": null,
+    "cost_split": null,
+    "t_star": null
+  },
+  "draft": {
+    "side": "incomplete",
+    "by": null
+  },
+  "guardrails_triggered": [4, 5, 7, 8],
+  "final": {
+    "outcome": "incomplete",
+    "model": "gpt-6.1-sol",
+    "effort": "high",
+    "approval_step": "Operator chooses (a) gives the gpt-6.1-sol prices and class, or (b) authorises a live read of the openai pricing page into a new pricing file dated 2026-10-30"
+  },
+  "cost_of_deciding": {
+    "input_tokens": 8150,
+    "output_tokens": 3000,
+    "minutes": 6,
+    "usd": "0.0025"
+  }
+}
+```

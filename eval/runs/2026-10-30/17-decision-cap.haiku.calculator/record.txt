@@ -1,0 +1,86 @@
+## Session dispatch decision
+
+Date: 2026-10-30. Decided by: claude-fable-5-1, effort xhigh, in Claude Code (desktop app).
+Price table: `pricing/2026-10-29.json` (age 1 day, under the 14-day limit).
+
+Status: the decision budget was exceeded before step 4 was complete, so the
+procedure stopped and the default verdict was taken. Steps 2 and 5 were not run.
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as in this folder |
+| Current model | claude-fable-5-1 | Reported by the harness |
+| Target model | claude-opus-5-5 | Matrix row 3 (specification of ambiguous work, writing briefs a lower class executes), then the table's opus row |
+| Window W | 1,000,000 | Measured: usage tool, `contextWindow` |
+| Compaction point K | 970,000 | Measured: `autoCompactsAtPercent` 97 times W |
+| Current context C0 | 420,000 | Measured: usage tool, `tokensUsed` |
+| Compacted already | no | Measured: session has not been compacted |
+| Unrecorded context | none | Everything the next stage needs is in files on disk |
+| Expected turns T | 40 | Plan estimate for the stage |
+| Fresh input per turn F | 3,000 | Step 1.2 default, unmeasured |
+| Output per turn O | 3,000 | Step 1.2, writing-heavy; estimate, effort high assumed for the target |
+| Fresh baseline B | 86,450 | Measured: usage tool total less its Messages category |
+| Re-read set R | 25,000 | Given: the two design notes and the handoff a fresh session reads |
+| Handoff size H | 2,500 | Step 1.2 default; handoff about 100 lines |
+| Cache misses M | 0 | Unmeasured; no review pauses expected |
+| Rediscovery turns L | 0 | The unrecorded list is empty |
+| Acceptance turns Ta | 15 | Given: split acceptance estimate |
+| Acceptance re-read Ra | 30,000 | Given: split acceptance estimate |
+| Task type | specification of ambiguous work across modules (matrix row 3) | Choice between two storage designs and a brief for a later session |
+| Design-heavy | yes | The stage chooses between two designs |
+| Irreversible or outward-facing steps | none | Writes files and commits locally; nothing leaves the machine |
+
+### Budget
+
+Steps 1 to 3 have used 8,400 tokens of reading and writing against the cap of
+8,000, and 11 minutes against the cap of 10. The cap was reached before step 4
+was complete. Under `SKILL.md` section 0 and guardrail 7, the procedure stops,
+the default is taken (continue, same model, same effort), and the overrun is
+recorded here.
+
+Not run: the step 2 calculation (no Step A figures are claimed), the remaining
+guardrail checks, and the adversarial pass. No cost, break-even or split figure
+is stated, because none was computed.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T 40.
+2. Design-heavy across a compaction: not reached. The session has not compacted.
+3. Irreversible steps: none. Local commits only, so no approval step is needed.
+4. Model from the table: the target is the table's opus row. Not checked further.
+5. Table age and nulls: 1 day old, the opus and fable rows are complete.
+6. Acceptance: not reached, since no split was computed.
+7. Decision budget: exceeded. 8,400 tokens against 8,000, and 11 minutes against 10. Binding. The default is taken.
+8. Class and effort match the harness: the harness reports fable at xhigh, and the default keeps both, so there is no mismatch.
+
+### Adversarial pass
+
+Not run. The budget was spent before step 5 could begin.
+
+### Final verdict
+
+Continue, model claude-fable-5-1, effort xhigh, one piece, serial, by the
+decision-budget default. The overrun is recorded above. Exact next action:
+continue the stage in this session on claude-fable-5-1 at xhigh, writing the
+two-design brief and committing it locally, with no handoff.
+
+Continuing at Fable for an Opus-row task is above the matrix class. Section 3.1
+says never to raise the class without a measured failure, so the cost of that
+choice is not computed here.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 420,000 | usage tool, `tokensUsed`, measured |
+| Context at end | about 428,000 | estimate: 420,000 plus the record's output (about 2,500 tokens) |
+| Input tokens read | about 5,900 | estimate: the 8,400 combined reading and writing, less the output estimate; the split is not measured |
+| Output tokens | about 2,500 | estimate: the record and the step 1 to 3 writing; part of the 8,400 combined figure |
+| Wall clock | 11 minutes so far | measured by the harness at the cap; record writing after that is not measured |
+| Priced | 5,900 x 12.5e-6 + 2,500 x 50e-6 = 0.20 USD | table `pricing/2026-10-29.json`, fable row (cache write rate for input, output rate for output) |
+
+```json dispatch-result
+{"skill_ran": true, "inputs": {"current": "claude-fable-5-1", "target": "claude-opus-5-5", "W": 1000000, "K": 970000, "C0": 420000, "T": 40, "F": 3000, "O": 3000, "B": 86450, "R": 25000, "H": 2500, "M": 0, "L": 0, "compacted": false, "Ta": 15, "Ra": 30000, "G": null}, "table_age_days": 1, "totals": {"cost_continue": null, "cost_fresh": null, "cost_split": null, "t_star": null}, "draft": null, "guardrails_triggered": [7], "final": {"outcome": "continue", "model": "claude-fable-5-1", "effort": "xhigh", "approval_step": null}, "cost_of_deciding": {"input_tokens": 5900, "output_tokens": 2500, "minutes": 11, "usd": "0.20"}}
+```
