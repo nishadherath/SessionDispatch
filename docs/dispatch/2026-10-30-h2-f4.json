@@ -1,0 +1,23 @@
+{
+  "_note": "Stage H2 (2026-10-30): the session dispatch decision for F4, the reassessment on the H2 results. Run: node scripts/dispatch.mjs --json docs/dispatch/2026-10-30-h2-f4.json --today 2026-10-30. C0 and B measured by get_usage self at the close of the H2 session (609,651 total, 524,411 Messages); T, F, O, R and H are estimates (R: the F4 handoff 5,000, eval/results-2026-10-31.md 9,000, eval/results-2026-10-30.md 6,000, docs/assessment-2026-10-30-f2.md 9,000, docs/acceptance-2026-10-30-stage-o3.md 8,000, eval/rubric.md 3,500, docs/status.md 3,500). This session ran 120 sub-agent launches and carries about 520,000 tokens of copied prompts and notifications that F4 does not need.",
+  "formula": "2026-10-29",
+  "table": "pricing/2026-10-29.json",
+  "today": "2026-10-30",
+  "current": "claude-sonnet-5-5",
+  "target": "fable",
+  "W": 1000000,
+  "K": 970000,
+  "C0": 609651,
+  "compacted": false,
+  "T": 45,
+  "F": 3000,
+  "O": 3000,
+  "B": 85240,
+  "R": 44000,
+  "H": 5000,
+  "M": 0,
+  "L": 0,
+  "pieces": [
+    { "name": "F4 reassessment on the H2 results", "model": "claude-fable-5-1", "effort": "high", "T": 45, "F": 3000, "O": 3000, "R": 44000 }
+  ]
+}

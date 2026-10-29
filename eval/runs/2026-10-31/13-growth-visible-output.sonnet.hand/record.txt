@@ -1,0 +1,169 @@
+## Session dispatch decision
+
+Date: 2026-10-31. Decided by: claude-opus-5-5, effort high, in a terminal agent harness (Anthropic API).
+Price table: `pricing/2026-10-30.json` (age 1 day, max 14; no null in the rows used).
+
+Step 0: T = 90 turns, over 10, so the skill runs.
+
+### Inputs
+
+| Input | Value | Source |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 |
+| Current model | claude-opus-5-5 (class opus) | Harness report |
+| Target model | claude-sonnet-5-5 (class sonnet) | Matrix row 2 (scoped module work, stated test); table's sonnet row |
+| Window W | 1,000,000 | Session header, measured |
+| Compaction point K | 970,000 | Harness documentation, 97 percent of W |
+| Current context C0 | 600,000 | Session header, measured |
+| Compacted already | no | Situation |
+| Unrecorded context | none | Everything the next stage needs is on disk |
+| Expected turns T | 90 | Plan estimate |
+| Fresh input per turn F | 3,000 | Usage log, measured |
+| Output per turn O | 3,000 (800 visible) | Usage log, measured, effort high |
+| Growth G | 3,800 per turn | Measured from the header. The harness drops earlier reasoning, so G = F + visible output = 3,000 + 800, not F + O = 6,000. Used instead of F + O. |
+| Fresh baseline B | 86,450 | Session header before any message, measured |
+| Re-read set R | 20,000 (handoff and module) | Situation |
+| Handoff size H | 2,500 | Default for under 120 lines (about 80), no unrecorded context to add |
+| Cache misses M | 0 | No measurement and no review pauses expected; default 0 |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Ta, Ra | not used | Split only when target is opus or fable |
+| Task type | Scoped module work with a stated test (row 2) | New subcommand and tests in one module |
+| Design-heavy | no | One module, no design choice |
+| Irreversible or outward-facing steps | none | Files and local commits only; nothing leaves the machine |
+
+### Step A: continue or hand off
+
+```
+G       = 3,800 (measured; not F + O)
+C_end   = 600,000 + 90 * 3,800 = 942,000
+crosses = 942,000 > 970,000 = false
+C_cont  = 600,000 + 90 * 3,800 / 2 = 771,000
+C_fresh = 86,450 + 20,000 + 171,000 = 277,450
+
+cost_continue (opus: cr 0.2, cw 5, out 20)
+  = 90*771,000*0.2/1e6 = 13.878
+  + 90*3,800*5/1e6     =  1.710
+  + 90*3,000*20/1e6    =  5.400
+  = 20.99 USD
+cost_fresh (H at opus output; run at sonnet: cr 0.1, cw 2.5, out 10)
+  = 2,500*20/1e6        = 0.050
+  + 106,450*2.5/1e6     = 0.266
+  + 90*277,450*0.1/1e6  = 2.497
+  + 90*3,800*2.5/1e6    = 0.855
+  + 90*3,000*10/1e6     = 2.700
+  = 6.37 USD
+T* = n/a: the model changes
+cost_split = not computed: the target is below opus
+```
+
+Prices used (per million): claude-opus-5-5 input 4, output 20, cache_read 0.2, cache_write 5. claude-sonnet-5-5 input 2, output 10, cache_read 0.1, cache_write 2.5.
+
+Draft verdict: fresh, by cost, margin 14.62 USD, 229.6 percent of the smaller (6.37). The target class is below the current one, so rule 1 does not apply. Continuing would also run scoped work on an opus model for no gain.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| New subcommand and its tests | sonnet | claude-sonnet-5-5 | medium | The subcommand's test suite passes | Serial (one writer, one file set) | 6.37 USD (stage cost, including the handoff) |
+
+Serial chain and its wall clock: handoff write and commit about 10 minutes, new session read about 5 minutes, then 90 turns (wall clock per turn not given; not estimated). Operator review time: none expected. The operator may need to start the fresh session (self-estimate: one click).
+
+Effort raised or lowered because: no change. Matrix row 2 gives medium; the module touches no auth, payments, storage format or public interface; no irreversible step; not a merge or release. Lowering is not allowed below medium for repository writes.
+
+Split (step 2.1): not an option; the target is sonnet, not opus or fable.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 90.
+2. Design-heavy across a compaction: not design-heavy, crosses is false, not compacted. Does not bind.
+3. Irreversible steps and their approval step: none (local commit only). No approval step needed.
+4. Model chosen from the table, not memory: yes, claude-sonnet-5-5 from the table's sonnet row.
+5. Table age and nulls: 1 day old; no null in the rows used.
+6. Acceptance: no acceptance session in this plan.
+7. Decision budget: record about 1,900 tokens (self-estimate) against 4,000; about 5 minutes against 10.
+8. Class and effort match the harness: this session is opus at high, as the harness reports. It does not change itself. The fresh session is started on sonnet at medium and checks its own model and effort on taking over.
+
+### Adversarial pass
+
+The opposite verdict, argued: continuing keeps the "why" of every decision in context, writes no handoff, and starts nothing cold. The session has not compacted and will not cross K (942,000 of 970,000), so no quality term pushes it out. A fresh session also carries a start-up risk: a missed file in the handoff costs turns.
+
+Each input, the way it could be wrong:
+
+- C0: measured. If 30 percent lower (420,000), continue is cheaper but still far above fresh (below).
+- T: 90 is a plan estimate. If it doubles to 180, C_end passes K and continue gets worse (compaction), so fresh is favoured further. If it halves to 45, continue falls and fresh falls; the gap stays wide.
+- F and O: measured; G = 3,800 is measured and below F + O = 6,000. With the default G = 6,000, C_end = 1,140,000 would cross K, which favours fresh. The measured value is the conservative one for fresh.
+- B and R: B measured; R is the situation's figure. If R doubles to 40,000, fresh rises by about 0.2 USD. Immaterial.
+- M (review pauses): 0, none expected. Any miss costs more on the larger continue context, so misses favour fresh.
+- Task type: could it hide a design choice? The situation states scoped work with a stated test. If it were really opus-class, the verdict by class would still be fresh at a higher-class model.
+- Prices: table 1 day old; no long-context tier on opus or sonnet rows.
+- Unrecorded context: none claimed. Each lost item costs a rediscovery turn (about 0.03 USD at the fresh average); 10 turns of loss would add about 0.3 USD.
+
+Recomputed with the adverse values that move the result most (C0 30 percent low, 420,000, so continue is cheaper; and the fresh run priced at opus as if the class were wrong):
+
+```
+cost_continue (C0 = 420,000) = 90*591,000*0.2/1e6 + 1.710 + 5.400 = 10.638 + 7.110 = 17.75 USD
+cost_fresh (run at opus)     = 0.050 + 0.532 + 4.994 + 1.710 + 5.400 = 12.69 USD
+```
+
+Even at both adverse values, fresh is cheaper by 5.06 USD (39.9 percent of the smaller). Verdict holds: yes.
+
+### Final verdict
+
+fresh, model claude-sonnet-5-5, effort medium, pieces 1 (serial). Exact next action: this session writes an 80-line handoff (model id and effort on its first lines), commits the tree green, then a fresh claude-sonnet-5-5 session at medium effort is started with the handoff path as its brief. It checks its own model and effort first and stops on a mismatch. Approval step: none, because nothing leaves the machine.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | not reported by this evaluation harness | no usage tool in the run |
+| Context at end | not reported by this evaluation harness | no usage tool in the run |
+| Input tokens read | 10,000 | self-estimate: SKILL.md, price table, template, file list |
+| Output tokens | 2,500 | self-estimate: record characters divided by 4 plus the arithmetic |
+| Wall clock | 5 minutes | self-estimate |
+| Priced | 0.10 USD | table `pricing/2026-10-30.json`, opus rates: 10,000 at cache-write 5 = 0.05, 2,500 at output 20 = 0.05; self-estimate |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-opus-5-5",
+    "target": "claude-sonnet-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 600000,
+    "T": 90,
+    "F": 3000,
+    "O": 3000,
+    "B": 86450,
+    "R": 20000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": null,
+    "Ra": null,
+    "G": 3800
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "20.99",
+    "cost_fresh": "6.37",
+    "cost_split": null,
+    "t_star": "never"
+  },
+  "draft": {"side": "fresh", "by": "cost"},
+  "guardrails_triggered": [],
+  "final": {
+    "outcome": "fresh",
+    "model": "claude-sonnet-5-5",
+    "effort": "medium",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 10000,
+    "output_tokens": 2500,
+    "minutes": 5,
+    "usd": "0.10"
+  }
+}
+```

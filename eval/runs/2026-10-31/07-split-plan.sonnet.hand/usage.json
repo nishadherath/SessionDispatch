@@ -1,0 +1,9 @@
+{
+  "model": "claude-sonnet-5-5",
+  "model_source": "named by the orchestrator; the Agent result reports no model",
+  "total_tokens": 90105,
+  "tool_uses": 8,
+  "duration_ms": 138783,
+  "input_tokens": null,
+  "output_tokens": null
+}

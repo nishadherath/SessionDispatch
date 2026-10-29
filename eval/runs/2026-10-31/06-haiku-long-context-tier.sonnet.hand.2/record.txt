@@ -1,0 +1,212 @@
+## Session dispatch decision
+
+Date: 2026-10-31. Decided by: claude-haiku-5-5, effort medium, in Claude Code desktop app.
+Price table: `pricing/2026-10-30.json` (age 1 day, limit 14; no null in the rows used).
+
+Step 0: runs. The stage is expected to take 20 turns, more than 10.
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as of that date |
+| Current model | claude-haiku-5-5, class haiku | Harness report (situation) |
+| Target model | claude-haiku-5-5 | Matrix row 1 (mechanical: apply a reviewed list of edits, check script as oracle), class haiku; the table's haiku model |
+| Window W | 1,000,000 | Measured, usage tool `contextWindow` |
+| Compaction point K | 970,000 | Measured: 97 percent x W |
+| Current context C0 | 90,000 | Measured, usage tool `tokensUsed` |
+| Compacted already | no | Measured (situation) |
+| Unrecorded context | none | Situation: all the next stage needs is in files on disk |
+| Expected turns T | 20 | Plan estimate (situation) |
+| Fresh input per turn F | 3,000 | Default, no per-turn measurement; estimated |
+| Output per turn O | 1,500 | Default, no measurement; assumes medium effort; estimated |
+| Fresh baseline B | 86,450 | Measured: usage total less Messages category |
+| Re-read set R | 10,000 (handoff and list of edits) | Situation figure |
+| Handoff size H | 2,500 | Default for a handoff under 120 lines (60 lines); nothing unrecorded to add |
+| Cache misses M | 0 | No measurement, no review pauses expected; default 0 |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta | n/a | Split not priced: target is below opus |
+| Acceptance re-read Ra | n/a | As above |
+| Task type | Row 1: mechanical, apply a reviewed diff, check script as oracle | Situation |
+| Design-heavy | no | Reviewed list of 40 edits; no design choice |
+| Irreversible or outward-facing steps | none | Writes files and commits locally; nothing leaves the machine |
+
+G = F + O = 4,500 (default growth; no measurement of dropped reasoning, kept as F + O).
+
+### Step A: continue or hand off
+
+Calculator not run (hand computation). The haiku row has a long-context
+tier above 100,000 tokens (step 1.4.5), so each turn is priced by its own
+context, turn t reading C_start + (t - 1/2) * G. The short-path T* does
+not apply (tier in play).
+
+```
+G       = F + O                 = 4,500
+C_end   = C0 + T * G            = 90,000 + 90,000 = 180,000
+crosses = C_end > K             = 180,000 > 970,000 = false
+C_cont  = C0 + T * G / 2        = 135,000
+C_fresh = B + R + T * G / 2     = 96,450 + 45,000 = 141,450
+```
+
+Prices per million. Base (context at or under 100,000): input 0.1, output
+0.5, cache_read 0.01, cache_write 0.125. Tier (over 100,000): input 0.5,
+output 2.5, cache_read 0.05, cache_write 0.625. Same model on both sides.
+
+Per turn cost = ctx*p_cr + G*p_cw + O*p_out.
+
+Continue (context 90,000 + (t - 1/2) * 4,500):
+- Turn 1, ctx 92,250, base: 922.5 + 562.5 + 750 = 2,235
+- Turn 2, ctx 96,750, base: 967.5 + 562.5 + 750 = 2,280
+- Turns 3 to 20 (18 turns) pass 100,000 (turn 3 reads 101,250), tier. Sum of ctx = 18*90,000 + 198*4,500 = 2,511,000. Reads 125,550; writes 18*4,500*0.625 = 50,625; output 18*1,500*2.5 = 67,500; sum 243,675
+- Total = 248,190 per-million units
+
+Fresh (context 96,450 + (t - 1/2) * 4,500):
+- Handoff written here at base: 2,500 * 0.5 = 1,250
+- First read (B + R) = 96,450 at base cache_write (prompt under 100,000): 12,056.25
+- Turn 1, ctx 98,700, base: 987 + 562.5 + 750 = 2,299.5
+- Turns 2 to 20 (19 turns), tier. Sum of ctx = 19*96,450 + 199.5*4,500 = 2,730,300. Reads 136,515; writes 53,437.5; output 71,250; sum 261,202.5
+- Total = 276,808.25 per-million units
+
+```
+cost_continue = 0.2482 USD  (248,190 / 1,000,000)  -> 0.25
+cost_fresh    = 0.2768 USD  (276,808.25 / 1,000,000) -> 0.28
+T*            = never: C0 (90,000) is not above B + R (96,450); tier also in play
+cost_split    = not computed: the target is below opus
+```
+
+The matrix row 1 note applies: with B at 86,450, near the 100,000
+threshold, nearly every turn pays the tier. Priced at the tier, as above.
+
+Draft verdict: continue, by cost, margin 0.0286 USD, 11.5 percent of the
+smaller (continue, 0.2482).
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Apply the 40 reviewed edits, rename the configuration key across the documentation files, commit locally | haiku | claude-haiku-5-5 | medium | the project's check script exits zero | serial (one piece) | 0.25 USD, continuing in this session |
+
+Serial chain and its wall clock: one piece, 20 turns; wall clock not
+measured (no per-turn timing), not estimated. Operator review time: none
+expected. No handoff is written for the stage, so no handoff time is added.
+
+Effort raised or lowered because: no change. Lowering is allowed only
+above medium for repository writes, and this is already medium. No raise
+trigger holds (nothing outward-facing, no security or money, no merge).
+
+Split (step 2.1): not an option, the target class is haiku, below opus.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 20.
+2. Design-heavy across a compaction: not design-heavy, not compacted, crosses false.
+3. Irreversible steps and their approval step: none; local commit only. No approval step needed.
+4. Model chosen from the table, not memory: claude-haiku-5-5, class haiku, from the table.
+5. Table age and nulls: 1 day old, no nulls in the haiku row.
+6. Acceptance at matrix row 4's class and effort: no acceptance session planned; the check script is the oracle.
+7. Decision budget: record about 2,200 tokens self-estimate against 4,000; under 10 minutes.
+8. Class and effort match the harness: haiku, medium, as the harness reports.
+
+None of the guardrails changed the verdict.
+
+### Adversarial pass
+
+The opposite verdict, argued: fresh starts with a clean context and its
+turns sit at B + R = 96,450, with turn 1 still under the threshold, so
+a few more turns pay base prices than the arithmetic of the average
+suggests. If C0 were higher or reviews paused the stage, cache misses
+would write the larger context again, and a fresh session would carry
+the smaller one. Every fact needed is already on disk, so a handoff
+loses nothing.
+
+Each input, the way it could be wrong:
+
+- C0: measured, 90,000. Stress test at 30 percent high (117,000): every continue turn pays the tier, continue 0.2933 against fresh 0.2768, fresh cheaper by 5.9 percent, inside 10 percent, so quality decides and the answer is continue. At 30 percent low (63,000) continue gets cheaper still.
+- T: a plan estimate. At 40 turns: continue 0.6044 against fresh 0.6395, continue still cheaper (5.8 percent). C_end is 270,000, still under K. The verdict does not flip.
+- F and O: defaults, estimated, medium effort. Both sides use the same G, so a change moves both together; the 4,500 growth per turn is the term that sets the tier crossing, and it is the same on both sides.
+- B and R: B measured. R is the situation's 10,000 figure; if R is larger fresh is dearer, so the verdict gets stronger.
+- M (review pauses): none expected, default 0. One miss would add 135,000 * 0.575 / 1e6 = 0.0776 to continue and 141,450 * 0.575 / 1e6 = 0.0813 to fresh, both ways about equal.
+- Task type: a reviewed list of 40 edits with a check script is mechanical. A hidden design choice would be a reason to go up a class, not to change the session; no one claims one exists.
+- Prices: table 1 day old; the haiku tier is applied turn by turn. The handoff write and the first read are priced at base because their context stays under 100,000 (a guess about where the tier boundary falls on those two items; 100,000 would only add under 0.005 USD).
+- Unrecorded context: none, L = 0.
+
+Recomputed with the adverse value that moves the result most (C0 at 117,000, a stress test, not a claim):
+
+```
+cost_continue = 0.2933 USD
+cost_fresh    = 0.2768 USD
+```
+
+Verdict holds: yes, fragile: the cost margin falls inside 10 percent at C0 of
+about 97,000 or more, where the quality terms decide and the answer is still
+continue (no compaction, no crossing). No flip to fresh.
+
+### Final verdict
+
+continue, model claude-haiku-5-5, effort medium, pieces 1 (serial).
+Exact next action: apply the 40 reviewed edits in this session, run the
+project's check script after the edits, and commit locally when it
+passes. No handoff file is written, no fresh session started, no
+approval step needed.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 90,000 tokens | Measured, usage tool `tokensUsed` in the situation |
+| Context at end | about 103,500 tokens | Self-estimate |
+| Input tokens read | about 10,000 | Self-estimate: SKILL.md, price table, template, by characters / 4 |
+| Output tokens | about 3,500 | Self-estimate: characters / 4 for this record and the working |
+| Wall clock | about 8 minutes | Self-estimate; no timestamps given |
+| Priced | 0.003 USD | `pricing/2026-10-30.json`, haiku base rates: 10,000 x 0.125 + 3,500 x 0.5 per million; self-estimate. Part of the reading ran past 100,000 tokens of context, which would raise it to about 0.011 USD |
+
+The decision costs far less than the stage it dispatches (0.25 USD).
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-haiku-5-5",
+    "target": "claude-haiku-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 90000,
+    "T": 20,
+    "F": 3000,
+    "O": 1500,
+    "B": 86450,
+    "R": 10000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": null,
+    "Ra": null,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "0.25",
+    "cost_fresh": "0.28",
+    "cost_split": null,
+    "t_star": "never"
+  },
+  "draft": {
+    "side": "continue",
+    "by": "cost"
+  },
+  "guardrails_triggered": [],
+  "final": {
+    "outcome": "continue",
+    "model": "claude-haiku-5-5",
+    "effort": "medium",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 10000,
+    "output_tokens": 3500,
+    "minutes": 8,
+    "usd": "0.003"
+  }
+}
+```

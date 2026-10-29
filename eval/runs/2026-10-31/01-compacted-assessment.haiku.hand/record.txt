@@ -1,0 +1,145 @@
+## Session dispatch decision
+
+Date: 2026-10-31. Decided by: claude-fable-5-1, effort high, in Claude Code desktop app.
+Price table: `pricing/2026-10-30.json` (age 1 day).
+
+Step 0: runs. The stage is 60 turns (over 10), the session compacted once already, and the stage is a whole-project assessment.
+
+### Inputs
+
+| Input | Value | Source |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as in force |
+| Current model | claude-fable-5-1, effort high | Harness report (measured, situation) |
+| Target model | claude-fable-5-1 | Matrix row 6 (assessment: Fable, high); table row class fable |
+| Window W | 200,000 | Harness (measured, situation) |
+| Compaction point K | 190,000 | 0.95 x W, harness compacts at 95 percent (measured, situation) |
+| Current context C0 | 100,000 | Status line (measured) |
+| Compacted already | yes, once today | Situation |
+| Unrecorded context | none | Situation: all needed state is on disk; L = 0 |
+| Expected turns T | 60 | Plan estimate (single figure, no range given) |
+| Fresh input F | 3,000 | Measured on the previous assessment (situation) |
+| Output O | 1,500 | Measured on the previous assessment at high effort (situation) |
+| Fresh baseline B | 25,000 | Estimated default: no measurement in this harness and project |
+| Re-read set R | 30,000 | Handoff 1,000 + previous assessment 12,000 + three handoffs 6,000 + instruction files 9,000 + code index 2,000 (situation sizes) |
+| Handoff H | 2,500 | Default for a handoff under 120 lines (about 60 lines) |
+| Cache misses M | 0 | Unmeasured; no review pauses expected (situation) |
+| Rediscovery L | 0 | Unrecorded list is empty |
+| Ta, Ra | 15 turns, 40,000 tokens | Acceptance figures (situation); used for the split figure only |
+| Task type | whole-project assessment, matrix row 6 | Step 3.1 |
+| Design-heavy | yes | An assessment (step 1.2) |
+| Irreversible steps | none | Local commits only; nothing leaves the machine |
+
+G = F + O = 4,500 per turn (no override).
+
+Prices, per million, claude-fable-5-1 (current and target, same row, fetched 2026-10-29): input 10, output 50, cache_read 0.25, cache_write 12.5. The Fable row has no long-context tier.
+
+### Step A: continue or hand off
+
+```
+G       = 3,000 + 1,500                 = 4,500
+C_end   = 100,000 + 60 x 4,500          = 370,000 (above K)
+crosses = yes
+C_cont  = 100,000 + 60 x 4,500 / 2      = 235,000
+C_fresh = 25,000 + 30,000 + 135,000     = 190,000
+
+cost_continue = 60 x 235,000 x 0.25e-6 (3.525)
+              + 60 x 4,500 x 12.5e-6 (3.375)
+              + 60 x 1,500 x 50e-6 (4.500)
+              + M term 0
+              + penalty_compaction (30,000 x 12.5e-6 = 0.375; 2,500 x 50e-6 = 0.125; sum 0.500)
+              = 11.90 USD
+
+cost_fresh    = 2,500 x 50e-6 (0.125)
+              + 55,000 x 12.5e-6 (0.688)
+              + 60 x 190,000 x 0.25e-6 (2.850)
+              + 3.375 + 4.500
+              + M term 0; penalty_loss 0 (L = 0)
+              = 11.54 USD
+
+Margin: 11.90 - 11.54 = 0.36 USD, 3.1 percent of the smaller (fresh).
+
+T* = (2,500 x 50e-6 + 55,000 x 12.5e-6) / ((100,000 - 55,000) x 0.25e-6)
+   = 0.8125 / 0.01125 = 72 turns (formula only).
+The short path does not apply: crosses is yes and the session has compacted, so
+the break-even is not used for the verdict.
+```
+
+Prices used: claude-fable-5-1 for both sides (above).
+
+Cost split (step 2.1, figure only):
+- Brief at the current model: 2,500 x 50e-6 = 0.125
+- Run at claude-sonnet-5-5 (input 2, output 10, cache_read 0.1, cache_write 2.5), without H: 0.138 + 1.140 + 0.675 + 0.900 = 2.853
+- Acceptance at claude-opus-5-5 (input 4, output 20, cache_read 0.2, cache_write 5), from B + Ra = 65,000, 15 turns, growth as the run: 0.325 + 0.296 + 0.338 + 0.450 = 1.409
+- cost_split = 4.39 USD (62 percent below fresh; a sharper brief would save 7.15 USD)
+
+Draft verdict: fresh, by quality, margin 0.36 USD, 3.1 percent of the smaller. Costs are within 10 percent, so the quality rule decides: this session has compacted once and will cross K, so continue loses.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Whole-project assessment: six answers and roadmap | Fable | claude-fable-5-1 | high | `node scripts/check.mjs` exits zero on the repo; all six answers and the priced roadmap present in the output file | one piece | 11.54 USD (fresh side) |
+
+Serial chain: one piece of 60 turns. Wall clock of the stage: no figure in the situation, not estimated. Add 15 minutes for the handoff (10 to write and commit, 5 to read). Operator review time: none expected. The operator starts the fresh session and picks its model and effort, as the handoff's first lines state.
+
+Effort raised or lowered: no change. No outward step, no security or money, not a merge or release, no failed prior attempt, and the work is not repeatable enough to lower.
+
+Split (step 2.1): a figure only, not a plan. The assessment's definition of done is judgement (six answers, a priced roadmap), so the brief cannot carry an oracle that makes it matrix row 1 or 2 work. The matrix puts assessments at Fable.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 60.
+2. Design-heavy across a compaction: yes, binding. The stage is an assessment and the session compacted once, so the verdict is fresh.
+3. Irreversible steps and approval: none leave the machine; no approval step is named in the plan.
+4. Model from the table: claude-fable-5-1, class fable, `pricing/2026-10-30.json`.
+5. Table age 1 day (limit 14); no null in the Fable row used.
+6. Acceptance: no acceptance session in the plan. Not applicable.
+7. Decision budget: record about 2,900 tokens (estimate, under 4,000); decision about 6 minutes (self-estimate, under 10).
+8. Class and effort match the harness: claude-fable-5-1 at high in the harness and in the plan.
+
+Binding: 2 only.
+
+### Adversarial pass
+
+The opposite verdict, argued: continue keeps the 100,000 tokens already in context and avoids the 2,500-token handoff and the 30,000-token re-read. The model and harness stay the same, and no unrecorded context is listed. The cost gap is 0.36 USD (3.1 percent), inside the 10 percent band, so cost does not decide. Against this, guardrail 2 forbids continuing a design-heavy stage after a compaction, and a quality rule cannot be overridden by cost.
+
+Each input, the way it could be wrong:
+
+- C0: measured at 100,000. At 130,000 (30 percent up) continue is 12.35 USD, 7.0 percent above fresh, inside the band. At 70,000 (30 percent down) continue is 11.45 USD, 0.8 percent below fresh, inside the band. The verdict holds by guardrail 2.
+- T: planned at 60. Doubled to 120, continue is 27.35 USD and fresh 26.31 USD, a margin of 1.04 USD (3.9 percent). Holds. T moves the result most.
+- F and O: F measured at 3,000. At the read-heavy range top of 8,000, both sides rise and the margin stays at 0.36 USD, because F and O cancel in the difference. Holds. O at high effort is measured; at xhigh it is an estimate, and it cancels too.
+- B and R: B is a default of 25,000 (estimated). At 35,000, fresh is still cheaper, by 0.09 USD. R at 40,000 (10,000 more than sized) shrinks the margin to 0.21 USD. Holds.
+- M: 0 unmeasured. Each review pause adds about 0.55 USD to continue relative to fresh, so misses strengthen fresh.
+- Task type: an assessment is judgement, not mechanical. Fable is right; no cheaper class is in the plan.
+- Prices: table 1 day old; Fable row from 2026-10-29; no long-context tier applies.
+- Compaction on the fresh side: the formula prices compaction on the continue side only. A fresh session ends at about 325,000 (B + R + T x G), so it would also be summarised. Adding its penalty (0.50 USD) gives fresh 12.04 and continue 11.90, continue cheaper by 0.14 (1.2 percent), inside the band. Guardrail 2 and the quality rule still decide fresh. This is the fragile point.
+- Unrecorded context: none listed. If some exists, guardrail 2 already decides.
+
+Recomputed with the adverse value that moves the result most (T doubled to 120):
+
+```
+cost_continue = 120 x 370,000 x 0.25e-6 (11.100) + 120 x 4,500 x 12.5e-6 (6.750) + 120 x 1,500 x 50e-6 (9.000) + penalty 0.500 = 27.35
+cost_fresh    = 0.125 + 0.688 + 120 x 325,000 x 0.25e-6 (9.750) + 6.750 + 9.000 = 26.31
+```
+
+Verdict holds: yes, fragile on cost only. The cost sign flips to continue at C0 below about 75,800 tokens, inside the 10 percent band, so the verdict rests on guardrail 2 and the quality rule.
+
+### Final verdict
+
+fresh, model claude-fable-5-1, effort high, pieces 1 (serial). Exact next action: commit the work and this handoff at the stage boundary, then the operator starts a fresh claude-fable-5-1 session at effort high with the handoff as its brief. The fresh session runs the assessment for 60 turns. No approval step is named.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 100,000 tokens | Measured, status line |
+| Context at end | about 112,000 tokens | Self-estimate: 100,000 plus about 9,000 read plus about 3,000 output |
+| Input tokens read | about 9,000 | Self-estimate: skill text about 7,000, price table about 1,200, decision template about 1,000 |
+| Output tokens | about 3,000 | Self-estimate: record characters divided by 4 |
+| Wall clock | about 6 minutes | Self-estimate |
+| Priced | 0.26 USD | Table `pricing/2026-10-30.json`: input 9,000 at 12.5 plus output 3,000 at 50 per million, self-estimate (0.1125 + 0.15) |
+
+```json dispatch-result
+{"skill_ran": true, "inputs": {"current": "claude-fable-5-1", "target": "claude-fable-5-1", "W": 200000, "K": 190000, "C0": 100000, "T": 60, "F": 3000, "O": 1500, "B": 25000, "R": 30000, "H": 2500, "M": 0, "L": 0, "compacted": true, "Ta": 15, "Ra": 40000, "G": null}, "table_age_days": 1, "totals": {"cost_continue": "11.90", "cost_fresh": "11.54", "cost_split": "4.39", "t_star": "72"}, "draft": {"side": "fresh", "by": "quality"}, "guardrails_triggered": [2], "final": {"outcome": "fresh", "model": "claude-fable-5-1", "effort": "high", "approval_step": null}, "cost_of_deciding": {"input_tokens": 9000, "output_tokens": 3000, "minutes": 6, "usd": "0.26"}}
+```

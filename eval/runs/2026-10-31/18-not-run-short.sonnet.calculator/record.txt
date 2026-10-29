@@ -1,0 +1,5 @@
+Session dispatch not run: under 10 turns remain (estimate 6), no other trigger.
+
+```json dispatch-result
+{"skill_ran": false, "inputs": null, "table_age_days": null, "totals": null, "draft": null, "guardrails_triggered": [], "final": {"outcome": "not-run", "model": "claude-sonnet-5-5", "effort": "medium", "approval_step": null}, "cost_of_deciding": null}
+```

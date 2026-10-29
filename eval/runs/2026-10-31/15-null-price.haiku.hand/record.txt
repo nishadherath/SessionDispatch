@@ -1,0 +1,125 @@
+## Session dispatch decision
+
+Date: 2026-10-31. Decided by: claude-haiku-5-5 (the model running this decision), in the session-dispatch evaluation run. Harness under review: Codex, gpt-6.1-sol at effort high.
+Price table: `pricing/2026-10-30.json` (age 1 day, within max_age_days 14).
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 as of that date |
+| Current model | gpt-6.1-sol, effort high | Measured: the harness report in the situation. The table row has class null and all four prices null. |
+| Target model | null | Matrix row 2 (scoped module work with a test suite) gives Sonnet, medium. The table has no priced Sonnet-class row in the OpenAI family, which is the family this harness runs. `claude-sonnet-5-5` is Anthropic and is not used. Step 1.4.4 and guardrail 4. |
+| Window W | 1,000,000 | Measured: `/status` in the situation. |
+| Compaction point K | 900,000 | Estimated: the documentation gives no figure, so 0.9 W per step 1.1. |
+| Current context C0 | 300,000 | Measured: `/status` in the situation. |
+| Compacted already | no | The situation. |
+| Unrecorded context | none | The situation says everything the next stage needs is in files on disk. |
+| Expected turns T | 30 | Plan estimate in the situation (one figure, no range given). |
+| Fresh input per turn F | 3,000 | Estimated: step 1.2 default. No per-turn measurement; a refactor is not read-heavy. |
+| Output per turn O | 1,500 | Estimated: step 1.2 default, which was measured at high effort. Effort assumed: high, as the current harness runs. |
+| Fresh baseline B | 25,000 | Estimated: step 1.3 default. No baseline has been measured for this harness and project. |
+| Re-read set R | 15,000 | Given in the situation: the handoff and the module, as a fresh session would read them. |
+| Handoff size H | 2,500 | Estimated: step 1.2 default for a handoff under 120 lines. The situation gives about 80 lines. |
+| Cache misses M | 0 | Unmeasured; the situation expects no review pauses. |
+| Rediscovery turns L | 0 | Unrecorded list is empty. |
+| Acceptance turns Ta, re-read Ra | n/a | Target is below Opus; no split is priced. |
+| Task type | Scoped module work with a stated test (matrix row 2) | Refactor within one module, with the test suite as the oracle. |
+| Design-heavy | no | Refactor within one module; no design choice in the stage. |
+| Irreversible or outward-facing steps | none | Local commits only; nothing leaves the machine. |
+
+### Step A: continue or hand off
+
+Calculator: not run. `scripts/` is not in the skill folder, and the calculator refuses null prices in any case (step 1.4). Hand arithmetic follows.
+
+```
+G       = F + O                 = 3,000 + 1,500 = 4,500 per turn
+C_end   = C0 + T * G            = 300,000 + 135,000 = 435,000 (K 900,000; margin 465,000)
+crosses = C_end > K             = false
+C_cont  = C0 + T * G / 2        = 300,000 + 67,500 = 367,500
+C_fresh = B + R + T * G / 2     = 25,000 + 15,000 + 67,500 = 107,500
+
+cost_continue = not computed: p_cache_read, p_cache_write and p_output for gpt-6.1-sol are null.
+cost_fresh    = not computed: p_output[current] (for H) is null, and the target has no priced row.
+T*            = not computed: needs p_cache_read and p_output of the current model.
+                Direction: C0 - B - R = 260,000 is positive, so fresh would pay on cache reads once priced.
+cost_split    = n/a: the target is below Opus.
+```
+
+Prices used: none. The current model's four prices are null; no other price is used.
+
+Draft verdict: incomplete: price of gpt-6.1-sol unknown. Step 1.4.4 says to compute what can be computed and to mark the verdict incomplete. No side is priced, so this record names no winner. The class of gpt-6.1-sol is also null, so step 2 rule 1 (target class above current, fresh by class) cannot be applied either.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| 1. Module refactor | Sonnet | null (no priced OpenAI-family row in the class) | medium | The module's test suite | serial | not computed |
+
+Serial chain and its wall clock: one piece, 30 turns. Wall clock not estimated: no per-turn measurement exists. Operator review time: none expected.
+
+Effort raised or lowered because: no change. Medium is the matrix row 2 default. It would move to high only if the module touches a public interface, a storage format, auth or payments, which the situation does not say. Assumed not.
+
+Split (step 2.1): not an option. The target is below Opus.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 30. Not binding.
+2. Design-heavy across a compaction: not design-heavy, not compacted, `crosses` false. Not binding.
+3. Irreversible steps and their approval step: none leave the machine. Not binding.
+4. Model chosen from the table, not memory: binding. The target is null, not named from memory, and this keeps the verdict incomplete.
+5. Table age and nulls: age 1 day, within 14. Binding: the current model's class and four prices are null, so nothing is priced and the verdict is incomplete.
+6. Acceptance at matrix row 4: no acceptance step is planned. Not binding.
+7. Decision budget: record about 9,000 characters (about 2,300 tokens), under 4,000 tokens. Decision about 6 minutes, under 10. Not binding.
+8. Class and effort match the harness: the harness reports gpt-6.1-sol at high. No handoff front matter exists to compare against, and the class cannot be checked because the table's class is null. Not verified; flagged here, not a stop.
+
+### Adversarial pass
+
+The opposite verdict, argued: fresh, by cost, on the direction the arithmetic already shows. Continuing carries an average context of 367,500 tokens over 30 turns, against 107,500 for a fresh session, so each cache read in the stage costs roughly 3.4 times as much, and the 260,000-token gap is paid on every turn. Nothing unrecorded is lost (L = 0), the test suite is an oracle that works in a fresh session, and the handoff is only about 80 lines. The continue side rests on the handoff being work and on a fresh session starting colder; neither is measured here. The direction favours fresh, but the sign cannot be fixed without prices.
+
+Each input, the way it could be wrong:
+
+- C0: measured at 300,000. At 30 percent off (390,000 or 210,000) the cache-read gap changes, but C0 - B - R stays positive in both cases.
+- T: 30 as one figure. At 60, C_end is 570,000 (still below K); fresh's advantage per turn stays the same, but the stage pays it twice as many times.
+- F and O: defaults. A read-heavy F of 8,000 gives G = 9,500 and C_end = 585,000 (still below K). O at high effort is an estimate and could be larger.
+- B and R: B is an unmeasured default of 25,000. A B of 60,000 gives C_fresh = 142,500, which still sits well below C_cont. R is given; project instruction files could add to it.
+- M: 0, no review pauses expected. Any miss re-writes the whole context at the cache-write rate, which costs more on the larger continue context, so the miss term favours fresh more.
+- Task type: a refactor with a test oracle is row 2. If the stage hides a design choice, or the public interface changes, the work could rise to Opus (fresh by class) or to high effort (more O).
+- Prices: current model all null, so no price-based figure exists. The target has no priced row in its family. The table is one day old, which is fine.
+- Unrecorded context: the situation says none. If ten turns of rediscovery were needed, that adds to the fresh side, which the record cannot price while the prices are null.
+
+Recomputed with the adverse values that move the context figures most (C0 at +30 percent, T at 60):
+
+```
+C_cont  = 390,000 + 60 * 4,500 / 2 = 525,000 (context figure only)
+C_end   = 390,000 + 60 * 4,500     = 660,000 (still below K 900,000, crosses false)
+cost_continue = not computed (null prices)
+cost_fresh    = not computed (null prices)
+```
+
+Verdict holds: not assessable, so there is no verdict to hold. The context figures show no compaction under either stress, so guardrail 2 does not move.
+
+### Final verdict
+
+Incomplete: price of gpt-6.1-sol unknown. Pieces: 1, serial. Model and effort: gpt-6.1-sol at high stay as they are until the operator answers, which is the default for a session that has not been dispatched. Exact next action: the operator chooses one of two options.
+
+Question the operator would be asked (none could be asked in this run): which of these to take for the gpt-6.1-sol price?
+(a) Give the class and the four prices per million (input, output, cache read, cache write), read from https://openai.com/api/pricing/ on a stated date, and say which OpenAI model is in the Sonnet class, or confirm that the target stays null.
+(b) Authorise a live assessment: fetch that page, write `pricing/2026-10-31.json` with the figures and the fetch date, run `node scripts/check.mjs`, and commit on a branch and open a pull request only if the operator also says so.
+
+Meanwhile the verdict stays incomplete and no cost figure is written.
+
+### Cost of deciding
+
+| Row | Value | Source (measured, naming the harness report, or self-estimate) |
+|---|---|---|
+| Context at start | not reported | Self-estimate only: this run has no usage report. |
+| Context at end | not reported | Self-estimate only: this run has no usage report. |
+| Input tokens read | 8,500 | Self-estimate: about 27,000 characters for `SKILL.md`, 3,000 for the price table and 3,800 for the record template, divided by 4. |
+| Output tokens | 2,300 | Self-estimate: this record, about 9,200 characters divided by 4. |
+| Wall clock | 6 minutes | Self-estimate. |
+| Priced | 0.0022 USD | Table `pricing/2026-10-30.json`, model claude-haiku-5-5: input 8,500 at cache_write 0.125 per million = 0.0010625; output 2,300 at 0.50 per million = 0.00115; total 0.0022125. Self-estimate. |
+
+```json dispatch-result
+{"skill_ran": true, "inputs": {"current": "gpt-6.1-sol", "target": null, "W": 1000000, "K": 900000, "C0": 300000, "T": 30, "F": 3000, "O": 1500, "B": 25000, "R": 15000, "H": 2500, "M": 0, "L": 0, "compacted": false, "Ta": null, "Ra": null, "G": null}, "table_age_days": 1, "totals": {"cost_continue": null, "cost_fresh": null, "cost_split": null, "t_star": null}, "draft": {"side": "incomplete", "by": null}, "guardrails_triggered": [4, 5], "final": {"outcome": "incomplete", "model": "gpt-6.1-sol", "effort": "high", "approval_step": "Operator's choice under step 1.4.4: (a) the gpt-6.1-sol class and prices, or (b) a live assessment with the operator's yes"}, "cost_of_deciding": {"input_tokens": 8500, "output_tokens": 2300, "minutes": 6, "usd": "0.0022"}}
+```

@@ -1,0 +1,170 @@
+## Session dispatch decision
+
+Date: 2026-10-31. Decided by: claude-sonnet-5-5, effort medium, in Claude Code (desktop app).
+Price table: `pricing/2026-10-30.json` (age 1 day, under 14). Step 0: runs (T 40 over 10; class change due).
+Note: the skill folder has no `scripts/dispatch.mjs`, so all arithmetic is by hand.
+
+### Inputs
+
+| Input | Value | Source |
+|---|---|---|
+| Formula | 2026-10-29 | SKILL.md step 2 |
+| Current model | claude-sonnet-5-5 | Harness report (situation) |
+| Target model | claude-opus-5-5 | Matrix row 3 (evaluation design): Opus; table's opus row |
+| W | 1,000,000 | Measured, usage tool |
+| K | 970,000 | Measured: 97 percent of W |
+| C0 | 150,000 | Measured, usage tool tokensUsed |
+| Compacted | no | Measured |
+| Unrecorded context | none | Situation: all on disk |
+| T | 40 | Plan estimate |
+| F | 3,000 | Step 1.2 default (no measurement) |
+| O | 3,000 | Step 1.2 writing-heavy default; assumes medium/high effort; estimate |
+| B | 86,450 | Measured: usage total less Messages |
+| R | 25,000 | Measured/stated: fresh session reads 25,000 |
+| H | 2,500 | Step 1.2 default; handoff about 100 lines (under 120) |
+| M | 0 | Unmeasured, default; no review pauses expected |
+| L | 0 | Unrecorded list empty |
+| Ta, Ra | 15, 30,000 | Situation (acceptance session) |
+| Task type | Row 3 (evaluation design, brief for a later session) | Matrix |
+| Design-heavy | yes | Evaluation design |
+| Irreversible steps | none | Local commits only |
+
+### Step A: continue or hand off
+
+```
+G       = F + O                   = 6,000
+C_end   = C0 + T * G              = 390,000
+crosses = C_end > K               = false (K 970,000)
+C_cont  = C0 + T * G / 2          = 270,000
+C_fresh = B + R + T * G / 2       = 231,450
+
+cost_continue on claude-sonnet-5-5
+  reads  40*270,000*0.1/1e6       = 1.080
+  writes 40*6,000*2.5/1e6         = 0.600
+  output 40*3,000*10/1e6          = 1.200
+  misses 0, compaction 0
+  = 2.88 USD
+cost_fresh on claude-opus-5-5
+  H*p_out (sonnet)  2,500*10/1e6  = 0.025
+  (B+R)*p_cw  111,450*5/1e6       = 0.557
+  reads  40*231,450*0.2/1e6       = 1.852
+  writes 40*6,000*5/1e6           = 1.200
+  output 40*3,000*20/1e6          = 2.400
+  misses 0, loss 0
+  = 6.03 USD
+T* = n/a: the model changes
+cost_split (brief sonnet, run sonnet, acceptance opus Ta 15, Ra 30,000, same F and O)
+  brief 0.025 + run 3.004 + acceptance 2.417 = 5.45 USD
+```
+
+Prices per million: sonnet in 2, out 10, cache_read 0.1, cache_write 2.5; opus in 4, out 20, cache_read 0.2, cache_write 5.
+
+Draft verdict: fresh, by class (Opus is above this Sonnet session). Money shown: continue 2.88 vs fresh 6.03, a difference of 3.15 USD (109 percent of the smaller); class overrides cost.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id | Effort | Oracle | Serial/parallel | Cost |
+|---|---|---|---|---|---|---|
+| Design the evaluation: scenarios, scoring measures, brief | Opus | claude-opus-5-5 | high | Brief names scenarios, measures, oracle and definition of done; `node scripts/check.mjs` exit 0 and counts quoted | serial | 6.03 USD (incl. handoff 0.025) |
+
+Serial chain: handoff and commit 10 min; read 5 min; stage about 40 turns (wall clock estimate 45 to 75 min, self-estimate). Operator review: none expected in-stage; operator starts the session (click) and picks the model.
+
+Effort: no change; high is the row 3 default. No raise trigger (nothing irreversible, no security/money, not a merge, no failed attempt).
+
+Split (step 2.1): a figure, not an option. The split costs 5.45 against fresh 6.03 (10.7 percent cheaper than... 0.59 USD, 10.8 percent of the smaller), but choosing scenarios and measures is the design work; a brief that settled them would be the stage. Not the plan.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 40.
+2. Design-heavy across a compaction: design-heavy, but no compaction and C_end 390,000 under K 970,000; not triggered. Verdict is fresh anyway.
+3. Irreversible steps: none; commits stay local. Approval step named: operator starts the fresh session and picks claude-opus-5-5 at high.
+4. Model from the table: claude-opus-5-5 is the table's opus row.
+5. Table age 1 day; sonnet and opus rows complete, no nulls.
+6. Acceptance of this stage's output later: fresh Fable session (one class above Opus), high (xhigh if it is a release or merge). No acceptance in this stage.
+7. Budget: record about 1,700 tokens under 4,000; about 6 minutes under 10.
+8. Class and effort match the harness: this session is Sonnet medium; it does not raise its own class, so the work goes to a fresh session. The handoff front matter states model id and effort on its first lines; the new session stops on a mismatch.
+
+### Adversarial pass
+
+The opposite verdict, argued: continuing costs 2.88 against 6.03 USD, all context is already on disk, a handoff is work and a fresh session starts colder, the stage is writing-heavy with no compaction risk, and Sonnet at medium could draft the brief. This is the best case for continue.
+
+Each input, the way it could be wrong:
+
+- C0: measured. 30 percent off (105,000 or 195,000) shifts both sides by under 0.5 USD; class still decides.
+- T: 40 is a plan estimate; at 80 turns C_end 630,000 still under K.
+- F and O: defaults, not measured; O 3,000 assumes medium to high effort, higher effort would raise both sides.
+- B and R: B measured; R measured at 25,000; could be 35,000 if more files are read.
+- M: no review pauses expected, so 0; test 6.
+- Task type: evaluation design is named in row 3; it could not honestly be called row 2.
+- Prices: 1 day old; no long-context tier on sonnet or opus.
+- Unrecorded context: none, everything is on disk.
+
+Recomputed with the adverse values (T 80, R 35,000, M 6):
+
+```
+cost_continue = 12.34 USD   (C_cont 390,000; reads 3.120, writes 1.200, output 2.400, misses 5.616)
+cost_fresh    = 24.03 USD   (C_fresh 361,450; first read 0.607, reads 5.783, writes 2.400, output 4.800, misses 10.410, H 0.025)
+```
+
+Continue stays cheaper on money, but the class rule (rule 1) does not depend on cost. Task type is the only input that could change the class, and no one claims it is Sonnet-class work. Verdict holds: yes.
+
+### Final verdict
+
+Fresh, model claude-opus-5-5, effort high, one piece, serial. Exact next action: gate green, commit, write the ~100-line handoff `docs/handoffs/2026-10-31-<stage>.md` with the model id and effort on its first lines, update `docs/status.md`, and propose a card for the operator to start a fresh claude-opus-5-5 session at high effort with the handoff as its brief (a higher class than this session; the operator picks the model).
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 150,000 | usage tool figure given in the situation |
+| Context at end | about 166,000 | self-estimate |
+| Input tokens read | about 12,700 | self-estimate: SKILL.md, table, template, example |
+| Output tokens | about 3,500 | self-estimate, characters divided by 4 |
+| Wall clock | about 6 minutes | self-estimate |
+| Priced | 12,700 x 2.5e-6 + 3,500 x 10e-6 = 0.07 USD | table `pricing/2026-10-30.json`, sonnet row; self-estimate |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-sonnet-5-5",
+    "target": "claude-opus-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 150000,
+    "T": 40,
+    "F": 3000,
+    "O": 3000,
+    "B": 86450,
+    "R": 25000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": 15,
+    "Ra": 30000,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "2.88",
+    "cost_fresh": "6.03",
+    "cost_split": "5.45",
+    "t_star": null
+  },
+  "draft": {"side": "fresh", "by": "class"},
+  "guardrails_triggered": [8],
+  "final": {
+    "outcome": "fresh",
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "approval_step": "operator starts the fresh session and picks claude-opus-5-5 at high effort"
+  },
+  "cost_of_deciding": {
+    "input_tokens": 12700,
+    "output_tokens": 3500,
+    "minutes": 6,
+    "usd": "0.07"
+  }
+}
+```

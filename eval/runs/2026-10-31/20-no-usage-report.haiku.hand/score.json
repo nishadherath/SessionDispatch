@@ -1,0 +1,52 @@
+{
+  "scenario": "20-no-usage-report",
+  "subject": "haiku",
+  "arm": "hand",
+  "outcome_expected": "fresh",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "fresh",
+  "final_ok": true,
+  "draft_ok": true,
+  "guardrails_ok": true,
+  "bound": [],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 2,
+    "correct": 2,
+    "missing": 1,
+    "max_error_usd": 0.0025,
+    "rule_ok": true,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 14,
+    "matched": 14,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 11500,
+    "reported_minutes": 6,
+    "measured_tokens": 106275,
+    "measured_minutes": 3.3705666666666665,
+    "record_tokens": 2799,
+    "usd_to_decide": 0.0026,
+    "usd_measured": null,
+    "over_cap": false,
+    "report_ratio": 0.108
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": ""
+}

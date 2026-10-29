@@ -1,0 +1,52 @@
+{
+  "scenario": "10-band-continue-quality",
+  "subject": "sonnet",
+  "arm": "hand",
+  "outcome_expected": "continue",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "continue",
+  "final_ok": true,
+  "draft_ok": true,
+  "guardrails_ok": true,
+  "bound": [],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 2,
+    "correct": 2,
+    "missing": 0,
+    "max_error_usd": 0.0023,
+    "rule_ok": true,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 14,
+    "matched": 14,
+    "misses": []
+  },
+  "decide": {
+    "reported_tokens": 14000,
+    "reported_minutes": 6,
+    "measured_tokens": 87454,
+    "measured_minutes": 1.92235,
+    "record_tokens": 2556,
+    "usd_to_decide": 0.0613,
+    "usd_measured": null,
+    "over_cap": false,
+    "report_ratio": 0.16
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": ""
+}

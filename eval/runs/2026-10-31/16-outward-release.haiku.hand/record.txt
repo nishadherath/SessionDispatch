@@ -1,0 +1,184 @@
+## Session dispatch decision
+
+Date: 2026-10-31. Decided by: claude-haiku-5-5 (the agent running this procedure) for the session under decision, which the harness reports as claude-sonnet-5-5 at effort medium, in Claude Code (desktop app). Price table: `pricing/2026-10-30.json` (age 1 day).
+
+This copy of the skill has no `scripts/` folder, so step 2 was computed by hand from the 2026-10-29 formula. Because the target is a cheaper class with a long-context tier, the fresh side was priced turn by turn, as step 1.4 item 5 asks.
+
+### Inputs
+
+| Input | Value | Source (measured or estimated, and how) |
+|---|---|---|
+| Formula | 2026-10-29 | `SKILL.md` step 2 in this folder (miss and loss terms present) |
+| Current model | claude-sonnet-5-5, effort medium | Reported by the harness, as the situation states |
+| Target model | claude-haiku-5-5 | Matrix row 1 (mechanical, fully specified chore), class haiku; the table's haiku row |
+| Window W | 1,000,000 | Measured: usage tool, `contextWindow` |
+| Compaction point K | 970,000 | Measured: `autoCompactsAtPercent` 97 times W |
+| Current context C0 | 400,000 | Measured: usage tool, `tokensUsed` |
+| Compacted already | no | Stated in the situation |
+| Unrecorded context | none | Stated in the situation: everything the stage needs is in files on disk |
+| Expected turns T | 15 | Plan estimate in the situation |
+| Fresh input per turn F | 2,000 | Measured on a similar chore last week |
+| Output per turn O | 1,000 | Measured on that chore. Its effort was not stated, so O is an estimate at high effort; tested at 3,000 in the adversarial pass |
+| Fresh baseline B | 86,450 | Measured: usage tool total less the Messages category |
+| Re-read set R | 8,000 | Given in the situation: the handoff and the patch |
+| Handoff size H | 2,500 | Step 1.2 default for a handoff under 120 lines (the situation says about 60). Estimate |
+| Cache misses M | 0 | No measurement exists; no review pauses expected (situation). Estimate |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance Ta, Ra | not applicable | Split not computed: the target is below opus |
+| Task type | row 1: apply a reviewed patch, run the check script | Matrix row 1; the outward steps raise effort (see step B) |
+| Design-heavy | no | The patch is reviewed; no design choice is left |
+| Irreversible or outward-facing | push `main` to origin; create and push tag `v1.4.0` on origin | Guardrail 3. The situation gives no standing approval for this project |
+
+G = F + O = 3,000.
+
+### Step A: continue or hand off
+
+Haiku's long-context tier applies above 100,000 input tokens. A fresh session's turn t reads C_start + (t - 1/2) * G with C_start = B + R = 94,450. Turns 1 and 2 (95,950 and 98,950) are at standard prices; turns 3 to 15 (101,950 to 137,950) are at the long-context prices. B alone is 86,450, so nearly every turn pays the tier. This narrows Haiku's advantage over Sonnet, and it is priced below. Sonnet has no tier.
+
+```
+continue, claude-sonnet-5-5 (flat prices)
+  G       = 3,000;  C_end = 400,000 + 45,000 = 445,000
+  crosses = false (K 970,000); penalty_compaction = 0
+  C_cont  = 400,000 + 22,500 = 422,500
+  reads   T*C_cont*p_cr = 6,337,500 tokens x 0.10/M = 0.634
+  writes  T*G*p_cw      = 45,000 x 2.50/M          = 0.113
+  output  T*O*p_out     = 15,000 x 10.00/M         = 0.150
+  misses  M = 0
+  cost_continue = 0.89625 USD, shown as 0.90
+
+fresh, claude-haiku-5-5 (turn-by-turn tier)
+  standard turns 1-2: 194,900 context tokens; long turns 3-15: 1,559,350
+  H*p_out[sonnet]   = 2,500 x 10.00/M                 = 0.025   (the handoff)
+  (B+R)*p_cw        = 94,450 x 0.125/M                = 0.0118  (first read, standard)
+  reads, standard   = 194,900 x 0.010/M               = 0.0019
+  reads, long       = 1,559,350 x 0.050/M             = 0.0780
+  writes, standard  = 6,000 x 0.125/M                 = 0.0008
+  writes, long      = 39,000 x 0.625/M                = 0.0244
+  output, standard  = 2,000 x 0.50/M                  = 0.0010
+  output, long      = 13,000 x 2.50/M                 = 0.0325
+  misses 0; penalty_loss 0 (L 0)
+  cost_fresh = 0.17535 USD, shown as 0.18
+```
+
+Prices per million. Sonnet: input 2.00, output 10.00, cache_read 0.10, cache_write 2.50. Haiku standard: input 0.10, output 0.50, cache_read 0.01, cache_write 0.125. Haiku long context (above 100,000): output 2.50, cache_read 0.05, cache_write 0.625.
+
+T* is not computed: the model changes, so the short path does not apply.
+
+Draft verdict: fresh, by cost, margin 0.72 USD (411 percent of the smaller). The target class is below the current one, so the class rule does not apply and the cost rule decides.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Apply the reviewed patch to four files; run the check script; then, after the operator's yes, push `main` and tag and push `v1.4.0` | Haiku | claude-haiku-5-5 | high | Check script exit 0; then `git ls-remote` on origin shows the pushed `main` and tag | serial, one piece | 0.18 USD |
+
+Effort raised one step, from medium to high, because the stage has outward-facing steps (matrix step 3.1). The stage is also a release, which is the same trigger. No lowering applies.
+
+Time: handoff about 10 minutes to write and commit, and about 5 minutes for the fresh session to read it (step 2.1). The stage's own wall clock was not measured. No review pauses are expected, but the wait for the operator's yes is not in this projection.
+
+Split (step 2.1): not an option, because the target is not Opus or Fable.
+
+### Guardrails checked
+
+1. Under 10 turns: no, T = 15.
+2. Design-heavy across a compaction: not design-heavy; no compaction.
+3. Irreversible steps and their approval step: triggered. Haiku is below Opus, so the brief must carry an approval line. The push and the tag wait for the operator's yes in chat. The verdict is unchanged; the plan has the line.
+4. Model from the table: claude-haiku-5-5 is the haiku row; claude-sonnet-5-5 is the sonnet row.
+5. Table age 1 day, under 14. The rows used have no null.
+6. Acceptance: no acceptance step is in the plan, so this does not bind. Open point: if the operator wants an acceptance before the tag, matrix row 4 applies (Sonnet, xhigh, fresh session). It is not priced here.
+7. Decision budget: this record is about 2,600 tokens against 4,000; the decision took about 6 minutes against 10 (self-estimates).
+8. Class and effort match the harness: this session is sonnet medium, as reported. The fresh session must check its own model and effort on start and stop on a mismatch.
+
+### Adversarial pass
+
+The opposite verdict, argued: continue on Sonnet. This session holds the reviewed patch and the reasons behind it. A fresh session starts with B of 86,450 and must read another 8,000 tokens cold. A release is outward-facing, and the operator's approval gate may hold the push and tag anyway, so the saving covers only the mechanical part. If the check script fails on reasoning, Haiku would need to escalate, which a Sonnet session already does.
+
+Each input, the way it could be wrong:
+
+- C0: measured at 400,000. At 30 percent off, continue moves by about 0.18 USD. At C0 = 0, the writes and output alone cost 0.26 USD, above the fresh 0.18, so fresh wins at any C0.
+- T: at 30 turns, cost_continue 1.86 and cost_fresh 0.36 (same tier rule). Holds.
+- F and O: O at 3,000 (high-effort reasoning): cost_continue 1.29, cost_fresh 0.28. Holds.
+- B and R: R at 35,000 (a fresh session reads the whole project), so the fresh start is 121,450 and every turn is long-tier: cost_fresh 0.27 against 0.90. Holds.
+- M (review pauses): none expected, M 0. The input that moves the result most is M. At M = 2: cost_continue 2.93 (2 x 422,500 x 2.40/M added to 0.90) and cost_fresh 0.31 (2 x 116,950 x 0.575/M added). Holds.
+- Task type: the stage is mechanical only if the check script passes. If it fails on a diagnosis, the stage needs a higher class; that adds a piece and is not priced here.
+- Prices: table 1 day old. Ignoring the Haiku tier would lower fresh, so the verdict holds either way.
+- Unrecorded context: none claimed. Each unrecorded turn would add about 0.010 USD to the fresh side; five turns give about 0.05 USD, and 0.18 + 0.05 is still well under 0.90.
+
+Recomputed with the adverse value that moves the result most (M = 2), as above, and with the other single stresses:
+
+```
+M 2:  cost_continue = 2.93   cost_fresh = 0.31
+T 30: cost_continue = 1.86   cost_fresh = 0.36
+O 3000: cost_continue = 1.29 cost_fresh = 0.28
+R 35000: cost_continue = 0.90 cost_fresh = 0.27
+```
+
+Verdict holds: yes. No flip, so no fragility to record. Each stress moved one input; no combined stress was computed by hand.
+
+### Final verdict
+
+Fresh, model claude-haiku-5-5, effort high, one piece, serial. Exact next action: write the handoff from the template (about 60 lines, the approval line and this record in it), commit it, and have the operator start a fresh session on claude-haiku-5-5 at effort high with it as the brief. That session applies the patch and runs the check script, then stops before any push or tag.
+
+Question for the operator, which nobody could answer in this run: "Do you approve pushing `main` to origin and creating and pushing tag `v1.4.0` on origin, once the check script passes?" Meanwhile the verdict is unchanged: the stage runs up to the gate, and the push and tag are not done.
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 400,000 | Usage tool, measured (situation) |
+| Context at end | about 414,500 | Self-estimate: start plus the reads and output below |
+| Input tokens read | about 11,500 | Self-estimate, characters divided by 4: `SKILL.md` about 6,500, decision template 1,000, price table 1,000, example 2,200, listing and prose about 800 |
+| Output tokens | about 3,000 | Self-estimate: this record, characters divided by 4 |
+| Wall clock | about 6 minutes | Self-estimate |
+| Priced | 11,500 x 0.125/M + 3,000 x 0.50/M = 0.0029 USD | `pricing/2026-10-30.json`, claude-haiku-5-5 standard row; self-estimate |
+
+The decision costs about 0.003 USD to dispatch a stage of about 0.18 USD, so the procedure does not cost more than the stage it dispatches.
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-sonnet-5-5",
+    "target": "claude-haiku-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 400000,
+    "T": 15,
+    "F": 2000,
+    "O": 1000,
+    "B": 86450,
+    "R": 8000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": null,
+    "Ra": null,
+    "G": null
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "0.90",
+    "cost_fresh": "0.18",
+    "cost_split": null,
+    "t_star": null
+  },
+  "draft": {
+    "side": "fresh",
+    "by": "cost"
+  },
+  "guardrails_triggered": [3],
+  "final": {
+    "outcome": "fresh",
+    "model": "claude-haiku-5-5",
+    "effort": "high",
+    "approval_step": "Operator's explicit yes in chat before the push of main to origin and before the creation and push of tag v1.4.0 on origin."
+  },
+  "cost_of_deciding": {
+    "input_tokens": 11500,
+    "output_tokens": 3000,
+    "minutes": 6,
+    "usd": "0.0029"
+  }
+}
+```
