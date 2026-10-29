@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, seventeenth update, by the Stage F3 session (claude-fable-5-1, high) at its close: O3 accepted, the H2 handoff written.
+Last updated: 2026-10-30, seventeenth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after pushing F3, deciding F3-7 and starting Stage H2.
 
 ## Done
 
@@ -30,7 +30,7 @@ Last updated: 2026-10-30, seventeenth update, by the Stage F3 session (claude-fa
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| none | H2 is next: the coordinating session pushes F3 and starts it from `docs/handoffs/2026-10-30-stage-h2-eval-rerun.md` after deciding the runner question (F3-7 in the acceptance note) | Sonnet, medium | this checkout, `main` | 45 to 75 min, 3 to 7 USD plus subjects 3 to 18 |
+| H2: rerun on the revised text, 120 runs (D9 A) | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-h2-eval-rerun.md`; session `local_2f355400`, name `stage-h2`, sharing this checkout; F3's commit `1f59010` pushed; runner question F3-7 decided A (the `Agent` runner, as H1) | Sonnet, medium | this checkout, `main` | 45 to 75 min, 3 to 7 USD plus subjects 3 to 18 |
 
 The three installed copies (claude, codex, opencode) were refreshed with
 `node scripts/install.mjs` on 2026-10-30 after O3; `--check` reports 0
@@ -73,6 +73,7 @@ assessment; D8 and D9 are repeated below.
 - D7 H1's scope: B, decided by the operator on 2026-10-30; done.
 - D8 Variant C: A (defer to F4; staged only if Haiku stays below 18 of 20 on the revised text), decided by the operator on 2026-10-30; below.
 - D9 H2's size: A (120 runs), decided by the operator on 2026-10-30; below.
+- F3-7 H2's runner (the coordinating session's, not the operator's): A, the `Agent` runner as H1 used it, decided 2026-10-30 so that H1 and H2 share one harness and F4 can attribute any change to the text; S4's CLI runner follows H2.
 - Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`.
 
 ```
