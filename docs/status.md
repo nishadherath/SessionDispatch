@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, thirteenth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after pushing F2 and starting Stage O3.
+Last updated: 2026-10-30, fourteenth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after the operator answered D9.
 
 ## Done
 
@@ -73,7 +73,7 @@ assessment; D8 and D9 are repeated below.
 - D6 Pushes to origin: standing yes, 2026-10-30, under `approvals.push_origin`.
 - D7 H1's scope: B, decided by the operator on 2026-10-30; done.
 - D8 Variant C: open, below.
-- D9 H2's size: open, below.
+- D9 H2's size: A (120 runs), decided by the operator on 2026-10-30; below.
 - Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`.
 
 ```
@@ -92,4 +92,5 @@ Options:       A 120: Sonnet two runs per scenario in both arms (n = 40 each), H
 Pros and cons: A can show Sonnet above 91 percent (40 of 40), separate the Sonnet arms if the hand arm is at or below 34 of 40, and see Haiku's recovery (10 to 18 of 20 is p of about 0.01); about 2.4 USD orchestration plus 3 to 18 of runs. B cannot show Sonnet above 84 percent or separate its arms; about 2 plus 2 to 12. C narrows Haiku too (n = 40) for about 1 to 6 USD more; Haiku's question is whether it passes at all, which n = 20 answers.
 Blast radius:  A and C one stage's cost. B a second rerun if F4 needs to separate the arms.
 Recommended:   A, because the money question is whether Sonnet needs the calculator, and that needs n = 40 on Sonnet and nothing more on Haiku.
+Decided:       A, by the operator on 2026-10-30 ("A: 120 runs"); the H2 handoff carries it.
 ```
