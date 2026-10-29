@@ -12,7 +12,12 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dir = path.join(ROOT, "pricing");
 const names = fs.readdirSync(dir).filter((n) => /^\d{4}-\d{2}-\d{2}\.json$/.test(n)).sort();
 if (names.length === 0) { console.error(`pricing-new: no table in ${dir} to copy from`); process.exit(1); }
-const today = new Date().toISOString().slice(0, 10);
+// Date convention: the operator's local calendar day, the same clock the
+// handoff filenames and the live status use. Not toISOString, which is UTC
+// and names a table for the previous day for part of a UTC+11 morning.
+const now = new Date();
+const two = (n) => String(n).padStart(2, "0");
+const today = `${now.getFullYear()}-${two(now.getMonth() + 1)}-${two(now.getDate())}`;
 const target = path.join(dir, `${today}.json`);
 if (fs.existsSync(target)) { console.error(`pricing-new: ${target} exists; edit it rather than starting again`); process.exit(1); }
 

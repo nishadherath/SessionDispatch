@@ -1,0 +1,16 @@
+{
+  "table_date": "@TODAY@",
+  "currency": "USD",
+  "unit": "per million tokens",
+  "max_age_days": 14,
+  "notes": ["Test fixture: synthetic figures. A null price beside a non-null fetched date, which the gate must reject. @TODAY@ is replaced by the test."],
+  "families": {
+    "fixture": {
+      "source": "https://example.test/pricing",
+      "fetched": "@TODAY@",
+      "models": {
+        "fixture-model-a": { "class": "haiku", "input": 1, "output": null, "cache_read": 0.1, "cache_write": 1.25 }
+      }
+    }
+  }
+}

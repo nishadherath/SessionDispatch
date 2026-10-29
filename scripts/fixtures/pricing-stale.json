@@ -1,0 +1,16 @@
+{
+  "table_date": "2020-01-01",
+  "currency": "USD",
+  "unit": "per million tokens",
+  "max_age_days": 14,
+  "notes": ["Test fixture: synthetic figures, not a price table. Old enough to be stale on any day the suite runs."],
+  "families": {
+    "fixture": {
+      "source": "https://example.test/pricing",
+      "fetched": "2020-01-01",
+      "models": {
+        "fixture-model-a": { "class": "haiku", "input": 1, "output": 2, "cache_read": 0.1, "cache_write": 1.25 }
+      }
+    }
+  }
+}
