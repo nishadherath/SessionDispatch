@@ -1,0 +1,24 @@
+{
+  "_note": "Release close-out (2026-10-30): the session dispatch decision of claude-fable-5-1 at xhigh, asked for by the operator, for the work after S3 lands: verify S3's commit, push, tag, push the tag, remove the one merged worktree and its branch, final status, commit, push. Run: node scripts/dispatch.mjs --json docs/dispatch/2026-10-30-release.json --today 2026-10-30. C0 and B measured by get_usage self in the coordinating session at 00:57 UTC (189,753 total, 95,302 Messages, so this session's B is 94,451); the fresh side's B is F5's measured fresh-session baseline 87,163. T 10 is an estimate (range 8 to 14). R for a fresh Haiku session: AGENTS.md 6,738, the protocol 32,419, status 23,619, the Haiku persona 36,195 and its bash file 1,078 characters, divided by 4, plus the handoff 2,500 tokens; a fresh Sonnet session reads its own persona (50,520 and 1,359): R 31,200. M 1: one pause (waiting for S3) longer than the cache lifetime. The pieces price the release chores as a sub-agent of this session (B 40,000, an estimate: the Agent tool's baseline is unmeasured here; R 10,000: the brief, status.md's tail and git output).",
+  "formula": "2026-10-29",
+  "table": "pricing/2026-10-29.json",
+  "today": "2026-10-30",
+  "current": "claude-fable-5-1",
+  "target": "haiku",
+  "W": 1000000,
+  "K": 970000,
+  "C0": 189753,
+  "compacted": true,
+  "T": 10,
+  "F": 3000,
+  "O": 1500,
+  "B": 87163,
+  "R": 27500,
+  "H": 2500,
+  "M": 1,
+  "L": 0,
+  "pieces": [
+    { "name": "R1 release chores as a Haiku sub-agent, effort high", "model": "claude-haiku-5-5", "effort": "high", "T": 8, "F": 3000, "O": 1500, "R": 10000, "B": 40000 },
+    { "name": "R1 release chores as a Sonnet sub-agent, effort high (comparison)", "model": "claude-sonnet-5-5", "effort": "high", "T": 8, "F": 3000, "O": 1500, "R": 10000, "B": 40000 }
+  ]
+}
