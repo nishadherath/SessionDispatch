@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, thirtieth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after verifying and pushing S3 and dispatching R1; D10 and D11 wait on the operator.
+Last updated: 2026-10-30, thirty-first update, by the Fable coordinating session (claude-fable-5-1, xhigh) after the operator answered D10 and D11 (A on both). This is the final status commit of Stage R1: the release tag `v1.0.0` goes on it, and nothing is committed after the tag.
 
 ## Done
 
@@ -32,12 +32,13 @@ Last updated: 2026-10-30, thirtieth update, by the Fable coordinating session (c
 | Stage H3: clean-harness regression, 42 runs | 2026-10-30 | 42 runs on the CLI runner and the S5 text (`SKILL.md` SHA-256 `0bad1334...`), commits `cbd0f26` and the closing commit; `eval/results-2026-11-01.md`. Sonnet calculator 21 of 21 (84.5 to 100.0 percent), threshold 20 of 21 met. Haiku calculator 13 of 21 (40.9 to 79.2 percent), threshold 19 of 21 not met: all 13 scorable records right, the 8 misses are format (7 unscorable field types, 1 no record). Measured subject cost 6.61 USD (Sonnet 5.89, Haiku 0.72). Gate 104 files, 0 findings (measured by the coordinating session at `0ad3d01`); 48 tests pass. D10's reopening condition holds. |
 | Stage F5: closing assessment on H3 | 2026-10-30 | `docs/assessment-2026-10-30-f5.md`: Sonnet threshold met (21 of 21); Haiku not met (13 of 21), ruled the subject's record formatting (4 misses) and the harness (4 misses: the CLI gave `claude-haiku-5-5` a 200,000-token window behind a 150,000-token baseline, so the subject's session was summarised mid-run; its calculator grant refused every Haiku command form), not the procedure (20 of 20 written records right on verdict, model and effort) and not the contract (Sonnet 21 of 21 on it). D10 ruled A (variant C closed, the operator's overrule the only change); D11 raised (a Haiku rerun on the fixed harness, recommended A, decline). The class floor gained two measured sentences on the H3 cells; `eval/README.md` gained the H3 entry; installed copies refreshed, 0 behind. Not done against F4 section 3.7: S3 remains. S3 handoff written (`docs/handoffs/2026-10-30-stage-s3-adapter-verification.md`). Verified by the coordinating session at `a2516a8`: gate 106 files, 0 findings; 48 tests pass; `install --check` 0 files behind; the run files confirm the 200,000-token Haiku window and calculator denials in 15 Haiku runs (16 denials). Pushed. About 6 to 8 USD (estimate, assessment section 5). |
 | Stage S3: adapter verification, operator present | 2026-10-30 | Installer run for all six harness targets; one session per harness given scenario 03 by hand wrote a record in the skill shape: Claude Code, Codex, Z-Code, OpenCode, Cline, Antigravity and DeepSeek (Antigravity's record matches the reference figures: 0.98 USD, T* 35.5, margin 0.12; two formatting slips, left as found). Kimi Code not installed. Gemini CLI deferred by the operator. DeepSeek: the operator did not state where it loaded the skill from, so its adapter records the pass without a location. Eight adapters carry a dated line; `adapters/generic.md` is not a harness and carries none. `install --check`: 4 copies, 0 behind. New `docs/installing.md` (ASD-STE100 style) and a README quick-start. Operator answers of 2026-10-30: all harnesses installed except Kimi Code; the Stage 0 paste question answered yes, the pointer blocks stay in `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md` (their wording matches the installer's in meaning; not rewritten). Gate 107 files, 0 findings; 48 tests pass. About 1.3 USD (estimate). |
+| Stage R1: release close-out | 2026-10-30 | The operator answered D10 and D11 on 2026-10-30 ("Yes, A on both"): variant C closed, the Haiku rerun H4 declined; recorded below, in `docs/operator-preferences.json` (the D2 note) and in F5 section 4 (criterion 4 met, so all four done criteria of F4 section 3.7 are met). This commit is the last before the tag. The chores (annotated tag `v1.0.0` on this commit, the tag pushed, the merged S1 worktree `.claude/worktrees/modest-swirles-cae434` and branch `claude/modest-swirles-cae434` removed) run as a Haiku sub-agent at high from `docs/handoffs/2026-10-30-stage-r1-release.md`, dispatched by the record in that file (fresh by cost, 0.41 against 4.44 USD; the decision cost 0.46 USD, about equal to the stage). The four git outputs that prove the chores are quoted in the coordinating session's report, not in a file, because nothing is committed after the tag. |
 
 ## In progress
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| R1: release close-out (tag `v1.0.0`, push, remove the merged S1 worktree and branch) | dispatched 2026-10-30 by the coordinating session on the operator's instruction, record in `docs/handoffs/2026-10-30-stage-r1-release.md` and inputs in `docs/dispatch/2026-10-30-release.json`; S3's `1cc6931` verified here (gate 108 files, 0 findings; 48 tests pass; `install --check` 4 copies, 0 behind) and pushed. Waits on the operator's D10 and D11 answers, then the final status commit here, then the chores as a Haiku sub-agent at high | Fable here, then Haiku, high | this checkout, `main` | about 15 min; 0.15 to 0.6 USD including the brief |
+| None. The R1 chores (tag, tag push, worktree and branch removal) run on this commit as a Haiku sub-agent at high; they edit nothing | | | | |
 
 The four installed copies (claude, codex, zcode, opencode) and the Cline rule file were written with
 `node scripts/install.mjs --harness all` on 2026-10-30 in S3; `--check` reports 0
@@ -50,14 +51,13 @@ list price from `pricing/2026-10-29.json` by one calculator run
 (`node scripts/dispatch.mjs --json docs/dispatch/2026-10-30-f5-close.json --today 2026-10-30`);
 wall clock is the model's, operator review separate.
 
-None. H4 (the Haiku calculator cell rerun, Sonnet medium, 0.85 plus 0.72 of subject runs and 0.20 handoff, 20 to 40 minutes) exists only if the operator picks D11 option B; it is listed under D11, not here.
+None. H4 (the Haiku calculator cell rerun) was closed by D11 option A on 2026-10-30; the harness fix it would have proven stays a maintenance item in F5 section 4.
 
-Not staged: C1 (variant C) and its acceptance F6, closed by D10 option A
-(about 1.8 for H4 plus 12.31 plus about 2.9 of runs if the operator
-overrules); O4 declined (F4 section 2.3).
+Not staged: C1 (variant C) and its acceptance F6, closed by D10 option A,
+confirmed by the operator on 2026-10-30; O4 declined (F4 section 2.3).
 
-Totals: no firm stage is left; with H4 (only on D11 option B) about 1.8. Done stages about 86 USD (estimates where the stage said so;
-H3's subjects 6.61 measured, F5 about 7, S3 about 1.3). The project is
+Totals: no stage is left. Done stages about 86 USD (estimates where the stage said so;
+H3's subjects 6.61 measured, F5 about 7, S3 about 1.3, R1 about 0.7 counting its dispatch record). The project is
 maintained, not developed (F4 section 3.7; F5 section 4 lists the
 maintenance items).
 
@@ -75,8 +75,8 @@ assessment; D8 and D9 are repeated below.
 - D7 H1's scope: B, decided by the operator on 2026-10-30; done.
 - D8 Variant C: A (defer to F4; staged only if Haiku stays below 18 of 20 on the revised text), decided by the operator on 2026-10-30; below. F4 ruled the gate open (17 of 20 on the scorer's count) and left C1 unstaged; D10 below puts that choice to the operator.
 - D9 H2's size: A (120 runs), decided by the operator on 2026-10-30; below.
-- D10 Variant C staged or closed (F4, 2026-10-30; reopened by H3; ruled by F5 on 2026-10-30): A, variant C closed, unless the operator overrules; `docs/assessment-2026-10-30-f5.md` section 2. Nothing else waits on it.
-- D11 Haiku cell rerun on the fixed harness, H4 (new, F5, 2026-10-30): waiting; recommended A (decline; the floor's operative sentence would not change). Nothing else waits on it; the kickoff prompt for B is in F5 section 6.
+- D10 Variant C staged or closed (F4, 2026-10-30; reopened by H3; ruled by F5 on 2026-10-30): A, variant C closed, confirmed by the operator on 2026-10-30 ("Yes, A on both"); `docs/assessment-2026-10-30-f5.md` section 2; the D2 note in `docs/operator-preferences.json` records the closure. Nothing waits on it.
+- D11 Haiku cell rerun on the fixed harness, H4 (F5, 2026-10-30): A (decline), decided by the operator on 2026-10-30 ("Yes, A on both"); H4 is not run, and the floor's Haiku figure stays a hand figure taken partly under compaction, as the text says. Nothing waits on it.
 - F3-7 H2's runner (the coordinating session's, not the operator's): A, the `Agent` runner as H1 used it, decided 2026-10-30 so that H1 and H2 share one harness and F4 can attribute any change to the text; S4's CLI runner follows H2.
 - Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`: answered yes by the operator on 2026-10-30 (S3); the blocks were already there and stay.
 
@@ -108,6 +108,7 @@ Pros and cons: A costs nothing and keeps the budget for the clean measurement; i
 Blast radius:  A none; variant C can be reopened by a later run if Haiku's clean-harness cell (H3) falls below 19 of 21. B two more stages on the serial chain after H3. C a confounded result.
 Recommended:   A, because a rewrite's target on the revised text is one scenario whose miss is an input default S5 fixes, and no n the budget allows can show a move from 19 of 20; D8 deferred this choice to F4 and F4 takes it, subject to the operator's overrule.
 Ruled:         A again, by F5 on 2026-10-30 after H3 reopened it: Haiku's 20 written records are right on verdict, model and effort, and the 8 misses (a lost brief, a renamed key, a refused command) are not reachable by wording. The operator's overrule is the only thing that changes it. F5 section 2 has the restated five parts.
+Decided:       A, by the operator on 2026-10-30 ("Yes, A on both"); variant C closed, the D2 note in `docs/operator-preferences.json` updated the same day.
 ```
 
 ```
@@ -117,4 +118,5 @@ Options:       A decline: the Haiku cell stays recorded as measured with its cav
 Pros and cons: A costs nothing; the expected H4 cell (about 17 of 21, a guess) stays below the threshold, so the floor's operative sentence would not change. B costs about 1.8 USD and 20 to 40 minutes; it replaces a medium-confidence reading with a measurement and proves the harness fix early.
 Blast radius:  A the floor's Haiku figure stays a hand figure under compaction, said so in the text. B a new results file, a possible dated edit to the floor's H3 sentence, two runner changes with tests; nothing in the procedure.
 Recommended:   A, because the only number B can change is one the skill's claim does not rest on, and the harness fix is made and proven the next time a rerun is required anyway.
+Decided:       A, by the operator on 2026-10-30 ("Yes, A on both"); H4 is not run.
 ```
