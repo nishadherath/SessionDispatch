@@ -247,13 +247,13 @@ reports 0 files behind.
 |---|---|---|
 | 1. `SKILL.md` carries the measured class position and the two definitions, and no open verdict waits on a text change | met | S5's three additions (`c1890f7`) and this stage's floor sentences; D10 and D11 are the operator's and change no text unless B is chosen |
 | 2. The evaluation runs end to end by script on a harness that loads no project instruction files, with measured usage and cost per run, and its results file on the final text is on file | met | `eval/run.mjs run --runner cli` (S4), `eval/results-2026-11-01.md` on the S5 text (SHA-256 `0bad1334...`), `usage.json` per run with `usd_priced`; the Haiku cell's harness caveats are recorded, not fixed |
-| 3. The adapters say, each, whether they were verified on a machine and when, and `install --check` reports 0 files behind | not met | `install --check`: 0 files behind (claude, codex, opencode). Adapters verified: claude-code, codex, zcode (2026-10-27); not verified: deepseek, kimi-code; the rest carry the Stage 0 wording and need the operator's machine (S3) |
-| 4. `docs/status.md` lists nothing under "In progress" or "To do", and the decisions waiting are empty or recorded as declined | not met | To do holds S3 (firm) and H4 (conditional on D11); Decisions waiting holds D10 (ruled A, awaiting the operator's acknowledgement or overrule) and D11 |
+| 3. The adapters say, each, whether they were verified on a machine and when, and `install --check` reports 0 files behind | met on 2026-10-30 (S3, `1cc6931`), with two caveats | `install --check`: 4 copies (claude, codex, zcode, opencode), 0 files behind, plus the Cline rule file. Verified on 2026-10-30 with scenario 03 given by hand: claude-code, codex, zcode, opencode, cline, Antigravity and DeepSeek; Kimi Code not installed on this machine. Caveats: Gemini CLI itself deferred by the operator (its Antigravity half verified); DeepSeek's load location not recorded. Row updated by the coordinating session on 2026-10-30 |
+| 4. `docs/status.md` lists nothing under "In progress" or "To do", and the decisions waiting are empty or recorded as declined | not met until the operator answers | In progress and To do have been empty since S3 (2026-10-30); Decisions waiting holds D10 (ruled A, awaiting the operator's acknowledgement or overrule) and D11 (recommended A). Row updated by the coordinating session on 2026-10-30 |
 
-So the project is not done. What stands between it and done is one
-stage that needs the operator present (S3, Sonnet medium, 1.31 USD by
-the calculator, 30 to 45 minutes plus installs) and two answers (D10,
-D11), neither of which needs a session. After S3 the project is
+So the project was not done at F5's close. S3 landed on 2026-10-30
+(`1cc6931`), so what stands between it and done is two answers (D10,
+D11), neither of which needs a session; the release tag follows them
+(`docs/handoffs/2026-10-30-stage-r1-release.md`). After S3 the project is
 maintained, not developed, as F4 section 3.7 says, with these
 maintenance items recorded here so the next rerun does not rediscover
 them:

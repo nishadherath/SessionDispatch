@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, twenty-ninth update, by the S3 session (claude-sonnet-5-5, medium) after the adapter verification with the operator; D10 and D11 wait on the operator.
+Last updated: 2026-10-30, thirtieth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after verifying and pushing S3 and dispatching R1; D10 and D11 wait on the operator.
 
 ## Done
 
@@ -35,7 +35,9 @@ Last updated: 2026-10-30, twenty-ninth update, by the S3 session (claude-sonnet-
 
 ## In progress
 
-None.
+| Stage | Session | Class, effort | Where | Estimate |
+|---|---|---|---|---|
+| R1: release close-out (tag `v1.0.0`, push, remove the merged S1 worktree and branch) | dispatched 2026-10-30 by the coordinating session on the operator's instruction, record in `docs/handoffs/2026-10-30-stage-r1-release.md` and inputs in `docs/dispatch/2026-10-30-release.json`; S3's `1cc6931` verified here (gate 108 files, 0 findings; 48 tests pass; `install --check` 4 copies, 0 behind) and pushed. Waits on the operator's D10 and D11 answers, then the final status commit here, then the chores as a Haiku sub-agent at high | Fable here, then Haiku, high | this checkout, `main` | about 15 min; 0.15 to 0.6 USD including the brief |
 
 The four installed copies (claude, codex, zcode, opencode) and the Cline rule file were written with
 `node scripts/install.mjs --harness all` on 2026-10-30 in S3; `--check` reports 0
