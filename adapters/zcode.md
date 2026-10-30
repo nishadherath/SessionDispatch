@@ -12,6 +12,10 @@
 
 `node scripts/install.mjs --harness zcode` copies the folder.
 
+Verified on 2026-10-30: the copy was refreshed (`install --check`, 0 behind)
+and a Z-Code session given scenario 03 by hand wrote a record in the
+skill shape. The 2026-10-27 line above stands.
+
 ## How it loads
 
 As Claude Code: front matter at start, body on invocation. Use the

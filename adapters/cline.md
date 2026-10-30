@@ -14,6 +14,10 @@ user copy of the skill by absolute path. `node scripts/install.mjs
 --harness cline` writes the rule file with the path filled in after
 installing the user copy.
 
+Verified on 2026-10-30: `install --harness cline` wrote the rule file
+`~/Documents/Cline/Rules/session-dispatch.md` and a Cline session given
+scenario 03 by hand wrote a record in the skill shape.
+
 ## How it loads
 
 Every rule file in those folders is added to the system prompt of every

@@ -8,6 +8,12 @@ the harness's user-level instruction file if it has one, else into the
 project's `AGENTS.md`, pointing at the Claude Code user copy by absolute
 path. Record the real location here once known.
 
+Verified on 2026-10-30 as working: a DeepSeek harness session given
+scenario 03 by hand wrote a record in the skill shape. The operator did
+not state the folder it loaded the skill from or where the pointer block
+was pasted, so the location above stays unrecorded. The installer has no
+DeepSeek target. The 2026-10-27 line above stands.
+
 ## How it loads
 
 By the instruction file on every session; the skill body on demand.
