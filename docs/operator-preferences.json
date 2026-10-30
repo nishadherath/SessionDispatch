@@ -12,7 +12,7 @@
       "answer": false,
       "asked": "2026-10-29",
       "recorded": "2026-10-30",
-      "note": "Operator, 2026-10-30, in the coordinating session, to decision D2 set out in the five-part shape: \"I choose your recommendation\", that is option A, no STE100 now. Deferred variant C: once Stage H1 has baseline results, an Opus stage may rewrite SKILL.md, the adapters and the templates under STE100's writing rules without its dictionary and score the rewrite on the same evaluation scenarios; adopted only if verdict agreement and guardrail compliance rise. Replies and records stay under the persona's section 14.1 either way."
+      "note": "Operator, 2026-10-30, in the coordinating session, to decision D2 set out in the five-part shape: \"I choose your recommendation\", that is option A, no STE100 now. Deferred variant C: once Stage H1 has baseline results, an Opus stage may rewrite SKILL.md, the adapters and the templates under STE100's writing rules without its dictionary and score the rewrite on the same evaluation scenarios; adopted only if verdict agreement and guardrail compliance rise. Replies and records stay under the persona's section 14.1 either way. Variant C closed on 2026-10-30: D10 option A, ruled by F4 and F5 and confirmed by the operator in the coordinating session (\"Yes, A on both\"); docs/status.md D10 has the five parts."
     },
     "autonomy": {
       "question": "May sessions work autonomously: start the next session themselves with the model and effort set, keep docs/status.md current, and report rather than ask?",

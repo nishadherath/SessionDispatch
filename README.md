@@ -136,6 +136,13 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-10-30: v1.0.0, the first release tag (Stage R1,
+  `docs/handoffs/2026-10-30-stage-r1-release.md`). The skill at its
+  measured class position, the evaluation harness and runner, the adapters
+  verified or marked on the operator's machine. The tagged commit records
+  the operator's last two decisions: variant C closed (D10) and the Haiku
+  rerun declined (D11). The merged Stage S1 worktree and branch are removed
+  after the tag is pushed.
 - 2026-10-30: Stage S3, adapters verified on the operator's machine. One session
   per harness given scenario 03 by hand wrote a record in the skill shape:
   Claude Code, Codex, Z-Code, OpenCode, Cline, Antigravity and DeepSeek;
