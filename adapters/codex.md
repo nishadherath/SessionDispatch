@@ -14,6 +14,11 @@
 the block below with the absolute path filled in. It never edits
 `AGENTS.md`; paste the block yourself.
 
+Verified on 2026-10-30: the copy was refreshed (`install --check`, 0 behind),
+the pointer block is in `~/.codex/AGENTS.md`, and a Codex session given
+scenario 03 by hand wrote a record in the skill shape. The 2026-10-27
+lines above stand.
+
 ## How it loads
 
 Codex reads `AGENTS.md` files from the home folder and the project

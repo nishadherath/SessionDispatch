@@ -14,6 +14,10 @@
 `node scripts/install.mjs --harness opencode` copies the folder and
 prints the block.
 
+Verified on 2026-10-30: the copy was refreshed (`install --check`, 0 behind),
+the pointer block is in `~/.config/opencode/AGENTS.md`, and an OpenCode
+session given scenario 03 by hand wrote a record in the skill shape.
+
 ## How it loads
 
 OpenCode reads `AGENTS.md` at the project root and the user-level file

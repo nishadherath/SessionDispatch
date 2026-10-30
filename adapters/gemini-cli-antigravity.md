@@ -13,6 +13,13 @@ Neither has a skill folder, so the block points at the Claude Code user
 copy by absolute path. `node scripts/install.mjs --harness gemini`
 prints the block with the path filled in; it never edits `GEMINI.md`.
 
+Verified on 2026-10-30 for Antigravity: the pointer block is in
+`~/.gemini/GEMINI.md` and an Antigravity session given scenario 03 by
+hand wrote a record in the skill shape. Two small defects in that
+record (two lines outside the pasted block, one blank recompute line)
+were left as found. Gemini CLI itself: not tested on 2026-10-30; the operator deferred it. The
+same `~/.gemini/GEMINI.md` block serves both.
+
 ## How it loads
 
 `GEMINI.md` files are concatenated into the system prompt on every

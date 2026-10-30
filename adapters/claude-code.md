@@ -12,6 +12,10 @@
 
 `node scripts/install.mjs --user` or `--project <repo>` does the copy.
 
+Verified on 2026-10-30: the user copy was refreshed and a Claude Code CLI session
+given scenario 03 by hand wrote a record in the skill shape. The
+2026-10-27 line above stands.
+
 ## How it loads
 
 Claude Code reads the front matter of every skill at session start and

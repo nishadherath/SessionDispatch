@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, twenty-eighth update, by the Fable coordinating session (claude-fable-5-1, xhigh) after starting S3 on the operator's yes; D10 and D11 wait on the operator.
+Last updated: 2026-10-30, twenty-ninth update, by the S3 session (claude-sonnet-5-5, medium) after the adapter verification with the operator; D10 and D11 wait on the operator.
 
 ## Done
 
@@ -31,16 +31,15 @@ Last updated: 2026-10-30, twenty-eighth update, by the Fable coordinating sessio
 | Stage S5: skill text, the class floor and two definitions | 2026-10-30 | Three fixed additions in `SKILL.md` (F4 sections 1.4, 2.1, 2.3, matrix row 5): the class floor paragraph before step 0, writing-heavy defined by matrix row in step 1.2's O row, and the fragility sentence on the omitted fresh-side terms in step 2. No other sentence, figure, front matter, matrix row or guardrail changed. Changelog line in `README.md`; claude, codex and opencode copies reinstalled, `--check` 0 files behind. Gate 102 files, 0 findings, `checkEval` unchanged; 48 tests pass. About 15 minutes; about 0.85 USD (estimate, calculator row). H3 next, from its existing handoff. |
 | Stage H3: clean-harness regression, 42 runs | 2026-10-30 | 42 runs on the CLI runner and the S5 text (`SKILL.md` SHA-256 `0bad1334...`), commits `cbd0f26` and the closing commit; `eval/results-2026-11-01.md`. Sonnet calculator 21 of 21 (84.5 to 100.0 percent), threshold 20 of 21 met. Haiku calculator 13 of 21 (40.9 to 79.2 percent), threshold 19 of 21 not met: all 13 scorable records right, the 8 misses are format (7 unscorable field types, 1 no record). Measured subject cost 6.61 USD (Sonnet 5.89, Haiku 0.72). Gate 104 files, 0 findings (measured by the coordinating session at `0ad3d01`); 48 tests pass. D10's reopening condition holds. |
 | Stage F5: closing assessment on H3 | 2026-10-30 | `docs/assessment-2026-10-30-f5.md`: Sonnet threshold met (21 of 21); Haiku not met (13 of 21), ruled the subject's record formatting (4 misses) and the harness (4 misses: the CLI gave `claude-haiku-5-5` a 200,000-token window behind a 150,000-token baseline, so the subject's session was summarised mid-run; its calculator grant refused every Haiku command form), not the procedure (20 of 20 written records right on verdict, model and effort) and not the contract (Sonnet 21 of 21 on it). D10 ruled A (variant C closed, the operator's overrule the only change); D11 raised (a Haiku rerun on the fixed harness, recommended A, decline). The class floor gained two measured sentences on the H3 cells; `eval/README.md` gained the H3 entry; installed copies refreshed, 0 behind. Not done against F4 section 3.7: S3 remains. S3 handoff written (`docs/handoffs/2026-10-30-stage-s3-adapter-verification.md`). Verified by the coordinating session at `a2516a8`: gate 106 files, 0 findings; 48 tests pass; `install --check` 0 files behind; the run files confirm the 200,000-token Haiku window and calculator denials in 15 Haiku runs (16 denials). Pushed. About 6 to 8 USD (estimate, assessment section 5). |
+| Stage S3: adapter verification, operator present | 2026-10-30 | Installer run for all six harness targets; one session per harness given scenario 03 by hand wrote a record in the skill shape: Claude Code, Codex, Z-Code, OpenCode, Cline, Antigravity and DeepSeek (Antigravity's record matches the reference figures: 0.98 USD, T* 35.5, margin 0.12; two formatting slips, left as found). Kimi Code not installed. Gemini CLI deferred by the operator. DeepSeek: the operator did not state where it loaded the skill from, so its adapter records the pass without a location. Eight adapters carry a dated line; `adapters/generic.md` is not a harness and carries none. `install --check`: 4 copies, 0 behind. New `docs/installing.md` (ASD-STE100 style) and a README quick-start. Operator answers of 2026-10-30: all harnesses installed except Kimi Code; the Stage 0 paste question answered yes, the pointer blocks stay in `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md` (their wording matches the installer's in meaning; not rewritten). Gate 107 files, 0 findings; 48 tests pass. About 1.3 USD (estimate). |
 
 ## In progress
 
-| Stage | Session | Class, effort | Where | Estimate |
-|---|---|---|---|---|
-| S3: adapter verification with the operator present | started 2026-10-30 by the coordinating session with `start_session` (model and effort set) from `docs/handoffs/2026-10-30-stage-s3-adapter-verification.md` on the operator's "Yes, start S3"; session `local_a4f7b0cc`, name `stage-s3`, sharing this checkout; the operator answers it directly (installed harnesses, the pastes, the Stage 0 paste question) | Sonnet, medium | this checkout, `main` | 30 to 45 min of model time plus the operator's installs; 1.31 USD (quote 1 to 2.5) |
+None.
 
-The three installed copies (claude, codex, opencode) were refreshed with
-`node scripts/install.mjs` on 2026-10-30 after O3; `--check` reports 0
-files behind. S5 and F5 reran the install after their edits; `--check` reports 0 files behind.
+The four installed copies (claude, codex, zcode, opencode) and the Cline rule file were written with
+`node scripts/install.mjs --harness all` on 2026-10-30 in S3; `--check` reports 0
+files behind.
 
 ## To do
 
@@ -49,22 +48,16 @@ list price from `pricing/2026-10-29.json` by one calculator run
 (`node scripts/dispatch.mjs --json docs/dispatch/2026-10-30-f5-close.json --today 2026-10-30`);
 wall clock is the model's, operator review separate.
 
-| Stage | Class, effort | Cost (USD) | Wall clock | Depends on |
-|---|---|---|---|---|
-| S3: adapter verification on each harness, operator present (`docs/handoffs/2026-10-30-stage-s3-adapter-verification.md`) | Sonnet, medium | 1.31 (1 to 2.5) | 30 to 45 min plus the operator's installs | the operator at the machine |
-| H4: Haiku calculator cell rerun on the fixed CLI harness (`--autocompact`, the calculator grant), 21 runs | Sonnet, medium | 0.85 plus 0.72 of subject runs (measured mean) and 0.20 handoff | 20 to 40 min | D11 option B only (recommended A: not run) |
+None. H4 (the Haiku calculator cell rerun, Sonnet medium, 0.85 plus 0.72 of subject runs and 0.20 handoff, 20 to 40 minutes) exists only if the operator picks D11 option B; it is listed under D11, not here.
 
 Not staged: C1 (variant C) and its acceptance F6, closed by D10 option A
 (about 1.8 for H4 plus 12.31 plus about 2.9 of runs if the operator
 overrules); O4 declined (F4 section 2.3).
 
-Totals: firm stages left about 1.5 USD (S3), quote 1 to 2.5; with H4
-about 3.3. Done stages about 85 USD (estimates where the stage said so;
-H3's subjects 6.61 measured, F5 about 7). Whole roadmap about 86 to 89
-USD firm. Serial chain left: S3 alone, 30 to 45 minutes of model time;
-operator time about 1 to 1.5 hours including the installs (rough). After
-S3 the project is maintained, not developed (F4 section 3.7; F5 section
-4 lists the maintenance items).
+Totals: no firm stage is left; with H4 (only on D11 option B) about 1.8. Done stages about 86 USD (estimates where the stage said so;
+H3's subjects 6.61 measured, F5 about 7, S3 about 1.3). The project is
+maintained, not developed (F4 section 3.7; F5 section 4 lists the
+maintenance items).
 
 ## Decisions waiting
 
@@ -83,7 +76,7 @@ assessment; D8 and D9 are repeated below.
 - D10 Variant C staged or closed (F4, 2026-10-30; reopened by H3; ruled by F5 on 2026-10-30): A, variant C closed, unless the operator overrules; `docs/assessment-2026-10-30-f5.md` section 2. Nothing else waits on it.
 - D11 Haiku cell rerun on the fixed harness, H4 (new, F5, 2026-10-30): waiting; recommended A (decline; the floor's operative sentence would not change). Nothing else waits on it; the kickoff prompt for B is in F5 section 6.
 - F3-7 H2's runner (the coordinating session's, not the operator's): A, the `Agent` runner as H1 used it, decided 2026-10-30 so that H1 and H2 share one harness and F4 can attribute any change to the text; S4's CLI runner follows H2.
-- Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`.
+- Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`: answered yes by the operator on 2026-10-30 (S3); the blocks were already there and stay.
 
 ```
 D8

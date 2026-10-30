@@ -29,11 +29,22 @@ the model's confidence.
 
 ## Install
 
-Node 20 or later. Nothing to `npm install`.
+Node 20 or later. Nothing to `npm install`. The step-by-step guide, with
+a table of what each harness needs, is `docs/installing.md`.
+
+After you clone the repository, from its root folder:
+
+```bash
+node scripts/install.mjs --harness all --dry-run
+```
 
 ```bash
 node scripts/install.mjs
 ```
+
+The first command previews every harness. The second installs for
+Claude Code. Then paste the pointer block it prints into your
+instruction file, and run `node scripts/install.mjs --check`.
 
 That copies `SKILL.md`, `pricing/`, `templates/`, `examples/` and the
 scripts an installed copy can run (`pricing-new.mjs` and, when present,
@@ -125,6 +136,12 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-10-30: Stage S3, adapters verified on the operator's machine. One session
+  per harness given scenario 03 by hand wrote a record in the skill shape:
+  Claude Code, Codex, Z-Code, OpenCode, Cline, Antigravity and DeepSeek;
+  Kimi Code is not installed; Gemini CLI deferred. Each adapter carries a
+  dated line. New `docs/installing.md` (ASD-STE100 style install guide)
+  and a quick-start in the Install section.
 - 2026-10-30: Stage F5, the closing assessment on H3
   (`docs/assessment-2026-10-30-f5.md`). Sonnet threshold met (21 of 21);
   Haiku not met (13 of 21), ruled the subject's record formatting and the

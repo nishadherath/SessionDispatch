@@ -13,6 +13,9 @@ Not verified on the operator's machine (no `~/.kimi/` folder on
 Until checked, use the generic adapter: the block points at the Claude
 Code user copy by absolute path.
 
+Not installed on this machine on 2026-10-30 (the operator, in the S3 session).
+The 2026-10-27 line above stands.
+
 ## How it loads
 
 By the instruction file on every session; the skill body on demand.
