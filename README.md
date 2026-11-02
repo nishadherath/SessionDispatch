@@ -136,6 +136,13 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-11-02: assessment of the Tsunami coordinating session's report on the
+  cost of coordinating a dispatched chain, `docs/assessment-2026-11-02.md`.
+  The measured figures checked (orchestration about 56 USD against 5.3
+  projected; pieces 25.49 against 33.4), the report's one-tenth corrected
+  to about one quarter, and a term To with a coordinator rule and a
+  calibration loop proposed as stages O5, S6 and F7; D12 waits on the
+  operator. The skill is unchanged.
 - 2026-10-30: v1.0.0, the first release tag (Stage R1,
   `docs/handoffs/2026-10-30-stage-r1-release.md`). The skill at its
   measured class position, the evaluation harness and runner, the adapters
