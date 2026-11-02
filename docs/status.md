@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-10-30, thirty-first update, by the Fable coordinating session (claude-fable-5-1, xhigh) after the operator answered D10 and D11 (A on both). This is the final status commit of Stage R1: the release tag `v1.0.0` goes on it, and nothing is committed after the tag.
+Last updated: 2026-11-02, thirty-second update, by the Fable session (claude-fable-5-1, high) the operator opened with the Tsunami coordinating session's report on the coordinator's cost. `docs/assessment-2026-11-02.md` checks the report and proposes stages O5, S6 and F7; D12 waits on the operator. Nothing after the v1.0.0 tag changes the skill yet.
 
 ## Done
 
@@ -53,6 +53,8 @@ wall clock is the model's, operator review separate.
 
 None. H4 (the Haiku calculator cell rerun) was closed by D11 option A on 2026-10-30; the harness fix it would have proven stays a maintenance item in F5 section 4.
 
+Proposed on 2026-11-02, waiting on D12 (`docs/assessment-2026-11-02.md` section 4): O5 (Opus high, the coordinator term, formula 2026-11-02, 9.45 to 15.5 USD, 60 to 90 min), S6 (Sonnet medium, the transcript pricer and the calibration ledger, 2.1 USD, 20 to 40 min), F7 (Fable xhigh, acceptance, install, tag v1.1.0, 7.5 USD, 20 to 30 min). About 19 to 25 USD and 2 to 2.5 h on the serial chain with the sessions operator-started; 55 to 69 USD if the Fable session coordinates.
+
 Not staged: C1 (variant C) and its acceptance F6, closed by D10 option A,
 confirmed by the operator on 2026-10-30; O4 declined (F4 section 2.3).
 
@@ -77,6 +79,7 @@ assessment; D8 and D9 are repeated below.
 - D9 H2's size: A (120 runs), decided by the operator on 2026-10-30; below.
 - D10 Variant C staged or closed (F4, 2026-10-30; reopened by H3; ruled by F5 on 2026-10-30): A, variant C closed, confirmed by the operator on 2026-10-30 ("Yes, A on both"); `docs/assessment-2026-10-30-f5.md` section 2; the D2 note in `docs/operator-preferences.json` records the closure. Nothing waits on it.
 - D11 Haiku cell rerun on the fixed harness, H4 (F5, 2026-10-30): A (decline), decided by the operator on 2026-10-30 ("Yes, A on both"); H4 is not run, and the floor's Haiku figure stays a hand figure taken partly under compaction, as the text says. Nothing waits on it.
+- D12 The coordinator's cost in the formula (2026-11-02, from the Tsunami report): waiting on the operator. Recommended A' (the term, the coordinator rule, the calibration loop; stages O5, S6, F7, operator-started). Five parts below and in `docs/assessment-2026-11-02.md` section 6.
 - F3-7 H2's runner (the coordinating session's, not the operator's): A, the `Agent` runner as H1 used it, decided 2026-10-30 so that H1 and H2 share one harness and F4 can attribute any change to the text; S4's CLI runner follows H2.
 - Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`: answered yes by the operator on 2026-10-30 (S3); the blocks were already there and stay.
 
@@ -119,4 +122,13 @@ Pros and cons: A costs nothing; the expected H4 cell (about 17 of 21, a guess) s
 Blast radius:  A the floor's Haiku figure stays a hand figure under compaction, said so in the text. B a new results file, a possible dated edit to the floor's H3 sentence, two runner changes with tests; nothing in the procedure.
 Recommended:   A, because the only number B can change is one the skill's claim does not rest on, and the harness fix is made and proven the next time a rerun is required anyway.
 Decided:       A, by the operator on 2026-10-30 ("Yes, A on both"); H4 is not run.
+```
+
+```
+D12
+Decision:      Whether, and how, the cost of the session that coordinates a dispatched chain enters the session-dispatch formula.
+Options:       A' the report's term, amended: To per plan at the coordinator's class, a matrix row and a plan rule for who coordinates, a calibration loop (transcript pricer, Measured column, ledger, sample sizes on defaults), two scenarios, formula date 2026-11-02, tag v1.1.0; stages O5, S6, F7, sessions operator-started / A the report's term alone, as it stands (To in cost_split and the plan, defaults 40 per piece, 6,500 and 2,800 per turn) / B a paragraph in step 2.1: price the coordinator by hand as the continue side with T = To, and hand coordination to a cheaper class after the briefs / C nothing now
+Pros and cons: A' closes the largest projection error on record (56 against 5.3 USD), makes a Fable coordinator's price visible beside a Sonnet one in every record, gives the defaults a path to become measurements, and tells a subject the harness limit that decides who can coordinate; it costs 19 to 25 USD and about 2.5 hours, and its term is unscored on a subject until the next rerun. A costs about the same and leaves the turn count, the main error, as an unmeasured default with no way to improve it, and leaves the one-quarter figure at one tenth. B costs about 1 USD and 20 minutes; the gate cannot check what it adds, and the calculator can already give the number (its continue side with T = To), so B is a text pointer to arithmetic the skill does not own. C repeats the omission on the next dispatch; on this one it was the difference between 38.7 and 82 USD.
+Blast radius:  A' and A: this repository (v1.1.0), the installed copies on this machine (every Claude Code project, Tsunami included, plus codex and opencode), the record template; past records safe by formula date; the class floor's figures stay on the 2026-10-29 formula until the next rerun; Tsunami's repository unchanged. B: SKILL.md and the installed copies. C: nothing.
+Recommended:   A', with the three sessions started by the operator from cards so that this session does not become the stage's dearest piece; B is the fallback if 2.5 hours is too much now, and A' can follow it.
 ```
