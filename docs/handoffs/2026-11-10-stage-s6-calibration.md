@@ -31,16 +31,16 @@ The skill gets a path from a measured cost back to its defaults (`docs/assessmen
 
 ## Verified facts
 - `get_session self`, 2026-11-10: the O5 session was `claude-opus-5-5` at `high` in its own worktree.
-- `node scripts/check.mjs` at `d44668f`: 115 files read, 0 findings, exit 0. `node --test "scripts/*.test.mjs"`: 59 pass, 0 fail (112 s). 2026-11-10.
+- `node scripts/check.mjs` after `main` was merged into the O5 branch: 116 files read, 0 findings, exit 0. `node --test "scripts/*.test.mjs"`: 60 pass, 0 fail (133 s). 2026-11-10.
 - `--formula 2026-10-29` prints 20.01, 9.49 and 7.23 USD for the Stage O1 example's inputs; scenarios 01 to 21 are byte-identical to `2b160e0` (`git diff --quiet`).
-- The newest committed table is `pricing/2026-10-29.json`, 12 days old on 2026-11-10; the gate exits 2 from 2026-11-13. That is an expected state, not a fault.
+- D13 was decided A on 2026-11-10: the pricing work is on `main` as `1ae8c0d`, merged into the O5 branch. The table in force is now `pricing/2026-11-10.json` (age 0 days of `max_age_days` 8, so the gate exits 2 from 2026-11-19, an expected state); it lists `claude-fable-5-2` and no `claude-fable-5-1`. The O5 example, scenarios 22 and 23 and the core tests pin `pricing/2026-10-29.json`; nothing in O5 reads a `claude-fable-5-1` row from the newest table.
 - `git push -u origin claude/stoic-varahamihira-e520ec` created the branch on `origin`, 2026-11-10.
 
 ## Work completed
 - `2185a2b` the term in the core, the calculator, the gate and the template; `8c1ce01` `SKILL.md` and the Tsunami example; `6eb7efd` scenarios 22 and 23; `d44668f` changelog and status. This commit: this handoff, `docs/dispatch/2026-11-10-s6.json`, the O5 handoff marked done.
 
 ## Unresolved questions
-- Operator, D13 (`docs/status.md`): the main checkout's uncommitted pricing work; nothing merges into `main` until it is settled.
+- F7: the merge of the O5 and S6 branches into `main`, and the acceptance of the pricing work of `1ae8c0d` (D13's three points in `docs/status.md`).
 - F7: `eval/score.mjs` recomputes measure 3 under formula 2026-10-29 and reads no To, so on scenarios 22 and 23 it marks a correct record's coordinator figures wrong (`scripts/eval-score.test.mjs` pins exactly those). The scorer must learn To, the coordinator and the scenario's formula before the next required rerun. That changes the evaluation contract; F7 rules it.
 - F7: a tag push is outside `approvals.push_origin` and needs the operator's yes in the session that pushes.
 
@@ -48,13 +48,13 @@ The skill gets a path from a measured cost back to its defaults (`docs/assessmen
 Confirm `get_session self` reports `claude-sonnet-5-5` at `medium` and a worktree cut from `claude/stoic-varahamihira-e520ec` (stop and name the mismatch otherwise). Run `node scripts/check.mjs` and quote the counts. Then read Tsunami's `session_cost.py` and write the failing test for `scripts/session-cost.mjs` against a synthetic three-message JSONL fixture under `scripts/fixtures/`.
 
 ## Cost projection
-Table `pricing/2026-10-29.json` (age 12 days of 14). Sonnet 5.5 at medium, B 63,149 (measured today), R 60,000, F 3,000, O 1,500: 2.21 USD at T 40, 3.43 at T 60, by the calculator's Step B table; the handoff 0.070 at Opus. After it, F7: 7.82 USD (the table's fable row, `claude-fable-5-1`, xhigh, T 20, R 75,000, F 5,000, O 3,000). S6 plus F7: 10.10 to 11.32 USD. Estimates: every T; R by characters. O5 itself: about 8 USD by a self-estimate (about 75 calls from 63,149 to 363,540 tokens); S6's pricer measures it.
+Table `pricing/2026-11-10.json` (age 0 days of 8; its sonnet and opus rows equal those of 2026-10-29). Sonnet 5.5 at medium, B 63,149 (measured today), R 60,000, F 3,000, O 1,500: 2.21 USD at T 40, 3.43 at T 60, by the calculator's Step B table; the handoff 0.070 at Opus. After it, F7: 6.25 USD (the table's fable row, `claude-fable-5-2`, xhigh, T 20, R 75,000, F 5,000, O 3,000). S6 plus F7: 8.46 to 9.68 USD. Estimates: every T; R by characters. O5 itself: about 8 USD by a self-estimate (about 75 calls from 63,149 to 363,540 tokens); S6's pricer measures it.
 
 ## Time projection
 S6 20 to 40 minutes of wall clock; operator review about 15 minutes (the ledger and the step 1.2 wording). F7 20 to 30 minutes after it; review about 30 minutes.
 
 ## Session dispatch decision
-Date: 2026-11-10. Decided by: claude-opus-5-5, effort high, in Claude Code (desktop app). Price table: `pricing/2026-10-29.json` (age 12 days). Formula 2026-11-10.
+Date: 2026-11-10. Decided by: claude-opus-5-5, effort high, in Claude Code (desktop app). Price table: `pricing/2026-11-10.json` (age 0 days; Step A gives the same figures on `pricing/2026-10-29.json`). Formula 2026-11-10.
 
 ### Inputs
 W 1,000,000 and K 970,000 (measured, usage tool, 97 percent); C0 363,540 (measured); compacted no; unrecorded context none (this file and the assessment carry it); T 40 to 60 (estimate); F 3,000 and O 1,500 (step 1.2 defaults: a script with a stated test is row 2 work); B 63,149 (measured: total less Messages 300,391); R 60,000 (itemised in `docs/dispatch/2026-11-10-s6.json`); H 3,500 (this file, characters divided by 4); M 0 (default); L 0; To 0, the operator starts S6 from a card and this session ends; task type: a scoped script with its test, a template column, a ledger (matrix row 2); design-heavy no; outward: the branch push under the standing yes.
@@ -73,12 +73,12 @@ Draft verdict: fresh, by cost, margin 3.45 USD (151.2 percent of the smaller).
 | Piece | Class | Model id | Effort | Oracle | Serial or parallel | Cost |
 |---|---|---|---|---|---|---|
 | S6 | sonnet | claude-sonnet-5-5 | medium | the gate, the tests, the pricer's O5 and Tsunami rows against the measured figures in the example | first | 2.21 to 3.43 USD |
-| F7 | fable | the operator's pick (the table's fable row) | xhigh | an acceptance note, each claim with its command | after S6 | 7.82 USD |
+| F7 | fable | claude-fable-5-2 (the table's fable row; the operator picks it) | xhigh | an acceptance note, each claim with its command | after S6 | 6.25 USD |
 
 Coordination: the operator, To 0; each finishing session writes the next handoff and proposes the next card. Serial: S6 edits `SKILL.md` step 1.2, which O5 also edited, so it runs from O5's branch.
 
 ### Guardrails checked
-1 no, T 40. 2 not design-heavy; no compaction. 3 the branch push, under the standing yes; the tag waits for the operator in F7. 4 sonnet and fable from the table's rows. 5 table 12 days old, rows complete. 6 F7 at Fable xhigh, fresh. 7 the record about 900 tokens; about 5 minutes. 8 this session read its own model and effort.
+1 no, T 40. 2 not design-heavy; no compaction. 3 the branch push, under the standing yes; the tag waits for the operator in F7. 4 sonnet and fable from the table's rows. 5 table 0 days old, rows complete. 6 F7 at Fable xhigh, fresh. 7 the record about 900 tokens; about 5 minutes. 8 this session read its own model and effort.
 
 ### Adversarial pass
 The opposite verdict, argued: this session holds the measured figures and the term, and the pricer is a short port. Inputs: T could be 60 (3.50 USD fresh against 9.13 continue); R could be 80,000 if S6 reads `check.mjs` and the example whole, which adds about 0.05 USD; this session staying to coordinate S6 at To 30 adds 5.44 USD and flips the draft to continue by 34.8 percent, which is why the plan is To 0. Verdict holds: yes.
@@ -94,4 +94,4 @@ Fresh, model claude-sonnet-5-5, effort medium, one piece, then F7. Exact next ac
 | Input tokens read | about 4,000 | self-estimate: three calculator outputs, the template |
 | Output tokens | about 4,500 | self-estimate: this file, characters divided by 4 |
 | Wall clock | about 8 minutes | self-estimate |
-| Priced | 4,000 x 5e-6 + 4,500 x 20e-6 = 0.11 USD | table `pricing/2026-10-29.json`, opus row; self-estimate |
+| Priced | 4,000 x 5e-6 + 4,500 x 20e-6 = 0.11 USD | table `pricing/2026-11-10.json`, opus row (equal to 2026-10-29); self-estimate |

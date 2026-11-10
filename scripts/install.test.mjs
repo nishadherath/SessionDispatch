@@ -48,6 +48,7 @@ test("the payload carries the runnable scripts and not the gate, the installer o
     const files = listAll(SKILL_DIR(home)).map((f) => f.split(path.sep).join("/"));
     assert.ok(files.includes("SKILL.md"));
     assert.ok(files.includes("scripts/pricing-new.mjs"), "the installed copy must be able to run its own refresh");
+    assert.ok(files.includes("scripts/check-pricing.mjs"));
     assert.ok(!files.includes("scripts/check.mjs"));
     assert.ok(!files.includes("scripts/install.mjs"));
     assert.ok(!files.some((f) => f.endsWith(".test.mjs") || f.startsWith("scripts/fixtures")));
