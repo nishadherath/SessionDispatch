@@ -14,8 +14,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  FORMULAS, FORMULA_GROWTH, FORMULA_COORD, REQUIRED_SYMBOLS, OPTIONAL_SYMBOLS, formulaHas, validateInputs, findModel, resolveModel,
-  missingPrices, stepA, splitCost, breakEven, pieceCost, planCoord, coordCost, modelForClass, CLASS_RANK,
+  FORMULAS, FORMULA_GROWTH, FORMULA_COORD, FORMULA_TTL, TTLS, REQUIRED_SYMBOLS, OPTIONAL_SYMBOLS, formulaHas, validateInputs, findModel, resolveModel,
+  missingPrices, effectiveTtl, stepA, splitCost, breakEven, pieceCost, planCoord, coordCost, modelForClass, CLASS_RANK,
 } from "./dispatch-core.mjs";
 import { localToday, newestTableFile, validateTable } from "./price-table.mjs";
 
@@ -194,25 +194,58 @@ function checkTermLines(file, stepAText, formula, name, expected) {
 // Step B's cost column (F1-3): a cell that opens "n USD (T t, F f, O o, R r..." is the piece
 // priced as a fresh session on the model in its row, the way the calculator's Step B table
 // prices it (pieceCost), and must match at the same tolerance.
-function checkStepBColumn(file, text, inp, table) {
-  const lines = section(text, "### Step B: model, effort and concurrency").split(/\r?\n/);
+// F7-6: a cell that opens "To t x n pieces: x USD" is the plan's cost_coord at the
+// coordinator, and a "Pieces p USD, cost_coord c USD, plan s USD" line in the section's
+// prose must add up: p the sum of the piece cells, c the coordination cell, s = p + c.
+function checkStepBColumn(file, text, inp, table, current, coordinator) {
+  const stepB = section(text, "### Step B: model, effort and concurrency");
+  const lines = stepB.split(/\r?\n/);
   const h = lines.findIndex((l) => /^\| Piece \|/.test(l));
   if (h < 0) return;
   const cols = lines[h].split("|").slice(1, -1).map((c) => c.trim());
   const modelAt = cols.indexOf("Model id"), costAt = cols.indexOf("Cost");
   if (modelAt < 0 || costAt < 0) return;
+  let piecesSum = 0, coordStated = null;
   for (let k = h + 2; k < lines.length && lines[k].startsWith("|"); k += 1) {
     const cells = lines[k].split("|").slice(1, -1).map((c) => c.trim().replace(/`/g, ""));
+    const co = cells[costAt]?.match(/^To (\d+) x (\d+) pieces?: (\d[\d,]*\.\d+) USD/);
+    if (co && formulaHas(inp.formula, FORMULA_COORD)) {
+      const [, to, n, stated] = co;
+      const c = planCoord(inp, current, coordinator, Number(n));
+      if (Number(to) !== (inp.To ?? 0)) fail(file, `Step B: the coordination row states To ${to}, the Inputs table ${inp.To ?? 0}`);
+      if (!matchesStated(stated, c.total)) fail(file, `Step B: the coordination row is ${stated} USD, To ${inp.To ?? 0} x ${n} pieces gives ${c.total.toFixed(4)} on ${(coordinator ?? current).id}`);
+      coordStated = stated;
+      continue;
+    }
     const m = cells[costAt]?.match(/^(\d[\d,]*\.\d+) USD \(([^)]*)\)/);
     if (!m) continue;
+    piecesSum += Number(m[1].replace(/,/g, ""));
     const piece = {};
-    for (const [, sym, n] of m[2].matchAll(/\b([TFOR]) (\d[\d,]*)/g)) piece[sym] = Number(n.replace(/,/g, ""));
+    // B is a sub-agent's own baseline (step 3.3); without it the piece starts from the session's B.
+    for (const [, sym, n] of m[2].matchAll(/\b([TFORB]) (\d[\d,]*)/g)) piece[sym] = Number(n.replace(/,/g, ""));
     const model = findModel(table, cells[modelAt]);
     if (!model) { fail(file, `Step B: piece "${cells[0]}" names model ${JSON.stringify(cells[modelAt])}, which is not in the example's table`); continue; }
     if (!["T", "F", "O", "R"].every((s) => piece[s] !== undefined)) { fail(file, `Step B: piece "${cells[0]}" states a cost without all of T, F, O and R in its parentheses`); continue; }
-    const want = pieceCost({ ...inp, F: piece.F, O: piece.O }, model, { T: piece.T, F: piece.F, O: piece.O, R: piece.R }).total;
+    const want = pieceCost({ ...inp, F: piece.F, O: piece.O }, model, { T: piece.T, F: piece.F, O: piece.O, R: piece.R, B: piece.B }).total;
     if (!matchesStated(m[1], want)) fail(file, `Step B: piece "${cells[0]}" costs ${m[1]} USD, the inputs give ${want.toFixed(4)} on ${model.id}`);
   }
+  const plan = stepB.match(/Pieces (\d[\d,]*\.\d+) USD, cost_coord (\d[\d,]*\.\d+) USD, plan (\d[\d,]*\.\d+) USD/);
+  if (!plan) return;
+  const [p, c, s] = plan.slice(1).map((x) => Number(x.replace(/,/g, "")));
+  // Each is a rounded sum of rounded cells, so allow one cent per term.
+  const cents = 0.01 * (lines.length + 1) + 1e-9;
+  if (Math.abs(p - piecesSum) > Math.min(cents, 0.05)) fail(file, `Step B: "Pieces ${plan[1]} USD" but the piece cells sum to ${piecesSum.toFixed(2)}`);
+  if (coordStated !== null && c !== Number(coordStated.replace(/,/g, ""))) fail(file, `Step B: "cost_coord ${plan[2]} USD" but the coordination row states ${coordStated}`);
+  if (Math.abs(s - (p + c)) > 0.015) fail(file, `Step B: "plan ${plan[3]} USD" but pieces ${plan[1]} plus cost_coord ${plan[2]} is ${(p + c).toFixed(2)}`);
+}
+
+// F7-6: "Draft verdict: <side>, by <rule>, ... margin m USD (q percent of the smaller)":
+// the margin and the percentage are the recompute's, at their stated precision.
+function checkDraftMargin(file, text, verdict) {
+  const d = text.match(/^Draft verdict: (?:continue|fresh), by [\w-]+[^\n]*?(?:\n[^\n#]*?){0,2}margin (\d[\d,]*\.\d+) USD \((\d[\d,]*(?:\.\d+)?)\s+percent/m);
+  if (!d) return;
+  if (!matchesStated(d[1], verdict.margin)) fail(file, `Draft verdict: margin ${d[1]} USD, the inputs give ${verdict.margin.toFixed(4)}`);
+  if (!matchesStated(d[2], verdict.percent)) fail(file, `Draft verdict: ${d[2]} percent of the smaller, the inputs give ${verdict.percent.toFixed(2)}`);
 }
 
 // The calculator's cost_coord block inside Step A (formula 2026-11-10): each "<plan>, n
@@ -231,7 +264,7 @@ function checkCoordLines(file, stepAText, inp, current, coordinator, table) {
     if ((plan === "fresh" && pieces !== 1) || (plan === "split" && pieces !== 2)) { fail(file, `Step A: cost_coord prices ${plan} as ${pieces} pieces; fresh is 1 piece and the split 2 (SKILL.md step 2)`); continue; }
     const c = planCoord(inp, current, coordinator, pieces);
     if (Number(turns.replace(/,/g, "")) !== c.turns) fail(file, `Step A: cost_coord ${plan} states ${turns} turns, To ${inp.To ?? 0} x ${pieces} gives ${c.turns}`);
-    if (!matchesStated(stated, c.total)) fail(file, `Step A: cost_coord ${plan} is ${stated} USD, the inputs give ${c.total.toFixed(4)} on ${coordinator.id}`);
+    if (!matchesStated(stated, c.total)) fail(file, `Step A: cost_coord ${plan} is ${stated} USD, the inputs give ${c.total.toFixed(4)} on ${(coordinator ?? current).id}`);
   }
   const alt = stepAText.match(/^\s*on (\S+), a fresh session from B \+ H = [\d,]+: (.*) USD$/m);
   if (!alt) return;
@@ -268,18 +301,25 @@ function recomputeExample(file, text) {
   const cell = (label) => rows.get(label)?.replace(/`/g, "") ?? "";
   inp.formula = cell("Formula").match(/\d{4}-\d{2}-\d{2}/)?.[0];
   inp.compacted = { yes: true, no: false }[cell("Compacted already").split(/\W/)[0].toLowerCase()];
+  const ttlCell = cell("Cache lifetime ttl");
+  if (ttlCell) inp.ttl = TTLS.find((t) => new RegExp(`^${t}\\b`).test(ttlCell)) ?? ttlCell;
   const errors = validateInputs(inp);
   if (formulaHas(inp.formula, FORMULA_GROWTH) && inp.M === undefined) errors.push(`M must be stated under formula ${inp.formula} (0 when unmeasured, and say so)`);
-  if (formulaHas(inp.formula, FORMULA_COORD) && inp.To === undefined) errors.push(`"Coordinating turns To" must be stated under formula ${inp.formula} (0 when the operator starts the sessions, and say so)`);
+  if (formulaHas(inp.formula, FORMULA_COORD) && inp.To === undefined) errors.push(`"Coordinating turns To" must be stated under formula ${inp.formula} (0 when nobody coordinates, and say so)`);
+  if (formulaHas(inp.formula, FORMULA_TTL) && inp.ttl === undefined) errors.push(`"Cache lifetime ttl" must be stated under formula ${inp.formula} (${TTLS.join(" or ")}, with its source)`);
   const current = findModel(table, cell("Current model").split(/\s/)[0]);
   const target = findModel(table, cell("Target model").split(/\s/)[0]);
   if (!current) errors.push(`"Current model" must open with a model id from ${tableRef[1]}, found "${cell("Current model")}"`);
   if (!target) errors.push(`"Target model" must open with a model id from ${tableRef[1]}, found "${cell("Target model")}"`);
+  // No row, or a row opening "this" ("this session"): this session coordinates, and the core takes
+  // no coordinator. A model id or class: that model, which from formula 2026-11-11 is another session.
   const coordRef = cell("Coordinator").split(/\s/)[0];
-  const coordinator = !current ? null : coordRef ? resolveModel(table, coordRef, current.family) : current;
-  if (current && !coordinator) errors.push(`"Coordinator" must open with a model id or a class from ${tableRef[1]}, found "${cell("Coordinator")}"`);
-  if (errors.length) return errors.forEach((e) => fail(file, `Inputs table: ${e}`));
-  for (const m of [current, target, coordinator]) if (missingPrices(m).length) return fail(file, `${m.id} has null prices in ${tableRef[1]}; an example must be computable`);
+  const named = Boolean(coordRef) && coordRef.toLowerCase() !== "this";
+  const coordinator = !current || !named ? undefined : resolveModel(table, coordRef, current.family);
+  if (current && named && !coordinator) errors.push(`"Coordinator" must open with "this session", a model id or a class from ${tableRef[1]}, found "${cell("Coordinator")}"`);
+  if (errors.length) return [...new Set(errors)].forEach((e) => fail(file, `Inputs table: ${e}`));
+  const ttl = effectiveTtl(inp);
+  for (const m of [current, target, coordinator].filter(Boolean)) if (missingPrices(m, ttl).length) return fail(file, `${m.id} has null prices in ${tableRef[1]} at ttl ${ttl} (${missingPrices(m, ttl).join(", ")}); an example must be computable`);
 
   const compute = (formula) => {
     const x = { ...inp, formula };
@@ -305,9 +345,10 @@ function recomputeExample(file, text) {
   checkTermLines(file, stepAText, inp.formula, "cost_continue", [["cache reads", c.reads], ["new context written", c.writes], ["output", c.output], ...(isNew ? [["cache misses", c.misses]] : []), ["penalty_compaction", c.penaltyCompaction]]);
   checkTermLines(file, stepAText, inp.formula, "cost_fresh", [["handoff", f.handoff], ["first read", f.first], ["cache reads", f.reads], ["new context written", f.writes], ["output", f.output], ...(isNew ? [["cache misses", f.misses]] : []), ["penalty_loss", f.loss], ...(hasCoord ? [["cost_coord", f.coord.total]] : [])]);
   if (hasCoord) checkCoordLines(file, stepAText, { ...inp }, current, coordinator, table);
-  checkStepBColumn(file, text, inp, table);
+  checkStepBColumn(file, text, inp, table, current, coordinator);
   const side = text.match(/^Draft verdict: (continue|fresh)/m)?.[1];
   if (side && side !== own.a.verdict.side) fail(file, `Draft verdict says ${side}, the arithmetic says ${own.a.verdict.side} (by ${own.a.verdict.by}); a guardrail changes the final verdict, not the draft`);
+  checkDraftMargin(file, text, own.a.verdict);
 
   const lines = text.split(/\r?\n/);
   const h = lines.findIndex((l) => /^\| Figure \|/.test(l));

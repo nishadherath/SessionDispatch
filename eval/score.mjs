@@ -14,8 +14,9 @@
 // the scenario expects (the contract of rubric section 2). Subject prose is
 // data: this module reads it, counts faults in it and never quotes it.
 import {
-  CLASS_RANK, FORMULA_IN_FORCE, findModel, resolveModel, modelForClass, missingPrices, validateInputs, stepA, breakEven, splitCost, roundTo,
+  CLASS_RANK, FORMULA_IN_FORCE, TTL_DEFAULT, findModel, resolveModel, modelForClass, missingPrices, validateInputs, stepA, breakEven, splitCost, roundTo,
 } from "../scripts/dispatch-core.mjs";
+import { modelStaleness } from "../scripts/price-table.mjs";
 
 const EM_DASH = "—";
 // The persona's banned vocabulary (section 14.1), as scripts/check.mjs lists it.
@@ -30,7 +31,6 @@ const INPUT_SYMBOLS = ["current", "target", "W", "K", "C0", "compacted", "T", "F
 const CONTRACT_SYMBOLS = ["To", "coordinator", "ttl"];
 const TTL_VALUES = ["5m", "1h"];
 const TO_DEFAULT = 0;
-const TTL_DEFAULT = "5m";
 const DECIDE_CAP_RECORD_TOKENS = 4000; // guardrail 7's cap on the record (SKILL.md step 0)
 const DECIDE_CAP_MINUTES = 10;
 const CHARS_PER_TOKEN = 4; // the skill's estimate for prose (step 1.1)
@@ -131,8 +131,10 @@ function matchesStated(stated, computed) {
  * { computable: true, ... } or { computable: false, reason }.
  */
 function recompute(inputs, table, scenarioToday) {
-  const age = Math.round((Date.parse(scenarioToday) - Date.parse(table.table_date)) / 86400000);
-  if (age > table.max_age_days) return { computable: false, reason: `stale table (${age} days old)` };
+  // Step 1.4.2: stale when a model the recompute needs is in a family past max_age_days from its fetched date.
+  const staleOf = (ids) => ids.map((id) => (typeof id === "string" ? modelStaleness(table, id, scenarioToday) : null)).find((x) => x?.stale);
+  const early = staleOf([inputs?.current, inputs?.target]);
+  if (early) return { computable: false, reason: `stale table (family ${early.family} fetched ${early.ageDays} days before)` };
   if (inputs === null) return { computable: false, reason: "no inputs" };
   const current = findModel(table, inputs.current);
   if (!current) return { computable: false, reason: "current model not in the table" };

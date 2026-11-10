@@ -9,7 +9,8 @@
 // the record's; the calculator only multiplies.
 //
 // Exit codes: 0 computed; 1 an input or table error, named with its fix;
-// 2 the table is past max_age_days, nothing computed (step 1.4.2); 3 a price
+// 2 a model it needs is in a family past max_age_days from its fetched date,
+// nothing computed (step 1.4.2; the rule is scripts/price-table.mjs's); 3 a price
 // is null, verdict incomplete (step 1.4.4). The date is the local calendar
 // day, the convention check.mjs and pricing-new.mjs use; --today overrides it.
 import fs from "node:fs";
@@ -21,6 +22,7 @@ import {
   COORD_F_DEFAULT, COORD_O_DEFAULT, formulaHas, validateInputs, findModel, resolveModel, modelForClass, missingPrices,
   growth, continueSide, freshSide, draftVerdict, breakEven, splitCost, pieceCost, coordCost, planCoord, roundTo, parseTokens,
 } from "./dispatch-core.mjs";
+import { localToday, familyAgeDays, modelStaleness } from "./price-table.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SYMBOLS = [...REQUIRED_SYMBOLS, ...OPTIONAL_SYMBOLS];
@@ -87,18 +89,34 @@ function loadTable(inp) {
   }
   let table;
   try { table = JSON.parse(fs.readFileSync(file, "utf8")); } catch (e) { die(1, `cannot read ${file} as JSON (${e.message})`); }
-  const today = inp.today ?? (() => { const d = new Date(), two = (n) => String(n).padStart(2, "0"); return `${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())}`; })();
+  const today = inp.today ?? localToday();
   const age = Math.round((Date.parse(today) - Date.parse(table.table_date)) / 86400000);
   if (!Number.isFinite(age)) die(1, `cannot date the table: table_date ${table.table_date}, today ${today}; both must be YYYY-MM-DD`);
   if (age < 0) die(1, `${file}: table_date ${table.table_date} is after today ${today}; fix the table or --today`);
-  if (age > table.max_age_days) {
-    die(2, [
-      `${shown(file)} is ${age} days old, past max_age_days ${table.max_age_days}. Nothing computed (SKILL.md step 1.4.2).`,
-      "Refresh: node scripts/pricing-new.mjs, then fill each figure from its family's source page.",
-      "Default meanwhile: continue, same model, same effort; record the staleness.",
-    ]);
-  }
-  return { table, file, age, today };
+  return { table, file, today };
+}
+
+/**
+ * Step 1.4.2: exit 2 when a model the computation needs is in a family more than
+ * max_age_days past its fetched date (scripts/price-table.mjs owns the rule). A
+ * stale family the computation does not use is not a reason to refuse.
+ */
+function refuseStale(table, file, today, models) {
+  const stale = [...new Map(models.filter(Boolean).map((m) => [m.id, m])).values()]
+    .map((m) => modelStaleness(table, m.id, today)).filter((s) => s?.stale);
+  if (stale.length === 0) return;
+  const fams = [...new Map(stale.map((s) => [s.family, s])).values()];
+  die(2, [
+    `${shown(file)}: ${fams.map((s) => `family ${s.family} was fetched ${s.fetched}, ${s.ageDays} days before ${today}`).join("; ")}; past max_age_days ${table.max_age_days}. Nothing computed (SKILL.md step 1.4.2).`,
+    "Refresh: node scripts/pricing-new.mjs, then fill each figure from its family's source page and set its fetched date.",
+    "Default meanwhile: continue, same model, same effort; record the staleness.",
+  ]);
+}
+
+/** "family fetched date (n days of max)" for each family the given models come from. */
+function familyAges(table, today, models) {
+  const fams = [...new Set(models.filter(Boolean).map((m) => m.family))];
+  return fams.map((f) => `${f} fetched ${table.families[f].fetched} (${familyAgeDays(table, f, today)} days of ${table.max_age_days})`).join("; ");
 }
 
 // Repository-relative with forward slashes, so a pasted record reads the same on every platform.
@@ -112,7 +130,7 @@ const rates = (m, ttl = TTL_DEFAULT) => `cache_read ${m.cache_read.toFixed(2)}, 
 
 function main() {
   const inp = readInputs();
-  const { table, file, age, today } = loadTable(inp);
+  const { table, file, today } = loadTable(inp);
   const current = findModel(table, inp.current);
   if (!current) die(1, `--current ${inp.current} is not in ${path.relative(ROOT, file)}; models listed: ${listModels(table)}`);
   const target = resolveModel(table, inp.target, current.family);
@@ -124,6 +142,11 @@ function main() {
   const coordinator = named ? coordArg : current;
   if (!coordinator) die(1, `--coordinator ${inp.coordinator} has no model at or above that class in family ${current.family}; models listed: ${listModels(table)}`);
   const sonnet = modelForClass(table, current.family, "sonnet");
+  // Every model a figure below is priced on: the split's runner and acceptor and the
+  // sonnet comparison come from the current model's family, so its age covers them.
+  const pieceModels = (Array.isArray(inp.pieces) ? inp.pieces : []).map((p) => resolveModel(table, String(p.model), current.family));
+  const used = [current, target, ...((inp.To ?? 0) > 0 ? [coordinator] : []), ...pieceModels];
+  refuseStale(table, file, today, used);
 
   const out = [];
   const isNew = formulaHas(inp.formula, FORMULA_GROWTH);
@@ -135,7 +158,7 @@ function main() {
     : isNew ? " (as the records of that date applied it: no coordinator term)"
       : " (as the records of that date applied it: growth F, no miss term, handoff at the target's output rate)";
   out.push(`Session dispatch calculator, formula ${inp.formula}${era}`);
-  out.push(`Table ${shown(file)}, age ${age} days of ${table.max_age_days}; today ${today}`);
+  out.push(`Table ${shown(file)}; ${familyAges(table, today, used)}; today ${today}`);
   out.push(`Current ${current.id} (${current.class}); target ${target.id} (${target.class})` + (hasCoord ? `; coordinator ${coordinator.id} (${coordinator.class})${coordHere ? ", this session" : ", another session"}` : ""));
   out.push(`Inputs: ${SYMBOLS.filter((s) => inp[s] !== undefined).map((s) => `${s} ${tok(inp[s])}`).join("; ")}; compacted ${inp.compacted ? "yes" : "no"}${hasTtl ? `; ttl ${ttl}` : ""}`);
   out.push("");
