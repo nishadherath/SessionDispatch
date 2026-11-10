@@ -7,7 +7,10 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-11-10, forty-first update, by the Stage F7 session, the coordinator (claude-fable-5-2, xhigh).
+Last updated: 2026-11-11, forty-second update, by the release session (claude-sonnet-5-5).
+The operator decided D16: A, no change. The operator also said yes to the tag v1.1.0, the push, the clean-up and the install on every harness.
+This session tags v1.1.0 on the commit that holds this update, pushes `main` and the tag, deletes the merged worktrees and branches, and runs `node scripts/install.mjs --harness all`. The report names each result.
+The forty-first update follows.
 The work of decisions D14 and D15 is complete.
 The coordinator checked `main` at `d7d4ba3`. The gate reads 130 files with 0 findings. The install check reports 4 copies, 0 files behind.
 The ledger has a row for the coordinator: 30 calls and 7.31 USD. No wake was cold.
@@ -118,8 +121,8 @@ assessment; D8 and D9 are repeated below.
 - D13 The uncommitted pricing work in the main checkout (found 2026-11-10): A, decided by the operator on 2026-11-10 ("Yes, commit it"); commit `1ae8c0d`. Stage F7's acceptance covers it. Five parts below.
 - D14 The scorer gap (F7, 2026-11-10): A-now, decided by the operator on 2026-11-10 ("D-14 (do it now with rerun)"). This overrules the F7 ruling (A). Stage O6 changes the scorer contract. Stage F8 accepts it and then runs the evaluation again. Five parts: `docs/acceptance-2026-11-10-f7.md` section 6.
 - D15 A follow-up stage for the pricing and text findings of F7 (2026-11-10): A, decided by the operator on 2026-11-10 ("D-15 (A)"). Stage O6 does the work. Stage F8 accepts it. Five parts: the same note, section 8.
-- The tag v1.1.0: the operator said "Not yet" on 2026-11-10. No tag is on `82d9386`. Stage F8 is done and made no tag. The F7 session asks the operator now. A tag push needs the operator's yes (it is outside `approvals.push_origin`).
-- D16 A cache lifetime for each piece (F8, 2026-11-10): open. Recommended: A, no change. Nothing waits on it. Five parts below.
+- The tag v1.1.0: the operator said "Not yet" on 2026-11-10 and said yes on 2026-11-11 (D16-A message). No tag is on `82d9386`. Stage F8 is done and made no tag. The F7 session asks the operator now. A tag push needs the operator's yes (it is outside `approvals.push_origin`).
+- D16 A cache lifetime for each piece (F8, 2026-11-10): A, decided by the operator on 2026-11-11 ("Decision D16-A"). No formula change. Five parts below.
 - F3-7 H2's runner (the coordinating session's, not the operator's): A, the `Agent` runner as H1 used it, decided 2026-10-30 so that H1 and H2 share one harness and F4 can attribute any change to the text; S4's CLI runner follows H2.
 - Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`: answered yes by the operator on 2026-10-30 (S3); the blocks were already there and stay.
 
@@ -129,6 +132,7 @@ Decision:      Whether the formula gives each piece its own cache lifetime. Sub-
 Options:       A no change: one ttl for a record, and step 3.3 asks for a sub-agent piece's figure at its own lifetime beside the table / B a formula stage: a ttl for each piece in the calculator, the gate and the template, with its own worked example (AGENTS.md rule 8) / C a text change only: step 3.3 prices sub-agent pieces at 5m in the plan total, by hand
 Pros and cons: A costs nothing and is accepted text; a plan with sub-agent pieces reads high by the write difference on those pieces. B removes the difference in the calculator; it needs an Opus stage and a Fable acceptance, about 30 USD by the measured costs of this chain (an estimate), for a term that moves Step B's piece costs only. C costs one Sonnet stage; the plan total in the text would then differ from the calculator's, and the gate's Step B check would not match.
 Blast radius:  A none. B SKILL.md step 3.3, the calculator, the gate, the template, every installed copy; past records are safe by formula date. C the gate's Step B check and every record written after it.
+Decided:       A, by the operator on 2026-11-11.
 Recommended:   A, because the one plan measured moves by 0.71 USD in 41.32 (1.7 percent), no Step A verdict depends on it (its three plans are sessions), and the text already asks for the figure. Decide again if a plan made mostly of sub-agents comes near a line.
 ```
 
