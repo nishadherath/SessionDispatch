@@ -1,0 +1,169 @@
+## Session dispatch decision
+
+Date: 2026-11-10. Decided by: claude-sonnet-5-5, effort medium, in Claude Code desktop app.
+Price table: `pricing/2026-11-09.json` (anthropic fetched 2026-11-09, age 1 day of 14).
+
+Step 0: the skill runs. The plan is 8 turns (under 10), but trigger 3 holds: context is 650,000 of 1,000,000 tokens (65 percent, past 60 percent).
+
+### Inputs
+
+| Input | Value | Source |
+|---|---|---|
+| Formula | 2026-11-11 | `SKILL.md` step 2 |
+| Current model | claude-sonnet-5-5 (sonnet), effort medium | Harness report |
+| Target model | claude-sonnet-5-5 (sonnet) | Matrix row 2 (refactor within one module, test suite as oracle); table's sonnet model |
+| Window W | 1,000,000 | Measured, usage tool |
+| Compaction point K | 970,000 | Measured: 97 percent of W |
+| Current context C0 | 650,000 | Measured, usage tool |
+| Compacted already | no | Situation |
+| Cache lifetime ttl | 5m | Measured: usage report shows every write as a 5-minute write |
+| Unrecorded context | none | Everything the next stage needs is on disk |
+| Expected turns T | 8 | Plan estimate |
+| Fresh input per turn F | 3,000 | Default, unmeasured (no per-turn measurement) |
+| Output per turn O | 1,500 | Default (refactor takes the default); medium effort |
+| Fresh baseline B | 86,450 | Measured: usage total less Messages |
+| Re-read set R | 15,000 (handoff and module) | Situation |
+| Handoff size H | 2,500 | Default for under 120 lines (80 lines); estimated |
+| Cache misses M | 0 | Default, unmeasured; no review pauses expected |
+| Rediscovery turns L | 0 | Unrecorded list is empty |
+| Acceptance turns Ta, Ra | not used | Split not applicable (target is sonnet) |
+| Coordinating turns To | 0 | The operator starts the fresh session from a card and this session ends after the handoff; no coordinator (the operator coordinates) |
+| Coordinator | none (operator); Fo, Oo defaults 3,000 / 3,000 | Step 3.2 rule 7 |
+| Task type | Row 2: scoped module work with a stated test | |
+| Design-heavy | no | Single-module refactor |
+| Irreversible or outward-facing steps | none | Files and local commits only; nothing leaves the machine |
+
+### Step A: continue or hand off
+
+```
+G       = F + O                   = 4,500
+C_end   = C0 + T * G              = 686,000
+crosses = C_end > K               = false (K 970,000)
+C_cont  = C0 + T * G / 2          = 668,000
+C_fresh = B + R + T * G / 2       = 119,450
+
+cost_continue = 0.534 + 0.090 + 0.120 + 0 + 0 = 0.74 USD
+cost_fresh    = 0.025 + 0.254 + 0.096 + 0.090 + 0.120 + 0 + 0 + 0 = 0.58 USD
+T* = 0.279 / (548,550 * p_cr) = 5.1 turns
+cost_split    = not computed: the target is below opus
+cost_coord: To 0, 0.00 USD for fresh (1 piece)
+```
+
+Prices used (per million, claude-sonnet-5-5, both sides): input 2.00, output 10.00, cache_read 0.10, cache_write (5m) 2.50. No long-context tier on this model.
+
+Draft verdict: fresh, by cost, margin 0.16 USD (27.4 percent of the smaller). T 8 is above T* 5.1, so cost alone favours fresh.
+
+### Step B: model, effort and concurrency
+
+| Piece | Class | Model id | Effort | Oracle | Serial or parallel | Cost |
+|---|---|---|---|---|---|---|
+| Finish the refactor | Sonnet | claude-sonnet-5-5 | medium | The module's test suite passes | Serial (single piece) | 0.74 USD (continue) |
+
+Coordination: none, To 0 per piece, cost_coord 0.00 USD; the plan's total is 0.74 USD.
+
+Serial chain and its wall clock: one piece, 8 turns. Operator review time: none expected.
+
+Effort raised or lowered because: no change (no auth, payments, storage or public interface; nothing outward-facing; writes to the repository, so not below medium).
+
+Split (step 2.1): not an option, the target class is sonnet.
+
+### Guardrails checked
+
+1. Under 10 turns: yes, T = 8, same class (sonnet to sonnet). A fresh session is forbidden. This changes the verdict from the draft "fresh, by cost" to continue.
+2. Design-heavy across a compaction: not design-heavy, crosses is false, not compacted. Does not bind.
+3. Irreversible steps: none (local commits only). No approval step needed.
+4. Model chosen from the table: yes, claude-sonnet-5-5 is the table's sonnet row.
+5. Table age: anthropic fetched 2026-11-09, 1 day old; no nulls in the rows used.
+6. Acceptance: none in this stage.
+7. Decision budget: record about 3,000 tokens against 4,000; about 3 minutes against 10.
+8. Class and effort match the harness: sonnet, medium. Unchanged.
+
+### Adversarial pass
+
+The opposite verdict, argued: fresh is 0.16 USD (27 percent) cheaper on arithmetic, because the 650,000-token context is read at cache-read rates on every turn. A fresh session starts at about 101,000 tokens. Everything needed is on disk, so nothing is lost, and the arithmetic favours fresh from 5.1 turns. Against that, guardrail 1 is a hard stop ranked below quality guardrails but above nothing that applies here, and the saving is fragile.
+
+Each input, the way it could be wrong:
+
+- C0: measured. At 30 percent lower (455,000) continue falls to about 0.52 USD against fresh 0.58, so continue is still no worse than fresh.
+- T: an estimate of 8. If it doubles to 16, the stage is no longer under 10 turns and guardrail 1 stops binding.
+- F and O: defaults, unmeasured, medium effort. Doubling them raises both sides; the gap moves modestly.
+- B and R: B measured, R from the situation. A larger R (fresh reads more files) narrows the fresh saving.
+- M (review pauses): none expected, so M is 0. Any miss on the 650,000-token context would cost about 1.4 USD, which makes continue worse.
+- Task type: a refactor within one module with a test oracle, so not design-heavy.
+- Prices: table 1 day old, no tier applied; the 5m write matches the measured usage.
+- Unrecorded context: none, so L is 0.
+
+Recomputed with the adverse value that moves the result most (T doubled to 16):
+
+```
+cost_continue = 1.52 USD
+cost_fresh    = 0.92 USD
+```
+
+Verdict holds: yes, fragile: flips at T of 10 or more, where guardrail 1 stops binding and fresh wins on cost (T = 10: continue 0.94, fresh 0.67 USD). T of 16 is a stress test, not a claimed value; the plan states 8, so the verdict is kept.
+
+### Final verdict
+
+Continue, model claude-sonnet-5-5, effort medium, pieces 1 (serial). The draft "fresh, by cost" is overridden by guardrail 1 (under 10 turns at the same class). Exact next action: keep working in this session on the refactor; run the module's test suite as the oracle; commit locally. Re-run this skill if the turn count passes 10. Approval step: none (nothing leaves the machine).
+
+### Cost of deciding
+
+| Row | Value | Source |
+|---|---|---|
+| Context at start | 650,000 tokens | Situation's usage figure (the decision session itself was not measured) |
+| Context at end | not measured | Self-estimate: about 670,000 |
+| Input tokens read | about 20,000 | Self-estimate: SKILL.md, template, price table, calculator output |
+| Output tokens | about 4,000 | Self-estimate: record characters divided by 4 |
+| Wall clock | about 3 minutes | Self-estimate |
+| Priced | 0.09 USD | Self-estimate: 20,000 at 2.50 plus 4,000 at 10.00 per million, table `pricing/2026-11-09.json` |
+
+```json dispatch-result
+{
+  "skill_ran": true,
+  "inputs": {
+    "current": "claude-sonnet-5-5",
+    "target": "claude-sonnet-5-5",
+    "W": 1000000,
+    "K": 970000,
+    "C0": 650000,
+    "T": 8,
+    "F": 3000,
+    "O": 1500,
+    "B": 86450,
+    "R": 15000,
+    "H": 2500,
+    "M": 0,
+    "L": 0,
+    "compacted": false,
+    "Ta": null,
+    "Ra": null,
+    "G": null,
+    "To": 0,
+    "Fo": null,
+    "Oo": null,
+    "coordinator": null,
+    "ttl": "5m"
+  },
+  "table_age_days": 1,
+  "totals": {
+    "cost_continue": "0.74",
+    "cost_fresh": "0.58",
+    "cost_split": null,
+    "t_star": "5.1"
+  },
+  "draft": {"side": "fresh", "by": "cost"},
+  "guardrails_triggered": [1],
+  "final": {
+    "outcome": "continue",
+    "model": "claude-sonnet-5-5",
+    "effort": "medium",
+    "approval_step": null
+  },
+  "cost_of_deciding": {
+    "input_tokens": 20000,
+    "output_tokens": 4000,
+    "minutes": 3,
+    "usd": "0.09"
+  }
+}
+```

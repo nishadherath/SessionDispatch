@@ -1,0 +1,59 @@
+{
+  "scenario": "14-stale-table",
+  "subject": "sonnet",
+  "arm": "calculator",
+  "outcome_expected": "continue",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "continue",
+  "final_ok": true,
+  "draft_ok": null,
+  "guardrails_ok": true,
+  "bound": [
+    5
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": false,
+    "reason": "stale table (family anthropic fetched 29 days before)",
+    "stated": 0,
+    "correct": 0,
+    "missing": 0,
+    "max_error_usd": null,
+    "rule_ok": null,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 17,
+    "matched": 17,
+    "misses": []
+  },
+  "contract": {
+    "to_ok": true,
+    "coordinator_ok": true,
+    "ttl_ok": true
+  },
+  "decide": {
+    "reported_tokens": 15000,
+    "reported_minutes": 3,
+    "measured_tokens": 737475,
+    "measured_minutes": 0.72475,
+    "record_tokens": 1489,
+    "usd_to_decide": 0.0525,
+    "usd_measured": 0.1133,
+    "over_cap": false,
+    "report_ratio": 0.02
+  },
+  "consistency": {
+    "draft_line_ok": null,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": ""
+}

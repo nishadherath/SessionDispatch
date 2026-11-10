@@ -1,0 +1,57 @@
+{
+  "scenario": "23-band-coordinated-fresh",
+  "subject": "sonnet",
+  "arm": "calculator",
+  "outcome_expected": "fresh",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "fresh",
+  "final_ok": true,
+  "draft_ok": true,
+  "guardrails_ok": true,
+  "bound": [],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 3,
+    "correct": 3,
+    "missing": 0,
+    "max_error_usd": 0.0031,
+    "rule_ok": true,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 17,
+    "matched": 17,
+    "misses": []
+  },
+  "contract": {
+    "to_ok": true,
+    "coordinator_ok": true,
+    "ttl_ok": true
+  },
+  "decide": {
+    "reported_tokens": 21000,
+    "reported_minutes": 6,
+    "measured_tokens": 1130753,
+    "measured_minutes": 1.1147833333333332,
+    "record_tokens": 2156,
+    "usd_to_decide": 0.09,
+    "usd_measured": 0.1567,
+    "over_cap": false,
+    "report_ratio": 0.019
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": ""
+}

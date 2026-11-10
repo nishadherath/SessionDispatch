@@ -1,0 +1,144 @@
+{
+  "duration_api_ms": 46919,
+  "stop_reason": "end_turn",
+  "session_id": "df44a16a-75c1-43d1-834c-0cb9dfaec439",
+  "total_cost_usd": 0.9098767000000001,
+  "usage": {
+    "input_tokens": 10,
+    "cache_creation_input_tokens": 195796,
+    "cache_read_input_tokens": 732527,
+    "output_tokens": 5342,
+    "output_tokens_details": {
+      "thinking_tokens": 852
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 195796,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 3,
+        "cache_read_input_tokens": 191295,
+        "cache_creation_input_tokens": 4501,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 4501
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "claude-sonnet-5-5": {
+      "inputTokens": 10,
+      "outputTokens": 5342,
+      "cacheReadInputTokens": 732527,
+      "cacheCreationInputTokens": 195796,
+      "webSearchRequests": 0,
+      "costUSD": 0.9098767000000001,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "thinkingTokens": 852,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationEphemeral1hInputTokens": 195796,
+      "canonicalModel": "claude-sonnet-5-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 5,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "done",
+  "ttft_ms": 6290,
+  "type": "result",
+  "duration_ms": 61450,
+  "uuid": "7bb314b1-42eb-4dfd-a630-eb14b1e7bc25",
+  "ttft_stream_ms": 5899,
+  "time_to_request_ms": 1384,
+  "time_to_request_phases_ms": {
+    "other": 23,
+    "system_prompt": 508,
+    "resume_other": 1,
+    "process_user_input": 10,
+    "input_attachments": 61,
+    "input_hooks": 7,
+    "conversation_append": 1,
+    "tool_pool_refresh": 13,
+    "system_prompt_rebuild": 3,
+    "init_message": 500,
+    "init_frame_send": 5,
+    "engine_pickup": 13,
+    "loop_entry": 12,
+    "message_prep": 3,
+    "model_config_wait": 8,
+    "autocompact": 5,
+    "request_announcements": 36,
+    "query_setup": 8,
+    "model_gates": 1,
+    "tool_schema_build": 72,
+    "message_normalization": 15,
+    "client_creation": 14,
+    "request_build": 65
+  },
+  "turn_start_resume_kind": "none",
+  "process_turn_index": 0,
+  "time_to_request_loop_lag_ms": 927,
+  "time_to_request_cpu_ms": 1016,
+  "time_to_request_major_faults": 6926,
+  "input_attachments_detail": {
+    "slowest_producer": "deferred_tools_delta",
+    "slowest_producer_ms": 13,
+    "cpu_ms": 62,
+    "major_faults": 617,
+    "setup_ms": 2,
+    "prompt_producers_ms": 1,
+    "ambient_start_ms": 31,
+    "ambient_wait_ms": 13,
+    "render_ms": 10,
+    "producers": 43,
+    "token_counts": 0
+  },
+  "first_content_frame_ms": 5899,
+  "queued_turn_count": 0,
+  "result_index": 0
+}

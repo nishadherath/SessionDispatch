@@ -1,0 +1,21 @@
+{
+  "model": "claude-sonnet-5-5",
+  "model_source": "reported by claude -p (modelUsage)",
+  "total_tokens": 933675,
+  "tool_uses": null,
+  "num_turns": 5,
+  "duration_ms": 61450,
+  "input_tokens": 195806,
+  "output_tokens": 5342,
+  "cache_creation_input_tokens": 195796,
+  "cache_read_input_tokens": 732527,
+  "uncached_input_tokens": 10,
+  "usd_cli": 0.9098767000000001,
+  "cost_basis": "list",
+  "usd_priced": 0.6162,
+  "price_basis": "table in force, standard rates on the aggregate usage",
+  "long_context_possible": false,
+  "is_error": false,
+  "stop_reason": "end_turn",
+  "terminal_reason": "completed"
+}

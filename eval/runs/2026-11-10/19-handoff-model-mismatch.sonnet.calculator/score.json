@@ -1,0 +1,59 @@
+{
+  "scenario": "19-handoff-model-mismatch",
+  "subject": "sonnet",
+  "arm": "calculator",
+  "outcome_expected": "stop",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "stop",
+  "final_ok": true,
+  "draft_ok": null,
+  "guardrails_ok": true,
+  "bound": [
+    8
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 0,
+    "correct": 0,
+    "missing": 2,
+    "max_error_usd": 0,
+    "rule_ok": false,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 17,
+    "matched": 17,
+    "misses": []
+  },
+  "contract": {
+    "to_ok": true,
+    "coordinator_ok": true,
+    "ttl_ok": true
+  },
+  "decide": {
+    "reported_tokens": 16800,
+    "reported_minutes": 3,
+    "measured_tokens": 738550,
+    "measured_minutes": 0.6597166666666666,
+    "record_tokens": 1191,
+    "usd_to_decide": 0.0555,
+    "usd_measured": 0.1067,
+    "over_cap": false,
+    "report_ratio": 0.023
+  },
+  "consistency": {
+    "draft_line_ok": null,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": ""
+}
