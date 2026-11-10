@@ -185,7 +185,7 @@ function main() {
   if (be.turns === null) out.push(`T* = n/a: ${be.settles[0]}`);
   else {
     const t = Number.isFinite(be.turns) ? `${roundTo(be.turns, 1).toFixed(1)} turns` : "never (C0 is not above B + R)";
-    out.push(`T* = (H*p_out + (B+R)*p_cw) / ((C0 - B - R) * p_cr') = ${usd(be.fixed)} / (${tok(be.gap)} * p_cr') = ${t}`);
+    out.push(`T* = (H*p_out + (B+R)*p_cw${hasCoord ? " + cost_coord" : ""}) / ((C0 - B - R) * p_cr') = ${usd(be.fixed)} / (${tok(be.gap)} * p_cr') = ${t}`);
     out.push(be.settles.length ? `Short path does not settle step A: ${be.settles.join("; ")}.` : `Short path: T ${inp.T} is under T*, so continue is cheaper; step A is settled.`);
   }
   const classUp = CLASS_RANK[target.class] > CLASS_RANK[current.class];
