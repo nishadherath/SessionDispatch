@@ -1,0 +1,27 @@
+{
+  "_note": "Calculator input behind examples/2026-11-02-tsunami-rebalancing-dashboard.md (Stage O5, 2026-11-10): the Tsunami project's dispatch of 2026-11-02 (its handoff 38, sections 10 and 13), re-run under formula 2026-11-10. Step A prices piece A (the content, opus) against this session continuing; the other pieces are Step B's. To 30 is the step 1.2 default; the coordinator is the deciding session, as on the day. Run: node scripts/dispatch.mjs --json docs/dispatch/2026-11-10-example-tsunami.json --table pricing/2026-10-29.json --today 2026-11-02",
+  "formula": "2026-11-10",
+  "current": "claude-fable-5-1",
+  "target": "claude-opus-5-5",
+  "W": 1000000,
+  "K": 970000,
+  "C0": 145115,
+  "compacted": true,
+  "T": 50,
+  "F": 4000,
+  "O": 3000,
+  "B": 88186,
+  "R": 52000,
+  "H": 6500,
+  "M": 0,
+  "L": 0,
+  "Ta": 30,
+  "Ra": 45000,
+  "To": 30,
+  "pieces": [
+    { "name": "A content", "model": "claude-opus-5-5", "effort": "high", "T": 50, "F": 4000, "O": 3000, "R": 52000 },
+    { "name": "B build", "model": "claude-sonnet-5-5", "effort": "high", "T": 100, "F": 4000, "O": 3000, "R": 40000 },
+    { "name": "C content acceptance", "model": "claude-fable-5-1", "effort": "high", "T": 30, "F": 5000, "O": 2000, "R": 45000 },
+    { "name": "D page acceptance", "model": "claude-opus-5-5", "effort": "high", "T": 40, "F": 5000, "O": 2000, "R": 43000 }
+  ]
+}
