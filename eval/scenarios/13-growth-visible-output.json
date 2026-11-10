@@ -17,6 +17,8 @@
     "A handoff for this stage would be about 80 lines.",
     "Everything this session knows that the next stage needs is already written in files on disk.",
     "No cache-miss measurement exists, and no review pauses are expected during the stage.",
+    "If the plan includes a fresh session, this session starts it itself with its own tools and then ends; the operator receives its note, verifies it and merges it.",
+    "The harness's usage log splits cache writes by lifetime and shows every write in this session as a 5-minute write.",
     "The stage writes files and commits locally; nothing leaves the machine."
   ],
   "table": "pricing/2026-10-29.json",
@@ -93,6 +95,7 @@
   },
   "notes": [
     "The calculator has no growth input: G is F + O. Growth of F plus visible output (3,000 + 800 = 3,800) is entered as an effective F of 800 (3,800 less O), which keeps every output token billed at the output rate and writes to cache only what stays in context.",
-    "The alternative reading (F 3,000, G 6,000) crosses K and the main reading does not; the verdict is fresh by cost either way. A subject's block may state G 3,800 with F 3,000; the scorer recomputes with F = G - O (eval/rubric.md, measure 3)."
+    "The alternative reading (F 3,000, G 6,000) crosses K and the main reading does not; the verdict is fresh by cost either way. A subject's block may state G 3,800 with F 3,000; the scorer recomputes with F = G - O (eval/rubric.md, measure 3).",
+    "Stage O6b (2026-11-10): the brief gained two lines so a subject on the current SKILL.md reaches To 0, no coordinator and ttl 5m: any next session is started by this session itself, which then ends, and the brief states the cache lifetime as 5 minutes where the harness shows it (its usage report, its transcript or its documentation). No expected figure moves."
   ]
 }

@@ -16,6 +16,8 @@
     "A handoff for this stage would be about 80 lines. If a further acceptance session were used, it would take about 12 turns and read about 30,000 tokens.",
     "Everything this session knows that the next stage needs is already written in files on disk.",
     "No cache-miss measurement exists, and no review pauses are expected during the stage.",
+    "If the plan includes a fresh session, the operator starts it from a card this session proposes and receives its note, verifies it and merges it; this session ends after writing the handoff.",
+    "The usage report shows every cache write in this session as a 5-minute write.",
     "The stage writes files and commits locally; nothing leaves the machine."
   ],
   "table": "pricing/2026-10-29.json",
@@ -69,6 +71,7 @@
   },
   "notes": [
     "T* is far above 12, so the draft is continue by break-even.",
-    "Guardrail 6: when the author is the top class, acceptance runs at the top class in a fresh session with xhigh effort. The author cannot accept its own work in the same session."
+    "Guardrail 6: when the author is the top class, acceptance runs at the top class in a fresh session with xhigh effort. The author cannot accept its own work in the same session.",
+    "Stage O6b (2026-11-10): the brief gained two lines so a subject on the current SKILL.md reaches To 0, no coordinator and ttl 5m: any next session is started by the operator, from a card, and the brief states the cache lifetime as 5 minutes where the harness shows it (its usage report, its transcript or its documentation). No expected figure moves."
   ]
 }

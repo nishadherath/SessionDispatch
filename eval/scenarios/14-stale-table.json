@@ -16,6 +16,8 @@
     "A handoff for this stage would be about 80 lines.",
     "Everything this session knows that the next stage needs is already written in files on disk.",
     "No cache-miss measurement exists, and no review pauses are expected during the stage.",
+    "If the plan includes a fresh session, the operator starts it from a card this session proposes and receives its note, verifies it and merges it; this session ends after writing the handoff.",
+    "The usage report shows every cache write in this session as a 5-minute write.",
     "The stage writes files and commits locally; nothing leaves the machine."
   ],
   "table": "eval/tables/2026-10-01.json",
@@ -63,6 +65,7 @@
     ]
   },
   "notes": [
-    "The only table the subject sees is 29 days old (the runner dates it so on the run day). Step 1.4.2: stop, name the refresh, take the default (continue, same model, same effort) and record the staleness. No figure may be computed from the table."
+    "The only table the subject sees is 29 days old (the runner dates it so on the run day). Step 1.4.2: stop, name the refresh, take the default (continue, same model, same effort) and record the staleness. No figure may be computed from the table.",
+    "Stage O6b (2026-11-10): the brief gained two lines so a subject on the current SKILL.md reaches To 0, no coordinator and ttl 5m: any next session is started by the operator, from a card, and the brief states the cache lifetime as 5 minutes where the harness shows it (its usage report, its transcript or its documentation). No expected figure moves."
   ]
 }

@@ -21,6 +21,8 @@ Runs before this edit (H1) used the earlier text.
 
 Edited 2026-10-30 (Stage S4), after the H2 reassessment (F4 section 2.2): `t_star` is null when the model changes and `never` only when C0 is not above B + R; `cost_of_deciding.usd` is a string or null (null: not priced); the block goes on its own lines after the last table, never inside a table cell. Runs before this edit (H1, H2) used the earlier text.
 
+Edited 2026-11-10 (Stage O6b): the `inputs` object gains five keys, `To`, `Fo`, `Oo`, `coordinator` and `ttl`, all optional (rubric section 2). The scorer holds the subject to `To`, `coordinator` and `ttl` as the scenario states them and recomputes measure 3 with all five. Runs before this edit used the earlier text.
+
 ````text
 You are the subject in an evaluation of the session-dispatch skill. Its folder is {{SKILL_DIR}}. Read {{SKILL_DIR}}/SKILL.md and follow it as written, using only the files in that folder. Do not open any other folder.
 
@@ -35,7 +37,7 @@ Write what the skill asks you to record (the filled decision record, or the sing
 End the file with one fenced block, on its own lines after the last table and never inside a table cell, whose opening line is ```json dispatch-result and which holds one JSON object with exactly these keys:
 
 - "skill_ran": false only when the record is the step 0 line.
-- "inputs": the step 1 inputs you used, or null if you used none: "current" and "target" (model ids; "target" is null when the price table cannot give you one), "W", "K", "C0", "T", "F", "O", "B", "R", "H", "M", "L" (numbers), "compacted" (true or false), "Ta" and "Ra" (numbers, or null), "G" (the growth per turn you used if it is not F + O, else null).
+- "inputs": the step 1 inputs you used, or null if you used none: "current" and "target" (model ids; "target" is null when the price table cannot give you one), "W", "K", "C0", "T", "F", "O", "B", "R", "H", "M", "L" (numbers), "compacted" (true or false), "Ta" and "Ra" (numbers, or null), "G" (the growth per turn you used if it is not F + O, else null), and five that the skill's coordination and cache steps set: "To" (a whole number, 0 or more: the coordinating turns per piece), "Fo" and "Oo" (numbers, or null for the skill's defaults), "coordinator" (the model id or class of the other session that coordinates the plan, or null when this session does) and "ttl" ("5m" or "1h": the cache lifetime you priced writes at). Leaving one of the five out means its default: To 0, the defaults for Fo and Oo, this session coordinates, "5m".
 - "table_age_days": the price table's age in days as you found it, or null.
 - "totals": "cost_continue", "cost_fresh" and "cost_split" as strings in USD exactly as the record writes them (for example "20.01"), and "t_star" as a string of turns (one decimal), or null when the model changes (no break-even exists), or "never" only when C0 is not above B + R; null for each figure you did not compute, or null for the whole object.
 - "draft": "side" ("continue", "fresh" or "incomplete") and "by" ("class", "cost", "quality", "break-even" or null), or null if the record has no draft verdict.

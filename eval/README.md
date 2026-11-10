@@ -30,7 +30,9 @@ node scripts/dispatch.mjs --json eval/scenarios/03-break-even-continue.json
 
 The top-level symbols (`W`, `K`, `C0`, `T`, `F`, `O`, `B`, `R`, `H`, `M`,
 `L`, `Ta`, `Ra`, `compacted`, `current`, `target`, `formula`) are the inputs
-of `SKILL.md` step 1 that a subject should reach from the brief. `table` and
+of `SKILL.md` step 1 that a subject should reach from the brief, and so are
+`To`, `coordinator` and `ttl` where a scenario states them (absent means 0,
+this session coordinates, and `5m`; the scorer holds a subject to them). `table` and
 `today` pin the price table and the day, so the figures never move with the
 calendar. The other keys are ignored by the calculator:
 
@@ -110,14 +112,23 @@ Their `expected.calculator` carries `cost_coord` and `cost_coord_sonnet`,
 each plan's coordination figure at the coordinator and on the sonnet
 model; the gate checks them, and they are null for the older formula.
 Each has alternatives at the other end of the term (this session
-coordinating, or To 0). The scorer, the rubric and the subject prompt are
-unchanged: both are scored on the existing measures, and the coordinator's
-class and To are unscored until the next required rerun (D11's rule). One
-gap follows: measure 3 recomputes under formula 2026-10-29 and reads no
-To (`eval/score.mjs`), so on a correct record it marks the coordinator's
-figures wrong (22: `cost_fresh` and `cost_split`; 23: `cost_fresh` and
-`t_star`). `scripts/eval-score.test.mjs` pins exactly that; the scorer
-must learn To and the scenario's formula before the next rerun.
+coordinating, or To 0).
+
+The scorer contract (Stage O6b, 2026-11-10). The result block's `inputs`
+carry five optional keys, `To`, `Fo`, `Oo`, `coordinator` and `ttl`, each
+absent meaning its default (rubric section 2, subject prompt). Measure 3
+recomputes under `FORMULA_IN_FORCE` from the subject's own values, so the
+coordinator's figures in 22 and 23 score clean on a correct record and the
+old gap is closed (`scripts/eval-score.test.mjs` has no exception). The
+subject is also held to `To`, `coordinator` and `ttl` as the scenario
+states them: a scenario that names none expects To 0, this session and
+`5m`. A miss counts in the inputs measure, and each run's score holds
+`contract: { to_ok, coordinator_ok, ttl_ok }` so an acceptance can count
+them (final agreement 23 of 24; on 22, 23 and 24 the outcome right and all
+three equal; on 01 to 21 `To` and `ttl` equal in 20 of 21). Scenarios 01 to
+23 lead a subject to these through two brief lines (who starts any next
+session, and the cache lifetime the usage report shows); their expected
+figures did not move.
 
 ## Where SKILL.md gave two answers: settled by F2, text in O3
 

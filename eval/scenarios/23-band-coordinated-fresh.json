@@ -18,6 +18,7 @@
     "If the stage goes to a fresh session, the operator has asked this session to start it, receive its note, run the test suite on its branch and merge it before ending: about 4 turns in all. Otherwise nobody coordinates.",
     "Everything this session knows that the next stage needs is already written in files on disk.",
     "No cache-miss measurement exists, and no review pauses are expected during the stage.",
+    "The usage report shows every cache write in this session as a 5-minute write.",
     "The stage writes files and commits locally; nothing leaves the machine."
   ],
   "table": "pricing/2026-10-29.json",
@@ -104,9 +105,10 @@
     "guardrails": []
   },
   "notes": [
-    "Added in Stage O5 (2026-11-10) with formula 2026-11-10; scenarios 01 to 21 unchanged. Figures captured from the calculator. Scored on the existing measures; whether the record states To is unscored until the next required rerun (D11's rule). Until the scorer learns To, its measure 3 recomputes under formula 2026-10-29 and marks a correct cost_fresh and t_star wrong here (eval/README.md).",
+    "Added in Stage O5 (2026-11-10) with formula 2026-11-10; scenarios 01 to 21 unchanged. Figures captured from the calculator. Scored on the existing measures and, since Stage O6b (2026-11-10), on the contract: the block must state To 4 and no coordinator, and measure 3 recomputes under the formula in force (eval/README.md).",
     "To 4: the brief counts the turns this session spends starting and verifying the fresh session. Sonnet is the coordinator row's class, so step 3.2 rule 7 lets it stay for them. cost_coord moves cost_fresh from 3.2 to 7.5 percent above cost_continue; both are inside the band, so the quality rule decides: the session has compacted, so fresh.",
     "T* is printed with cost_coord in its fixed cost, 68.3 turns against 35.5 without; the short path does not settle step A, because the session has compacted.",
-    "The inputs are scenario 11's with To added, so the alternative at To 0 reproduces scenario 11's figures under the new formula."
+    "The inputs are scenario 11's with To added, so the alternative at To 0 reproduces scenario 11's figures under the new formula.",
+    "Stage O6b (2026-11-10): the brief gained one line, the cache lifetime the usage report shows (5 minutes), so ttl is 5m. Who coordinates was already stated (this session, for about 4 turns) and still leads to To 4 and no other coordinator. No expected figure moves."
   ]
 }
