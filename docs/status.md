@@ -7,7 +7,12 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-11-10, fortieth update, by the Stage F8 session (claude-fable-5-2, xhigh).
+Last updated: 2026-11-10, forty-first update, by the Stage F7 session, the coordinator (claude-fable-5-2, xhigh).
+The work of decisions D14 and D15 is complete.
+The coordinator checked `main` at `d7d4ba3`. The gate reads 130 files with 0 findings. The install check reports 4 copies, 0 files behind.
+The ledger has a row for the coordinator: 30 calls and 7.31 USD. No wake was cold.
+The tag v1.1.0 waits for the operator's yes. Decision D16 waits for the operator. No work waits on D16.
+The fortieth update, by the Stage F8 session, follows.
 Stage F8 accepted Stage O6: 23 claims, none rejected. The note is `docs/acceptance-2026-11-10-f8.md`.
 F8 found one defect before the rerun: the evaluation sandbox could not start its calculator. F8 fixed the defect and added a test.
 The rerun met all three thresholds. Final agreement: 24 of 24. Scenarios 22, 23 and 24: 3 of 3. Scenarios 01 to 21: no miss on To and `ttl`.

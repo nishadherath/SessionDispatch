@@ -26,9 +26,16 @@ with: a session on a model the newest table no longer lists needs the older one.
 | SessionDispatch O6b 2026-11-10 | the scorer contract, rubric, prompt, 23 briefs (sub-agent) | sonnet | high | 70 | 48 | 4,449 (3,221 after the first call) | 1,138 | 2.37 at the 5-minute figure (the record); 2.76 at the 1-hour one | 1.89 | sub-agent agent-a2a9c5d014d1ad6b3 under the same transcript: 1.892; every write a 5-minute write (213,550 tokens) |
 | SessionDispatch F8 2026-11-10 | adversarial acceptance of O6; the rerun; the release | fable | xhigh | 60 | 103 | 4,497 (4,123 after the first call) | 1,591 | 17.29 | 21.21 | transcript 5554ef6c (app session ae00f601), table 2026-11-10, priced just before the stage's commit, later turns not counted: 21.212, every write a 1-hour write (463,155 tokens); 18.43 at the 5-minute figure; one Haiku read of the price page in a sub-agent, 2 calls, 0.004 |
 | SessionDispatch F8 2026-11-10 | 24 evaluation subjects (`claude -p`, calculator arm) | sonnet | the CLI's default | n/a | 157 turns in 24 runs | 11,724 | 1,006 | about 6.7 (estimate) | 11.29 | each run's `usage.json` and `cli-result.json` under `eval/runs/2026-11-10/`, table 2026-11-10; every write a 1-hour write (1,840,679 tokens); the runner's `usd_priced` prices them at the 5-minute figure, 8.53 (finding F8-5) |
+| SessionDispatch F7 2026-11-10 | coordinator of the O6 chain: the plan and the O6 handoff, then the wakes | fable | xhigh | 8 (To 2 x 4) | 30 (17 for the plan, 13 in the wakes) | 3,454 | 2,763 | 1.39 for the wakes, and up to 7.40 more for two cold wakes; 0.20 for the handoff | 7.31 (5.10 for the plan, 2.21 for the wakes) | transcript 95cd0d09, table 2026-11-10 at the 1-hour figure, the calls after the F7 stage's 49, priced just before this row's commit; no wake was cold |
 
 ## Notes on the rows
 
+- **The coordinator of the O6 chain (F7, n = 1).** The record gave the handoff 0.20 USD (H x p_out) and the
+  coordinator 1.39 for 8 turns. Measured: the turn that planned the chain and wrote the O6 handoff took 17
+  calls and 5.10 USD on a context of about 390,000 tokens; the wakes took 13 calls and 2.21 USD.
+  Both wakes came 55 and 56 minutes after the session's last call, inside the 1-hour lifetime, so neither
+  wrote the context again and the cold-wake cost stays unmeasured. The handoff term prices the handoff's
+  output only; the calls that write it each read the whole context.
 - **Identification (estimate).** The O1 and F1 transcripts are identified by model, by the commit
   times of `0cc7d52` (22:09 on 2026-10-29, UTC+11) and `17c9526` (22:37), and by the session
   windows (10:47 to 11:13 UTC and 11:16 to 11:54 UTC). No transcript names its stage in its
@@ -62,7 +69,7 @@ with: a session on a model the newest table no longer lists needs the older one.
 - **Cache write per call is not F.** The first call writes the whole base (B), so the figure
   after the first call is the closer estimate of growth per turn (F + O).
 
-## What the rows say so far (n = 15 measured rows, estimates of the spread, not findings)
+## What the rows say so far (n = 16 measured rows, estimates of the spread, not findings)
 
 | Quantity | Value | Reading |
 |---|---|---|
