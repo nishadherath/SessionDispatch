@@ -137,6 +137,25 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-11-10: Stage O6, formula 2026-11-11 (D15 option A, D14 option
+  A-now). Every cache write is priced at the lifetime the harness writes:
+  the new input `ttl` (`5m` or `1h`, `--ttl` on the calculator, a row in
+  the Inputs table) picks the row's `cache_write` or `cache_write_1h`; a
+  row without the 1-hour figure is a null price under `1h`. The Claude
+  Code desktop app writes 1-hour entries (measured), so its projections
+  rise by about 10 to 20 percent. A coordinator the plan names is another
+  session, the current model included (`--coordinator this` is this
+  session). `pricing/2026-11-10.json` gains `cache_write_1h`, the
+  `claude-fable-5-1` row again and `max_age_days` 14; staleness counts
+  from each family's `fetched` date, in one module
+  (`scripts/price-table.mjs`) that the gate, `check-pricing.mjs`, the
+  calculator and the scorer share. The pricer prices 1-hour writes at
+  their figure, and the ledger's rows are re-priced at it. The
+  evaluation's result block carries `To`, `Fo`, `Oo`, `coordinator` and
+  `ttl`, the scorer recomputes under the formula in force, and scenario 24
+  is one where the lifetime decides. New worked example
+  `examples/2026-11-10-sessiondispatch-stage-o6.md`. Formulas 2026-11-10,
+  2026-10-29 and 2026-10-27 reproduce their records.
 - 2026-11-10: Stage F7, acceptance and release of v1.1.0. O5, S6 and the
   pricing work of `1ae8c0d` are accepted (`docs/acceptance-2026-11-10-f7.md`:
   21 claims, none rejected, 13 findings handed on, decisions D14 and D15)

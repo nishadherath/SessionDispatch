@@ -416,7 +416,10 @@ For each piece: name, class and model id from the table, effort,
 oracle, serial or parallel, and its cost as a fresh session by the step
 2 formula (first read of B + R, then T turns) with that piece's T, F, O
 and R. A sub-agent's B is its own baseline, usually smaller than a
-session's; state it. The calculator prices pieces given as `pieces` in
+session's; state it. A sub-agent's cache lifetime can differ from its
+session's (step 7); the calculator prices every piece at the record's
+ttl, so where a piece's own lifetime differs, give its figure at that
+lifetime beside it and say which the plan total uses. The calculator prices pieces given as `pieces` in
 its JSON input. Name the coordinator (step 3.2, rule 7). The stage cost
 is the sum of the pieces plus `cost_coord` for To times the number of
 pieces at the coordinator's model; with To 0, the pieces alone. Add the
@@ -529,7 +532,7 @@ are to be checked on first use in that harness and corrected here.
 
 | Harness | Context and usage | Compaction point | Cache lifetime ttl | Delegation |
 |---|---|---|---|---|
-| Claude Code (desktop app) | Session usage tool: `tokensUsed`, `contextWindow`, `autoCompactsAtPercent`, categories (verified 2026-10-27) | From the same tool | `1h`: 1,526,208 of 1,526,208 write tokens in five transcripts, 2026-10-29 to 2026-11-10 (measured); `5m` in usage overage | `Agent` tool with `model` and `effort`; fresh sessions by the app's session tools, model chosen by the operator |
+| Claude Code (desktop app) | Session usage tool: `tokensUsed`, `contextWindow`, `autoCompactsAtPercent`, categories (verified 2026-10-27) | From the same tool | `1h`: 1,526,208 of 1,526,208 write tokens in five transcripts, 2026-10-29 to 2026-11-10 (measured); `5m` in usage overage. Sub-agents of the `Agent` tool write `5m`: 0 of 402,343 write tokens in four sub-agents, 2026-11-10 (measured) | `Agent` tool with `model` and `effort`; fresh sessions by the app's session tools, model chosen by the operator |
 | Claude Code (CLI) | `/context` and the status line | Auto-compact announced in the transcript | Unknown: read the transcript's `cache_creation` split; else `5m` and say so | `Agent` tool; new terminal session |
 | Codex | `/status` shows context used | Documented auto-compaction near the window limit; check `/status` | Unknown: `5m` and say so | Sub-agents where the build offers them; otherwise a new thread with the handoff |
 | OpenCode | Token count in the session header | Documented compaction on overflow; check the session header | Unknown: `5m` and say so | Sub-agents by `@` mention or a new session |

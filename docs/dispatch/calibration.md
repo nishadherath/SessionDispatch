@@ -16,11 +16,11 @@ with: a session on a model the newest table no longer lists needs the older one.
 | Tsunami 2026-11-02 | C content acceptance | fable | high | 30 | n/a | n/a | n/a | 9.08 | 6.53 | the same |
 | Tsunami 2026-11-02 | D page acceptance | opus | high | 40 | n/a | n/a | n/a | 5.83 | 9.80 | the same |
 | Tsunami 2026-11-02 | coordinator | fable | high | 25 by hand (handoff 38); 120 under formula 2026-11-10 (To 30 x 4) | 166 | 6,446 | 2,825 | 5.30 by hand; 42.35 under formula 2026-11-10 | about 56 | Tsunami D-112 item 4: 52.42 measured at 14:06 plus about 4 for the rest of the turn; per-call figures from `SKILL.md` step 1.2 (Fo, Oo) |
-| SessionDispatch O1 2026-10-29 | formula, calculator, example | opus | high | 60 | 49 | 4,856 (4,177 after the first call) | 2,088 | 8.43 (quote 7 to 12) | 5.34 | session 4a645017, table 2026-10-29 |
-| SessionDispatch F1 2026-10-29 | adversarial acceptance of O1 | fable | xhigh | 15 | 24 | 11,282 (10,061 after the first call) | 4,263 | 5.89 (quote 5 to 15) | 9.97 | session 99f38ac8, table 2026-10-29 |
-| SessionDispatch O5 2026-11-10 | coordinator term, formula, example, two scenarios | opus | high | 60 to 90 | 101 | 3,596 (3,220 after the first call) | 1,371 | 10.06 to 16.34 | 10.71 | session 69a179e5, table 2026-11-10, priced by F7 after the session's last turn (S6 priced it at 20:04 local, before them: 96 calls, 10.25) |
-| SessionDispatch S6 2026-11-10 | transcript pricer, ledger | sonnet | medium | 40 to 60 | 72 | 2,356 (1,809 after the first call) | 623 | 2.21 to 3.43 | 2.09 | transcript d715dfd0 (app session 64c9f68d), table 2026-11-10, the Sonnet calls; six more calls on claude-fable-5-2 after the stage cost 2.06 (see the notes) |
-| SessionDispatch F7 2026-11-10 | adversarial acceptance of O5, S6 and `1ae8c0d`; release | fable | xhigh | 20 | 49 | 6,594 (5,896 after the first call) | 1,909 | 6.33 | 8.78 | transcript 95cd0d09 (app session 3066f14f), table 2026-11-10, priced just before the stage's commit, later turns not counted; 3 calls on claude-sonnet-5-5 before the operator switched the model (0.14 USD), 46 on claude-fable-5-2 (8.64), one Haiku sub-agent read of the price page (0.004) |
+| SessionDispatch O1 2026-10-29 | formula, calculator, example | opus | high | 60 | 49 | 4,856 (4,177 after the first call) | 2,088 | 8.43 (quote 7 to 12) | 6.05 | session 4a645017, table 2026-10-29; re-priced in Stage O6 at the 1-hour write (`--table pricing/2026-11-10.json`): 6.049; 5.34 at the 5-minute figure |
+| SessionDispatch F1 2026-10-29 | adversarial acceptance of O1 | fable | xhigh | 15 | 24 | 11,282 (10,061 after the first call) | 4,263 | 5.89 (quote 5 to 15) | 12.00 | session 99f38ac8, table 2026-10-29; re-priced in Stage O6 at the 1-hour write: 11.997; 9.97 at the 5-minute figure |
+| SessionDispatch O5 2026-11-10 | coordinator term, formula, example, two scenarios | opus | high | 60 to 90 | 101 | 3,596 (3,220 after the first call) | 1,371 | 10.06 to 16.34 | 11.80 | session 69a179e5, table 2026-11-10, priced by F7 after the session's last turn (S6 priced it at 20:04 local, before them: 96 calls, 10.25); at the 1-hour write 11.80 for the stage's 101 calls (F7's 10.706 + 1.09, finding F7-1; the pricer now counts 103 calls, 11.98, because the session ran on); 10.71 at the 5-minute figure |
+| SessionDispatch S6 2026-11-10 | transcript pricer, ledger | sonnet | medium | 40 to 60 | 72 | 2,356 (1,809 after the first call) | 623 | 2.21 to 3.43 | 2.34 | transcript d715dfd0 (app session 64c9f68d), table 2026-11-10, the Sonnet calls; six more calls on claude-fable-5-2 after the stage cost 2.06 (see the notes); re-priced in Stage O6 at the 1-hour write: 2.340 for the 72 Sonnet calls; 2.09 at the 5-minute figure |
+| SessionDispatch F7 2026-11-10 | adversarial acceptance of O5, S6 and `1ae8c0d`; release | fable | xhigh | 20 | 49 | 6,594 (5,896 after the first call) | 1,909 | 6.33 | 10.53 | transcript 95cd0d09 (app session 3066f14f), table 2026-11-10, priced just before the stage's commit, later turns not counted; 3 calls on claude-sonnet-5-5 before the operator switched the model (0.14 USD), 46 on claude-fable-5-2 (8.64), one Haiku sub-agent read of the price page (0.004); at the 1-hour write 10.53 for the stage's 49 calls, by hand (estimate): 280,747 Fable write tokens x 6e-6 + 42,359 Sonnet ones x 1.5e-6 = 1.75 more; the pricer now counts 66 calls, 15.62, because the session ran on as the coordinator; 8.78 at the 5-minute figure |
 
 ## Notes on the rows
 
@@ -28,9 +28,12 @@ with: a session on a model the newest table no longer lists needs the older one.
   times of `0cc7d52` (22:09 on 2026-10-29, UTC+11) and `17c9526` (22:37), and by the session
   windows (10:47 to 11:13 UTC and 11:16 to 11:54 UTC). No transcript names its stage in its
   first message. The costs are right for those sessions; the stage labels are inferred.
-- **Cache writes are priced at the table's `cache_write`.** Every write in these transcripts is
-  marked as a 1-hour write, which the table does not price separately, so each measured cost is a
-  lower bound by that difference. The ratios below carry the same bias in the measured column.
+- **Cache writes at the 1-hour figure (Stage O6, 2026-11-10).** Every write in these transcripts
+  is marked as a 1-hour write. Until Stage O6 the table priced it at `cache_write`, the 5-minute
+  figure, so each measured cost was a lower bound. The table of 2026-11-10 now carries
+  `cache_write_1h` and the pricer uses it; the SessionDispatch rows above are re-priced at it, the
+  5-minute figure kept in each Source cell. The Tsunami rows are another repository's and stay as
+  measured there. The ratios below were computed at the 5-minute figure.
 - **The size of the 1-hour bias (F7, 2026-11-10).** The vendor's page, read that day, prices a
   1-hour write at twice base input; the table's `cache_write` is the 5-minute figure (1.25 times).
   At the 1-hour figure the measured costs rise by 0.71 USD for O1 (13.4 percent), 2.03 for F1
