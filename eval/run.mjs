@@ -19,8 +19,9 @@
 //
 // Non-obvious: sandboxes live under os.tmpdir(), outside the repository, so a
 // subject cannot stumble on eval/scenarios/ and its expectations. Each sandbox
-// table is re-dated so its age on the run day equals its age on the scenario's
-// own day; prices are untouched.
+// table is re-dated, its table_date and every family's fetched date alike, so
+// its age on the run day equals its age on the scenario's own day; prices are
+// untouched.
 import { createHash } from "node:crypto";
 import { execFileSync, spawn } from "node:child_process";
 import fs from "node:fs";
@@ -34,7 +35,9 @@ import { findModel, modelForClass, roundTo } from "../scripts/dispatch-core.mjs"
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SUBJECT_CLASSES = ["haiku", "sonnet"];
 const ARMS = ["calculator", "hand"];
-const CALCULATOR_FILES = ["dispatch.mjs", "dispatch-core.mjs"];
+// dispatch.mjs and every script it imports: a file missing here stops the sandbox's calculator at
+// its first line (F8-1; scripts/eval-score.test.mjs runs the sandbox's own copy).
+const CALCULATOR_FILES = ["dispatch.mjs", "dispatch-core.mjs", "price-table.mjs"];
 const SKILL_ENTRIES = ["SKILL.md", "templates", "examples"];
 const DAY_MS = 86400000;
 
@@ -93,7 +96,11 @@ export function prepare({ date, subjects, arms, only, skillRoot = REPO, repoRoot
     const table = readJson(path.join(repoRoot, ...sc.table.split("/")));
     const age = Math.round((Date.parse(sc.today) - Date.parse(table.table_date)) / DAY_MS);
     if (!Number.isFinite(age)) throw new Error(`${sc.id}: cannot date table ${sc.table} against ${sc.today}`);
-    const redated = { ...table, table_date: shiftDays(date, -age) };
+    // Staleness counts from each family's fetched date (scripts/price-table.mjs), so those move by
+    // the same number of days as table_date; a family never read (fetched null) stays as it is.
+    const shift = Math.round((Date.parse(date) - Date.parse(sc.today)) / DAY_MS);
+    const families = Object.fromEntries(Object.entries(table.families ?? {}).map(([name, f]) => [name, isDate(f?.fetched) ? { ...f, fetched: shiftDays(f.fetched, shift) } : f]));
+    const redated = { ...table, table_date: shiftDays(date, -age), families };
     for (const subject of subjects) for (const arm of arms) for (let rep = 1; rep <= repeat; rep++) {
       const id = `${sc.id}.${subject}.${arm}${rep > 1 ? `.${rep}` : ""}`;
       const runDir = path.join(dayDir, id), sandbox = path.join(sandboxRoot, date, id), skillDir = path.join(sandbox, "skill");

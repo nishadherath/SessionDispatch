@@ -5,6 +5,7 @@
 // must date each sandbox table by the scenario's own age. Everything runs
 // from temp folders; the live tree is only read.
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
@@ -328,7 +329,7 @@ test("prepare dates each sandbox table by the scenario's own age and leaves scri
     assert.deepEqual(tables("03-break-even-continue", "calculator"), ["2026-11-04.json"]);
     assert.deepEqual(tables("14-stale-table", "hand"), ["2026-10-07.json"]);
     const scripts = (arm) => path.join(work, "sandbox", "2026-11-05", `03-break-even-continue.haiku.${arm}`, "skill", "scripts");
-    assert.deepEqual(fs.readdirSync(scripts("calculator")).sort(), ["dispatch-core.mjs", "dispatch.mjs"]);
+    assert.deepEqual(fs.readdirSync(scripts("calculator")).sort(), ["dispatch-core.mjs", "dispatch.mjs", "price-table.mjs"]);
     assert.equal(fs.existsSync(scripts("hand")), false);
     const prompt = fs.readFileSync(path.join(work, "runs", "2026-11-05", "03-break-even-continue.haiku.hand", "prompt.txt"), "utf8");
     assert.doesNotMatch(prompt, /\{\{/);
@@ -336,6 +337,33 @@ test("prepare dates each sandbox table by the scenario's own age and leaves scri
     const manifest = JSON.parse(fs.readFileSync(path.join(work, "runs", "2026-11-05", "manifest.json"), "utf8"));
     assert.match(manifest.skill_sha256, /^[0-9a-f]{64}$/);
     assert.equal(manifest.runs.length, 4);
+  } finally { rm(work); }
+});
+
+// F8-1 (2026-11-10): the sandbox a calculator-arm subject works in. Its calculator must load
+// (every script dispatch.mjs imports is copied) and, on the scenario's own inputs under the
+// formula in force, long after the scenario's day, must give the exit code and the figures the
+// scenario expects: each family's fetched date moves with the table, so the figures are as old
+// in the sandbox as on the scenario's day (staleness counts from fetched, scripts/price-table.mjs).
+test("a calculator-arm sandbox runs its calculator and gives each scenario's expected figures on a later day", () => {
+  const work = tmpDir("eval-sandbox");
+  try {
+    const date = "2027-03-01";
+    const out = prepare({ date, subjects: ["sonnet"], arms: ["calculator"], runsRoot: path.join(work, "runs"), sandboxRoot: path.join(work, "sandbox"), skillRoot: ROOT, repoRoot: ROOT });
+    assert.equal(out.runs.length, scenarios.length);
+    const keys = ["current", "target", "W", "K", "C0", "T", "F", "O", "B", "R", "H", "M", "L", "Ta", "Ra", "To", "Fo", "Oo", "coordinator", "ttl", "compacted"];
+    for (const r of out.runs) {
+      const s = byId(r.scenario), c = s.expected.calculator;
+      const file = path.join(r.sandbox, "inputs.json");
+      fs.writeFileSync(file, JSON.stringify(Object.fromEntries(keys.filter((k) => s[k] !== undefined).map((k) => [k, s[k]]))));
+      const run = spawnSync(process.execPath, [path.join(r.sandbox, "skill", "scripts", "dispatch.mjs"), "--json", file, "--today", date], { cwd: r.sandbox, encoding: "utf8" });
+      assert.equal(run.status, c.exit, `${s.id}: the sandbox calculator exits ${run.status}, the scenario expects ${c.exit}; ${run.stderr.split(/\r?\n/).find((l) => l.trim()) ?? ""}`);
+      const total = (head) => { const at = run.stdout.search(new RegExp(`^${head}`, "m")); return at < 0 ? null : run.stdout.slice(at).match(/^\s*=\s*(\d[\d,]*\.\d+) USD/m)?.[1] ?? null; };
+      assert.deepEqual({ cost_continue: total("cost_continue on"), cost_fresh: total("cost_fresh on"), cost_split: total("cost_split: brief") },
+        { cost_continue: c.cost_continue ?? null, cost_fresh: c.cost_fresh ?? null, cost_split: c.cost_split ?? null }, s.id);
+      const d = run.stdout.match(/^Draft verdict: (continue|fresh|incomplete)(?:, by (class|cost|quality|break-even))?/m);
+      assert.deepEqual(d ? { side: d[1], by: d[2] ?? null } : null, c.draft ?? null, s.id);
+    }
   } finally { rm(work); }
 });
 
