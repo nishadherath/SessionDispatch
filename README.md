@@ -137,6 +137,18 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-11-10: Stage F8, the acceptance of Stage O6 and of formula
+  2026-11-11 (`docs/acceptance-2026-11-10-f8.md`): 23 claims accepted,
+  none rejected. The 24-scenario rerun on the Sonnet subject
+  (`eval/results-2026-11-10.md`, calculator arm, one run each) met its
+  three thresholds: final agreement 24 of 24, scenarios 22 to 24 right
+  with To, the coordinator and `ttl` as expected, and no miss on To and
+  `ttl` in scenarios 01 to 21. The class floor in `SKILL.md` states those
+  figures in place of the sentence that said the two terms were
+  unscored. One figure in the new example is corrected (40.61 USD, not
+  40.62). For the evaluation: a calculator-arm sandbox now carries
+  `price-table.mjs` and moves each family's `fetched` date with the
+  table; without the first no subject could run the calculator.
 - 2026-11-10: Stage O6, formula 2026-11-11 (D15 option A, D14 option
   A-now). Every cache write is priced at the lifetime the harness writes:
   the new input `ttl` (`5m` or `1h`, `--ttl` on the calculator, a row in

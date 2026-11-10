@@ -20,7 +20,12 @@ with: a session on a model the newest table no longer lists needs the older one.
 | SessionDispatch F1 2026-10-29 | adversarial acceptance of O1 | fable | xhigh | 15 | 24 | 11,282 (10,061 after the first call) | 4,263 | 5.89 (quote 5 to 15) | 12.00 | session 99f38ac8, table 2026-10-29; re-priced in Stage O6 at the 1-hour write: 11.997; 9.97 at the 5-minute figure |
 | SessionDispatch O5 2026-11-10 | coordinator term, formula, example, two scenarios | opus | high | 60 to 90 | 101 | 3,596 (3,220 after the first call) | 1,371 | 10.06 to 16.34 | 11.80 | session 69a179e5, table 2026-11-10, priced by F7 after the session's last turn (S6 priced it at 20:04 local, before them: 96 calls, 10.25); at the 1-hour write 11.80 for the stage's 101 calls (F7's 10.706 + 1.09, finding F7-1; the pricer now counts 103 calls, 11.98, because the session ran on); 10.71 at the 5-minute figure |
 | SessionDispatch S6 2026-11-10 | transcript pricer, ledger | sonnet | medium | 40 to 60 | 72 | 2,356 (1,809 after the first call) | 623 | 2.21 to 3.43 | 2.34 | transcript d715dfd0 (app session 64c9f68d), table 2026-11-10, the Sonnet calls; six more calls on claude-fable-5-2 after the stage cost 2.06 (see the notes); re-priced in Stage O6 at the 1-hour write: 2.340 for the 72 Sonnet calls; 2.09 at the 5-minute figure |
-| SessionDispatch F7 2026-11-10 | adversarial acceptance of O5, S6 and `1ae8c0d`; release | fable | xhigh | 20 | 49 | 6,594 (5,896 after the first call) | 1,909 | 6.33 | 10.53 | transcript 95cd0d09 (app session 3066f14f), table 2026-11-10, priced just before the stage's commit, later turns not counted; 3 calls on claude-sonnet-5-5 before the operator switched the model (0.14 USD), 46 on claude-fable-5-2 (8.64), one Haiku sub-agent read of the price page (0.004); at the 1-hour write 10.53 for the stage's 49 calls, by hand (estimate): 280,747 Fable write tokens x 6e-6 + 42,359 Sonnet ones x 1.5e-6 = 1.75 more; the pricer now counts 66 calls, 15.62, because the session ran on as the coordinator; 8.78 at the 5-minute figure |
+| SessionDispatch F7 2026-11-10 | adversarial acceptance of O5, S6 and `1ae8c0d`; release | fable | xhigh | 20 | 49 | 6,594 (5,896 after the first call) | 1,909 | 6.33 | 10.52 | transcript 95cd0d09 (app session 3066f14f), table 2026-11-10, priced just before the stage's commit, later turns not counted; 3 calls on claude-sonnet-5-5 before the operator switched the model (0.14 USD), 46 on claude-fable-5-2 (8.64), one Haiku sub-agent read of the price page (0.004); at the 1-hour write 10.52 for the stage's 49 calls, counted in Stage F8 from the first 49 message ids (46 Fable calls 10.324, 3 Sonnet calls 0.200; Stage O6's estimate by hand was 10.53); the session ran on as the coordinator (66 calls and 15.62 when Stage O6 priced it, 74 and 16.84 when Stage F8 did); 8.78 at the 5-minute figure |
+| SessionDispatch O6 2026-11-10 | formula 2026-11-11, text, calculator, gate, example, scenario 24, integration | opus | high | 120 | 120 | 3,266 (2,946 after the first call) | 1,203 | 16.06 at the 5-minute figure (the record); 17.94 at the 1-hour one (the example) | 13.60 | transcript 199d74f5, table 2026-11-10, priced by Stage F8 after the session's last turn: 13.595, every write a 1-hour write (391,870 tokens); 12.42 at the 5-minute figure; one Haiku read of the price page in a sub-agent, 2 calls, 0.004 |
+| SessionDispatch O6a 2026-11-10 | the table rules, the table, the pricer (sub-agent) | sonnet | medium | 60 | 41 | 3,616 (2,154 after the first call) | 970 | 1.74 at the 5-minute figure (the record); 2.05 at the 1-hour one | 1.23 | sub-agent agent-a850f0dc31832dc4e under transcript 199d74f5, table 2026-11-10: 1.234; every write a 5-minute write (148,241 tokens), so the 1-hour figure prices none of it |
+| SessionDispatch O6b 2026-11-10 | the scorer contract, rubric, prompt, 23 briefs (sub-agent) | sonnet | high | 70 | 48 | 4,449 (3,221 after the first call) | 1,138 | 2.37 at the 5-minute figure (the record); 2.76 at the 1-hour one | 1.89 | sub-agent agent-a2a9c5d014d1ad6b3 under the same transcript: 1.892; every write a 5-minute write (213,550 tokens) |
+| SessionDispatch F8 2026-11-10 | adversarial acceptance of O6; the rerun; the release | fable | xhigh | 60 | 103 | 4,497 (4,123 after the first call) | 1,591 | 17.29 | 21.21 | transcript 5554ef6c (app session ae00f601), table 2026-11-10, priced just before the stage's commit, later turns not counted: 21.212, every write a 1-hour write (463,155 tokens); 18.43 at the 5-minute figure; one Haiku read of the price page in a sub-agent, 2 calls, 0.004 |
+| SessionDispatch F8 2026-11-10 | 24 evaluation subjects (`claude -p`, calculator arm) | sonnet | the CLI's default | n/a | 157 turns in 24 runs | 11,724 | 1,006 | about 6.7 (estimate) | 11.29 | each run's `usage.json` and `cli-result.json` under `eval/runs/2026-11-10/`, table 2026-11-10; every write a 1-hour write (1,840,679 tokens); the runner's `usd_priced` prices them at the 5-minute figure, 8.53 (finding F8-5) |
 
 ## Notes on the rows
 
@@ -44,6 +49,11 @@ with: a session on a model the newest table no longer lists needs the older one.
   Sonnet to Fable 5.2 after its stage, so that it could set F7's model: the first call on the new
   model wrote 160,458 tokens and the six calls cost 2.06 USD, as much as the stage's 72. F7
   began on Sonnet and was switched the same way; its Source cell gives the split.
+- **The O6 chain (Stage F8, 2026-11-10).** O6's two Sonnet pieces ran as sub-agents, which write 5-minute
+  entries in this harness while their session writes 1-hour ones (208 sub-agent transcripts under this
+  project's folders: 0 of 11,964,150 write tokens are 1-hour; 24 session transcripts: 7,889,957 of 7,889,957
+  are). So a sub-agent piece is compared with its projection at the 5-minute figure and a session piece at
+  the 1-hour one. The calculator prices every piece at the record's one ttl (`SKILL.md` step 3.3).
 - **Transcript ids are not the app's session ids.** The pricer finds `<transcript id>.jsonl`
   under `~/.claude/projects/<folder>/`; a handoff that names the app's id (`local_...`) does not
   locate it. The Source cells give the transcript id first.
@@ -52,7 +62,7 @@ with: a session on a model the newest table no longer lists needs the older one.
 - **Cache write per call is not F.** The first call writes the whole base (B), so the figure
   after the first call is the closer estimate of growth per turn (F + O).
 
-## What the rows say so far (n = 10 measured rows, estimates of the spread, not findings)
+## What the rows say so far (n = 15 measured rows, estimates of the spread, not findings)
 
 | Quantity | Value | Reading |
 |---|---|---|
@@ -60,9 +70,12 @@ with: a session on a model the newest table no longer lists needs the older one.
 | Measured over projected, O5 | 1.06 at T 60; 0.66 at T 90 | Inside the quoted range. |
 | Measured over projected, S6 | 0.94 at T 40; 0.61 at T 60 | Under the range, on 72 calls against 40 to 60: output per call was 623 against the 1,500 assumed. |
 | Measured over projected, F7 | 1.39 at T 20 | Over the projection and a little over the handoff's adverse case of about 8: 49 calls against 20, at 1,909 output per call against the 3,000 assumed. |
+| Measured over projected, O6 and its two sub-agents | 0.76 (13.60 over 17.94, both at the 1-hour write); 0.71 (1.23 over 1.74) and 0.80 (1.89 over 2.37), each at the 5-minute write a sub-agent makes | Under the projection on all three. O6 made 120 calls against T 120; the sub-agents 41 against 60 and 48 against 70. Output per call was 1,203, 970 and 1,138 against the 1,500, 700 and 900 assumed. |
+| Measured over projected, F8 | 1.23 (21.21 over 17.29) at T 60 | Over the projection: 103 calls against T 60, at 1,591 output a call against the 2,000 assumed and 4,123 written a call against 6,000. T was the input that was wrong, as on F1 and F7. |
+| Measured over projected, the 24 evaluation subjects | 1.68 (11.29 over about 6.7) | The estimate scaled H3's 5.89 USD for 21 runs, priced at the 5-minute figure on an earlier CLI. These runs wrote 1-hour entries, and five of them each wrote the CLI's own baseline of about 200,000 tokens. |
 | Calls over T projected | O1 49 over 60; F1 24 over 15; O5 101 over 60 to 90; S6 72 over 40 to 60; F7 49 over 20; Tsunami coordinator 166 over 25 by hand | T is the input that moves most. The two acceptance stages (F1, Tsunami C and D by cost) ran over; the two build stages ran under. |
 | Output per call, four sessions | 2,088 (O1); 4,263 (F1); 1,371 (O5); 623 (S6, Sonnet at medium) | The 1,500 default holds for O5, is low for O1 and F1 (one of them an xhigh acceptance: reasoning is billed as output) and is more than twice S6. |
 | Cache write per call after the first, four sessions | 4,177; 10,061; 3,220; 1,809 (S6) | Against F + O of 4,500 (defaults 3,000 + 1,500) and 6,000 (3,000 + 3,000): three of four are inside it; F1, a read-heavy acceptance, is above. |
 
-No default moves on ten rows of mixed class and effort. The next formula stage that wants one
+No default moves on fifteen rows of mixed class and effort. The next formula stage that wants one
 moved brings its rows split by class and effort, with a sample size for each.

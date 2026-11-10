@@ -7,12 +7,14 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-11-10, thirty-ninth update, by the Stage O6 session (claude-opus-5-5, high).
-The operator decided D15 option A and D14 option A-now on 2026-11-10.
-The operator said "Not yet" for the tag v1.1.0.
-Stage O6 is done. Its work is on branch `claude/stage-o6-write-price-003ba0`. The branch is pushed. It is not merged into `main`.
-Stage F8 is ready. Its handoff is `docs/handoffs/2026-11-10-thereafter-stage-f8-acceptance-rerun.md`.
-The F7 session starts F8 (Fable, xhigh).
+Last updated: 2026-11-10, fortieth update, by the Stage F8 session (claude-fable-5-2, xhigh).
+Stage F8 accepted Stage O6: 23 claims, none rejected. The note is `docs/acceptance-2026-11-10-f8.md`.
+F8 found one defect before the rerun: the evaluation sandbox could not start its calculator. F8 fixed the defect and added a test.
+The rerun met all three thresholds. Final agreement: 24 of 24. Scenarios 22, 23 and 24: 3 of 3. Scenarios 01 to 21: no miss on To and `ttl`.
+The class floor in `SKILL.md` now states these figures.
+The release steps come next in this stage: `main` moves to the stage commit, the two pushes, the install.
+F8 made no tag. The F7 session asks the operator for the tag v1.1.0.
+One decision waits for the operator: D16 (below). No work waits on it.
 The operator asked for status updates in ASD-STE100. This update and later updates use short active sentences.
 
 ## Dashboards
@@ -20,8 +22,9 @@ The operator asked for status updates in ASD-STE100. This update and later updat
 - `docs/status.md` (this file): work done, work in progress, work to do, decisions.
 - `docs/dispatch/calibration.md`: the cost ledger. It shows the projected cost and the measured cost of each stage.
 - `docs/handoffs/`: one file for each stage. The file of the active stage has the status `ready` or `in-progress`.
+- `docs/acceptance-2026-11-10-f8.md`: the F8 acceptance of Stage O6, its findings, and the rerun against its thresholds.
 - `docs/acceptance-2026-11-10-f7.md`: the F7 acceptance, its findings, and decisions D14 and D15.
-- `eval/results-<date>.md`: the evaluation results. Stage F8 adds the newest file.
+- `eval/results-<date>.md`: the evaluation results. The newest file is `eval/results-2026-11-10.md`.
 
 ## Done
 
@@ -51,12 +54,13 @@ The operator asked for status updates in ASD-STE100. This update and later updat
 | Stage S6: the transcript pricer, the Measured column, the calibration ledger, sample sizes | 2026-11-10 | `scripts/session-cost.mjs` (a standard-library port of Tsunami's `session_cost.py`: usage once per message id, table in force or `--table`, sub-agents listed apart, `--json`; 6 tests against a synthetic fixture); Measured columns in `templates/handoff.md` and `docs/handoffs/README.md`; `docs/dispatch/calibration.md` seeded with the five Tsunami rows, O1, F1 and O5 (measured 5.34, 9.97 and 10.25 USD; pooled measured over projected 0.86 for six pieces) and its header checked by the gate; `SKILL.md` step 1.2 states a sample size on each default and moves none. Gate 118 files, 0 findings; 67 tests pass (60 before, 6 for the pricer, 1 for the ledger check). Branch `claude/strange-thompson-08340e`. About 1 hour (estimate); the pricer measures S6 itself at F7. O1 and F1 labels are inferred from commit times. |
 | Stage F7: acceptance of O5, S6 and `1ae8c0d`; release of v1.1.0 | 2026-11-10 | `docs/acceptance-2026-11-10-f7.md`: twenty-one claims accepted, none rejected. `cost_coord` derived by hand for the Tsunami example and for scenarios 22 and 23 before the calculator was read (every figure reproduces); 24 seeded faults, 19 caught, the other 5 checked by hand; the pricer checked against a second count on four transcripts; the Anthropic rows of the table in force matched to the vendor's page by a sub-agent read. Rulings on the three points of D13 (the table's `max_age_days` governs; the Fable 5.1 row stays out as the operator asked; the table rules need one owner) and on the scorer gap (D14, option A). Thirteen findings handed on; the largest is that this harness writes 1-hour cache entries, which the table and the formula price at the 5-minute figure (D15). Ledger: O5 corrected to 101 calls and 10.71 USD, S6 72 calls and 2.09 USD, F7 filled. `main` is fast-forwarded to the commit that carries this update and pushed, and `node scripts/install.mjs --harness all` was run with `--check` at 4 copies, 0 files behind (the stage report quotes the outputs). Gate 119 files, 0 findings; 67 tests pass. The tag v1.1.0 waits for the operator's yes. About 32 minutes of wall clock; 8.78 USD measured just before the commit (49 calls) against 6.33 projected. |
 | Stage O6: the write price by cache lifetime, one owner for the table rules, the scorer contract | 2026-11-10 | Formula 2026-11-11 prices every cache write at the lifetime ttl (5m or 1h). A named coordinator is another session. One module, `scripts/price-table.mjs`, owns the table rules. Staleness counts from each family's `fetched` date. The table of 2026-11-10 has `cache_write_1h` and the Fable 5.1 row. The pricer prices 1-hour writes. The scorer recomputes with To, the coordinator and ttl. Scenario 24 and a new worked example. Findings F7-3 to F7-10 and F7-12 closed. Two Sonnet sub-agents did the table rules (O6a) and the scorer contract (O6b) at the same time. Branch `claude/stage-o6-write-price-003ba0`, pushed. Gate 128 files, 0 findings; 117 tests pass. Measured so far: 14.23 USD (this session 11.10 on 99 calls, O6a 1.23, O6b 1.89), against 20.17 projected. About 2 hours. |
+| Stage F8: acceptance of O6, the 24-scenario rerun, the release | 2026-11-10 | `docs/acceptance-2026-11-10-f8.md`: 23 claims accepted, none rejected. Formula 2026-11-11 was derived by hand for the new example and for scenario 24 before the calculator was read; every figure reproduces. 72 seeded faults: 65 caught as O6 left the tree, 4 more after four new assertions, 3 handed on. One defect fixed before the rerun (F8-1: a calculator-arm sandbox did not carry `price-table.mjs`). `eval/results-2026-11-10.md`: 24 Sonnet runs, calculator arm, final agreement 24 of 24 (86.2 to 100.0 percent); thresholds T1, T2 and T3 met. The class floor's last sentence states the measured figures. Gate 130 files read, 0 findings; tests 120 tests, 120 pass, 0 fail, 127 s. Measured at the 1-hour write: F8 21.21 USD on 103 calls, the 24 subjects 11.29 USD. |
 
 ## In progress
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| F8: acceptance of O6, the 24-scenario rerun, the release | started by the F7 session | Fable, xhigh | a fresh session on the O6 branch | 70 to 100 min; 17.01 USD at the 1-hour write, and about 6.7 USD for the subjects (estimate) |
+| None. Stage F8 is done. | | | | |
 
 The four installed copies (claude, codex, zcode, opencode) and the Cline rule file were written with
 `node scripts/install.mjs --harness all` on 2026-11-10 in F7, from the tree this update is committed on;
@@ -76,7 +80,7 @@ None. H4 (the Haiku calculator cell rerun) was closed by D11 option A on 2026-10
 
 The D12 chain is complete: O5, S6 and F7 are in the Done table. Measured by `node scripts/session-cost.mjs` on `pricing/2026-11-10.json`: O5 10.71 USD, S6 2.09 (plus 2.06 for six calls after its model was switched to Fable so that it could set F7), F7 8.78 just before its commit (49 calls against T 20), 23.64 in all, inside the 18.68 to 24.96 projected. Each figure is a lower bound by the 1-hour write difference (finding F7-1). The operator decided D14 and D15 (below).
 
-Work to do: Stage F8 (Fable, xhigh). F8 accepts the work of O6. F8 runs the evaluation again: 24 scenarios, Sonnet subjects, one run each. F8 merges into `main` and installs the skill. Estimate for F8: 70 to 100 min and 17.01 USD at the 1-hour write (13.93 at the 5-minute write), and about 6.7 USD for the subjects. The F7 session coordinates. Estimate: 1.39 USD, and up to 7.40 USD more if its cache is cold at each of its two wakes. Estimate for the plan: 42 to 50 USD and 3 to 4 hours. Then the F7 session asks the operator for the tag.
+The D14 and D15 chain is complete: O6 and F8 are in the Done table. Measured by `node scripts/session-cost.mjs` on `pricing/2026-11-10.json`: O6 13.60 USD, its two sub-agents 1.23 and 1.89, F8 21.21, the 24 subjects 11.29. The projection for the four pieces and their coordination was 41.32 USD, and about 6.7 USD for the subjects. The F7 session coordinated: 25 calls and 6.32 USD from the end of its own stage to the start of F8, against 1.55 projected for 8 turns; no call rewrote its context. No stage is left to do. The F7 session asks the operator for the tag.
 
 Not staged: C1 (variant C) and its acceptance F6, closed by D10 option A,
 confirmed by the operator on 2026-10-30; O4 declined (F4 section 2.3).
@@ -106,9 +110,19 @@ assessment; D8 and D9 are repeated below.
 - D13 The uncommitted pricing work in the main checkout (found 2026-11-10): A, decided by the operator on 2026-11-10 ("Yes, commit it"); commit `1ae8c0d`. Stage F7's acceptance covers it. Five parts below.
 - D14 The scorer gap (F7, 2026-11-10): A-now, decided by the operator on 2026-11-10 ("D-14 (do it now with rerun)"). This overrules the F7 ruling (A). Stage O6 changes the scorer contract. Stage F8 accepts it and then runs the evaluation again. Five parts: `docs/acceptance-2026-11-10-f7.md` section 6.
 - D15 A follow-up stage for the pricing and text findings of F7 (2026-11-10): A, decided by the operator on 2026-11-10 ("D-15 (A)"). Stage O6 does the work. Stage F8 accepts it. Five parts: the same note, section 8.
-- The tag v1.1.0: the operator said "Not yet" on 2026-11-10. No tag is on `82d9386`. The F7 session asks again after Stage F8. A tag push needs the operator's yes (it is outside `approvals.push_origin`).
+- The tag v1.1.0: the operator said "Not yet" on 2026-11-10. No tag is on `82d9386`. Stage F8 is done and made no tag. The F7 session asks the operator now. A tag push needs the operator's yes (it is outside `approvals.push_origin`).
+- D16 A cache lifetime for each piece (F8, 2026-11-10): open. Recommended: A, no change. Nothing waits on it. Five parts below.
 - F3-7 H2's runner (the coordinating session's, not the operator's): A, the `Agent` runner as H1 used it, decided 2026-10-30 so that H1 and H2 share one harness and F4 can attribute any change to the text; S4's CLI runner follows H2.
 - Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`: answered yes by the operator on 2026-10-30 (S3); the blocks were already there and stay.
+
+```
+D16
+Decision:      Whether the formula gives each piece its own cache lifetime. Sub-agents write 5-minute entries; their session writes 1-hour entries.
+Options:       A no change: one ttl for a record, and step 3.3 asks for a sub-agent piece's figure at its own lifetime beside the table / B a formula stage: a ttl for each piece in the calculator, the gate and the template, with its own worked example (AGENTS.md rule 8) / C a text change only: step 3.3 prices sub-agent pieces at 5m in the plan total, by hand
+Pros and cons: A costs nothing and is accepted text; a plan with sub-agent pieces reads high by the write difference on those pieces. B removes the difference in the calculator; it needs an Opus stage and a Fable acceptance, about 30 USD by the measured costs of this chain (an estimate), for a term that moves Step B's piece costs only. C costs one Sonnet stage; the plan total in the text would then differ from the calculator's, and the gate's Step B check would not match.
+Blast radius:  A none. B SKILL.md step 3.3, the calculator, the gate, the template, every installed copy; past records are safe by formula date. C the gate's Step B check and every record written after it.
+Recommended:   A, because the one plan measured moves by 0.71 USD in 41.32 (1.7 percent), no Step A verdict depends on it (its three plans are sessions), and the text already asks for the figure. Decide again if a plan made mostly of sub-agents comes near a line.
+```
 
 ```
 D8

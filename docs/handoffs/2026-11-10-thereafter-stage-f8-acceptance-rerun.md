@@ -2,7 +2,7 @@
 stage: "Stage F8: acceptance of Stage O6 (formula 2026-11-11, the table rules, the scorer contract), the 24-scenario Sonnet rerun, the release"
 model: claude-fable-5-2
 effort: xhigh
-status: ready
+status: done
 created: 2026-11-10
 from: "Stage O6 session local_742a5347 (claude-opus-5-5, high), branch claude/stage-o6-write-price-003ba0"
 ---
@@ -58,10 +58,10 @@ Table `pricing/2026-11-10.json` (anthropic fetched 2026-11-10, 0 days of 14), fo
 
 | Piece | Projected USD | T projected | Calls measured | Measured USD | Source |
 |---|---|---|---|---|---|
-| F8 acceptance, rerun, release (Fable, xhigh) | 17.29 | 60 | pending | pending | `node scripts/session-cost.mjs <F8 transcript>`; F7 measured 49 calls |
-| Rerun subjects, 24 Sonnet runs | about 6.7 (estimate) | n/a | pending | pending | the runner's usage files; H3 measured 5.89 for 21 runs |
+| F8 acceptance, rerun, release (Fable, xhigh) | 17.29 | 60 | 103 | 21.21 | `node scripts/session-cost.mjs 5554ef6c-a932-47f7-afc6-5f104826bebc`, just before the stage's commit |
+| Rerun subjects, 24 Sonnet runs | about 6.7 (estimate) | n/a | 157 turns in 24 runs | 11.29 | the runner's usage files: every write a 1-hour write; 8.53 at the 5-minute figure the runner prices |
 | Coordination by the F7 session | 1.37 by the formula; about 0.4 warm, 6.0 more per cold wake (by hand) | 2 | pending | pending | its own transcript |
-| O6, already spent | 14.23 measured so far | 120 | 99 + 41 + 48 | 11.10 + 1.23 + 1.89 | `node scripts/session-cost.mjs 199d74f5-bc13-458a-8690-687839814582`, before this file |
+| O6, already spent | 14.23 measured so far | 120 | 120 + 41 + 48 | 13.60 + 1.23 + 1.89 | `node scripts/session-cost.mjs 199d74f5-bc13-458a-8690-687839814582`, priced by F8 after the session's last turn |
 
 The formula prices the F7 coordinator as a fresh session from B + H; it is a session at about 380,000 tokens. Warm, two turns cost about 2 x 380,000 x 0.2e-6 + 2 x 3,500 x 16e-6 + 2 x 1,500 x 40e-6 = 0.38 USD; each wake after more than an hour writes 377,602 x (16 - 0.2) x 1e-6 = 5.97 USD again (by hand). Plan for F8 and its coordination: about 24 to 31 USD.
 
