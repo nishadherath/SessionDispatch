@@ -1,0 +1,26 @@
+{
+  "_note": "Dispatch of Stage F8 by the Stage O6 session (claude-opus-5-5, high), under formula 2026-11-11 at ttl 1h (this session's 358,520 write tokens are all 1-hour, measured by scripts/session-cost.mjs). Run: node scripts/dispatch.mjs --json docs/dispatch/2026-11-10-f8.json --today 2026-11-10. C0 417,887 and B 63,149 measured by get_usage self (total less Messages 354,738). T 60, F 4,000 and O 2,000 are the O6 handoff's estimates for F8; F7 measured 49 calls, 5,896 written and 1,909 output per call. R 100,000: the F8 handoff, the F7 note, SKILL.md, the core, the calculator, the scorer and the diff, characters divided by 4 (estimate). H 6,000: the F8 handoff. To 2: the F7 session starts F8 and checks its report; it is another session on claude-fable-5-2, which the formula prices from B + H, though its own context is about 380,000 (see the record). The 24 subject runs are not a piece; H3 measured 5.89 USD for 21 Sonnet runs.",
+  "formula": "2026-11-11",
+  "ttl": "1h",
+  "current": "claude-opus-5-5",
+  "target": "fable",
+  "W": 1000000,
+  "K": 970000,
+  "C0": 417887,
+  "compacted": false,
+  "T": 60,
+  "F": 4000,
+  "O": 2000,
+  "B": 63149,
+  "R": 100000,
+  "H": 6000,
+  "M": 0,
+  "L": 0,
+  "To": 2,
+  "coordinator": "claude-fable-5-2",
+  "Fo": 2000,
+  "Oo": 1500,
+  "pieces": [
+    { "name": "F8 acceptance, rerun, release", "model": "claude-fable-5-2", "effort": "xhigh", "T": 60, "F": 4000, "O": 2000, "R": 100000 }
+  ]
+}

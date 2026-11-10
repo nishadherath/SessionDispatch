@@ -2,7 +2,7 @@
 stage: "Stage O6a: one owner for the price-table rules, the 1-hour write figure, the Fable 5.1 row, the pricer"
 model: claude-sonnet-5-5
 effort: medium
-status: ready
+status: done
 created: 2026-11-10
 from: "Stage O6 session local_742a5347 (claude-opus-5-5, high), branch claude/stage-o6-write-price-003ba0"
 ---
