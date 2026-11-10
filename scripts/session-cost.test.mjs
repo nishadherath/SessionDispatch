@@ -15,7 +15,7 @@ const SUBAGENT = path.join(FIXTURES, "session-subagent.jsonl");
 const table = {
   table_date: "2026-11-10", max_age_days: 8,
   families: { f: { models: {
-    "model-big": { class: "opus", input: 4, output: 20, cache_read: 0.2, cache_write: 5 },
+    "model-big": { class: "opus", input: 4, output: 20, cache_read: 0.2, cache_write: 5, cache_write_1h: 8 },
     "model-small": { class: "haiku", input: 1, output: 5, cache_read: 0.1, cache_write: 1.25,
       long_context: { threshold_tokens: 100000, input: 5, output: 25, cache_read: 0.5, cache_write: 6.25 } },
   } } },
@@ -31,14 +31,20 @@ test("a dated model id takes the row of the longest id that prefixes it; an unkn
 test("calls are counted once per message id and priced per model", () => {
   const r = priceTranscript(TRANSCRIPT, table);
   assert.equal(r.calls, 3);
-  // big, 2 calls: input 5, write 42,000, read 40,000, output 1,300:
-  //   (5*4 + 42000*5 + 40000*0.2 + 1300*20) / 1e6 = 244,020 / 1e6
-  assert.deepEqual(r.models["model-big"].tokens, { input: 5, cacheWrite: 42000, cacheRead: 40000, output: 1300 });
-  near(r.models["model-big"].cost, 0.24402);
+  // big, 2 calls (message m1 is on two lines under two uuids; the later line is larger: output 700,
+  // 1-hour writes 30,000). Per message id: m1 input 2, write 40,000 (30,000 of them 1-hour), output 700;
+  // m2 input 3, write 2,000, read 40,000, output 800. So input 5, write 42,000, read 40,000, output 1,500:
+  //   input 5*4 = 20; 5-minute writes 12,000*5 = 60,000; 1-hour writes 30,000*8 = 240,000;
+  //   read 40,000*0.2 = 8,000; output 1,500*20 = 30,000; sum 338,020 / 1e6 = 0.33802.
+  // A pricer keyed on uuid would count m1 twice and fail here.
+  assert.deepEqual(r.models["model-big"].tokens, { input: 5, cacheWrite: 42000, cacheRead: 40000, output: 1500 });
+  assert.equal(r.models["model-big"].oneHourTokens, 30000);
+  assert.deepEqual(r.models["model-big"].oneHourPricedAt, ["cache_write_1h"]);
+  near(r.models["model-big"].cost, 0.33802);
   // small, 1 call, prompt 151,001 tokens, above 100,000, so the long-context row:
   //   (1*5 + 1000*6.25 + 150000*0.5 + 300*25) / 1e6 = 88,755 / 1e6
   near(r.models["model-small"].cost, 0.088755);
-  near(r.cost, 0.332775);
+  near(r.cost, 0.426775); // 0.33802 + 0.088755
   assert.deepEqual(r.unpriced, []);
 });
 
@@ -49,14 +55,24 @@ test("context at the last call, the largest context, and the per-call averages",
   assert.equal(r.totals.cacheWrite, 43000);
   near(r.cacheWritePerCall, 43000 / 3);
   near(r.cacheWritePerCallAfterFirst, 3000 / 2); // the first call writes the base, not growth
-  near(r.outputPerCall, 1600 / 3);
+  near(r.outputPerCall, 1800 / 3);
 });
 
 test("a model with no row is listed unpriced and adds nothing to the cost", () => {
   const partial = { ...table, families: { f: { models: { "model-big": table.families.f.models["model-big"] } } } };
   const r = priceTranscript(TRANSCRIPT, partial);
   assert.deepEqual(r.unpriced, ["model-small"]);
-  near(r.cost, 0.24402);
+  near(r.cost, 0.33802);
+});
+
+test("a row with no cache_write_1h prices every write at cache_write and says so", () => {
+  const { cache_write_1h, ...flat } = table.families.f.models["model-big"];
+  const noOneHour = { ...table, families: { f: { models: { ...table.families.f.models, "model-big": flat } } } };
+  const r = priceTranscript(TRANSCRIPT, noOneHour);
+  // 42,000*5 = 210,000 in place of 60,000 + 240,000: (20 + 210,000 + 8,000 + 30,000) / 1e6 = 0.24802
+  near(r.models["model-big"].cost, 0.24802);
+  assert.deepEqual(r.models["model-big"].oneHourPricedAt, ["cache_write"]);
+  assert.equal(cache_write_1h, 8);
 });
 
 test("the command prices a file with its sub-agents listed apart, and --json says the same", () => {
@@ -72,15 +88,17 @@ test("the command prices a file with its sub-agents listed apart, and --json say
     const byId = run(SCRIPT, ["sess1", "--table", tablePath, "--projects", path.join(dir, "p"), "--json"]);
     assert.equal(byId.status, 0, byId.out);
     const j = JSON.parse(byId.stdout);
-    near(j.main.cost, 0.332775);
+    near(j.main.cost, 0.426775);
+    assert.deepEqual(j.main.models["model-big"].oneHourPricedAt, ["cache_write_1h"]);
     assert.equal(j.subagents.length, 1);
     near(j.subagents[0].cost, 0.01326);
-    near(j.total, 0.346035);
+    near(j.total, 0.440035);
     const text = run(SCRIPT, [path.join(home, "sess1.jsonl"), "--table", tablePath]);
     assert.equal(text.status, 0, text.out);
     assert.match(text.stdout, /3 calls/);
     assert.match(text.stdout, /sub-agent agent-a/);
-    assert.match(text.stdout, /total 0\.346 USD/);
+    assert.match(text.stdout, /total 0\.440 USD/);
+    assert.match(text.stdout, /30,000 1-hour write tokens: priced at cache_write_1h/);
   } finally { rm(dir); }
 });
 

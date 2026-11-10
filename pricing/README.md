@@ -2,8 +2,8 @@
 
 One JSON file per refresh, named `YYYY-MM-DD.json`. The newest file by
 name is the table in force. The skill reads it in step 1.4 and refuses
-to compute from a table older than its `max_age_days` (14) or from any
-`null` figure.
+to compute from figures older than `max_age_days` (14 days, counted
+from each family's `fetched` date) or from any `null` figure.
 
 ## Refresh
 
@@ -29,11 +29,12 @@ origin through the REST API with the stored credential (there is no
 | Field | Meaning |
 |---|---|
 | `table_date` | Must equal the filename's date. Not in the future. |
-| `max_age_days` | Age past which the skill refuses the table. |
+| `max_age_days` | Days after a family's `fetched` date past which the skill refuses that family's figures. Only families with a numeric figure count; `table_date` decides nothing about age. |
 | `families.<name>.source` | The vendor page the figures came from. |
 | `families.<name>.fetched` | The date the page was read, or null. |
 | `families.<name>.models.<id>.class` | `haiku`, `sonnet`, `opus`, `fable` or null. The skill's tiers; providers' names do not matter. |
-| `input`, `output`, `cache_read`, `cache_write` | USD per million tokens, or null. |
+| `input`, `output`, `cache_read`, `cache_write` | USD per million tokens, or null. `cache_write` is the 5-minute write. |
+| `cache_write_1h` | Optional. USD per million tokens for 1-hour cache writes. Absent means the row offers none (the OpenAI rows write for 30 minutes); null in a fetched family is a missing figure. |
 | `long_context` | Optional. `threshold_tokens` and the four prices that apply once a request's prompt exceeds it. |
 
 ## Provenance of the first table

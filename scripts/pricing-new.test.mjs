@@ -38,6 +38,17 @@ test("it copies the newest table to the local day with figures unchanged and lis
   });
 });
 
+test("a null cache_write_1h is listed with the other nulls; an absent one is not", () => {
+  sandbox((dir, script) => {
+    const old = JSON.parse(seedOldTable(dir));
+    old.families.unfilled.models["fixture-model-b"].cache_write_1h = null;
+    fs.writeFileSync(path.join(dir, "pricing", "2020-01-01.json"), JSON.stringify(old));
+    const r = run(script, [], { cwd: dir });
+    assert.equal(r.status, 0, r.out);
+    assert.match(r.stdout, /fixture-model-b \(class, input, output, cache_read, cache_write, cache_write_1h\)/);
+  });
+});
+
 test("it refuses to overwrite today's file and leaves it untouched", () => {
   sandbox((dir, script) => {
     seedOldTable(dir);
