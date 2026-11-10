@@ -86,11 +86,11 @@ say so. Never present an estimate as a measurement.
 | Input | Symbol | How to get it |
 |---|---|---|
 | Expected turns | T | From the plan or the handoff. One turn is one model call. A stage with 20 tool calls and a final message is about 21 turns. If unsure, give a range and compute with both ends. |
-| Fresh input per turn (tokens) | F | New material entering context each turn: tool results, file reads, user messages. Default 3,000 if unmeasured. Read-heavy stages (assessment, audit): 5,000 to 8,000. |
-| Output per turn (tokens) | O | Model output including reasoning. Default 1,500. Writing-heavy stages: 3,000, where writing-heavy means matrix row 3's writing (a specification, a brief, a design note) or a new module written from a blank file; row 2 work with a stated test, a refactor and a chore take the default. The defaults were measured at high effort; at xhigh or max, reasoning is longer and billed as output, so mark O as an estimate and test a larger value in step 5. |
+| Fresh input per turn (tokens) | F | New material entering context each turn: tool results, file reads, user messages. Default 3,000 if unmeasured (n = 1, fork_graft 2026-10-11). Read-heavy stages (assessment, audit): 5,000 to 8,000 (n = 0, an estimate). |
+| Output per turn (tokens) | O | Model output including reasoning. Default 1,500 (n = 1, fork_graft 2026-10-11). Writing-heavy stages: 3,000 (n = 0 for a piece, an estimate; the coordinator's 2,825 is n = 1, Tsunami 2026-11-02), where writing-heavy means matrix row 3's writing (a specification, a brief, a design note) or a new module written from a blank file; row 2 work with a stated test, a refactor and a chore take the default. The defaults were measured at high effort; at xhigh or max, reasoning is longer and billed as output, so mark O as an estimate and test a larger value in step 5. |
 | Re-read set (tokens) | R | What a fresh session must read before it can work: the handoff, the files it names, the project's instruction files. Sum their sizes in tokens (characters divided by 4). |
-| Handoff size (tokens) | H | What you would write to hand off. Default 2,500 for a handoff under 120 lines; add the size of any unrecorded context you must write down. |
-| Cache misses over the stage | M | Turns whose prompt is no longer in cache and is written again in full. Pauses longer than the cache lifetime cause them (operator review, a long tool run), and so does any change early in the prompt. Unmeasured so far: default 0, say so, and in step 5 count one miss per review pause you expect. |
+| Handoff size (tokens) | H | What you would write to hand off. Default 2,500 for a handoff under 120 lines (n = 0, an estimate; no handoff has been priced); add the size of any unrecorded context you must write down. |
+| Cache misses over the stage | M | Turns whose prompt is no longer in cache and is written again in full. Pauses longer than the cache lifetime cause them (operator review, a long tool run), and so does any change early in the prompt. Unmeasured so far: default 0 (n = 0), say so, and in step 5 count one miss per review pause you expect. |
 | Rediscovery turns | L | Turns a fresh session would spend finding again the unrecorded context you choose not to write down. 0 when that list is empty. |
 | Acceptance turns and re-read | Ta, Ra | For the split of step 2.1 only: the turns an acceptance session takes and what it reads (the brief, the diff, the files named). |
 | Coordinating turns per piece | To | Turns the coordinating session spends after the briefs are written: starting each session, receiving its note, running the oracle on its result, merging, re-exporting, recording the outcome and talking to the operator. Count per piece: start 1, note 1, verification 3 to 10, merge 2 to 5, record 1 to 3; the floor by count is 8. Default 30 per piece, range 20 to 40 (n = 1, Tsunami 2026-11-02, an upper bound that included other work); test 40 in step 5. 0 when the operator starts the sessions and this session ends; say which. The fresh plan has 1 piece, the split 2 (run and acceptance), a step 3.3 plan as many as it lists. |
@@ -98,6 +98,8 @@ say so. Never present an estimate as a measurement.
 | Task type | one of the rows in step 3.1 | Decides the model class. If the stage mixes types, split it into pieces and dispatch each piece. |
 | Design-heavy | yes or no | Yes when the stage involves choosing between designs, cross-module changes, evaluation design, or an assessment. Guardrail 2 depends on this. |
 | Irreversible or outward-facing steps | list | Pushes, deletions, releases, messages, purchases, anything that leaves the machine. Guardrail 3 depends on this. |
+
+Measured figures for these defaults accumulate in `docs/dispatch/calibration.md`, priced from transcripts with `node scripts/session-cost.mjs`. A default moves only on that ledger and in a formula stage with its own example, never in a record.
 
 ### 1.3 Context growth
 

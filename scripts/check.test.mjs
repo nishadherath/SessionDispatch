@@ -59,6 +59,19 @@ test("an em-dash in a Markdown file exits 1 and names the line", () => {
   });
 });
 
+test("a drifted ledger header or a missing Measured column exits 1 and names the file", () => {
+  withTree("gate-ledger", (tree) => {
+    const ledger = path.join(tree, "docs", "dispatch", "calibration.md");
+    fs.writeFileSync(ledger, fs.readFileSync(ledger, "utf8").replace("| Measured USD |", "| Cost |"));
+    const tpl = path.join(tree, "templates", "handoff.md");
+    fs.writeFileSync(tpl, fs.readFileSync(tpl, "utf8").replace("| Calls measured | Measured USD |", "| Calls | USD |"));
+    const r = runGate(tree);
+    assert.equal(r.status, 1, r.out);
+    assert.match(r.stdout, /calibration.md: the ledger header row/);
+    assert.match(r.stdout, /handoff.md: the cost projection lacks the Measured columns/);
+  });
+});
+
 test("a banned word in a Markdown file exits 1", () => {
   withTree("gate-banned", (tree) => {
     fs.writeFileSync(path.join(tree, "docs", "fixture-note.md"), "# Note\n\nA robust claim.\n");
