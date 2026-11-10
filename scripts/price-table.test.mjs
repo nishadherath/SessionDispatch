@@ -70,6 +70,19 @@ test("modelStaleness names the family and age; an unlisted id is null", () => {
   assert.equal(modelStaleness(real, "no-such-model", day(19)), null);
 });
 
+// F8-3 (2026-11-10): two seeded faults passed every test, a model stale at exactly max_age_days
+// (the calculator's own check) and an unpriced family counted stale. Worked from the dates:
+// anthropic was fetched 2026-11-10, so day 24 is 14 days old (not past 14) and day 25 is 15.
+test("a model is stale from the day after max_age_days, and an all-null family never is, whatever its fetched date (F8-3)", () => {
+  assert.deepEqual(modelStaleness(real, "claude-sonnet-5-5", day(24)), { stale: false, family: "anthropic", fetched: "2026-11-10", ageDays: 14 });
+  assert.deepEqual(modelStaleness(real, "claude-sonnet-5-5", day(25)), { stale: true, family: "anthropic", fetched: "2026-11-10", ageDays: 15 });
+  const t = clone();
+  t.families.kimi.fetched = "2026-01-01"; // rows listed, every figure null: a fetched date gives them nothing to go stale
+  assert.deepEqual(check(t).errors, []);
+  assert.deepEqual(staleFamilies(t, "2026-11-10"), []);
+  assert.equal(modelStaleness(t, "kimi-k3", "2026-11-10").stale, false);
+});
+
 // Each seeded fault must fail, and the message must name the field.
 const FAULTS = [
   ["a figure as a string", (t) => { t.families.anthropic.models["claude-sonnet-5-5"].input = "2"; }, /claude-sonnet-5-5\.input must be a non-negative number or null, found "2"/],
