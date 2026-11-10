@@ -20,7 +20,7 @@ test("the shipped tree is green, or stale and nothing else", () => {
   withTree("gate-shipped", (tree) => {
     const r = runGate(tree);
     if (r.status === 2) {
-      // Past the table's 14 days the gate is allowed exactly one finding.
+      // Past the table limit the gate is allowed exactly one finding.
       assert.match(r.stdout, /1 finding\(s\) \(one is the stale table\)/);
     } else {
       assert.equal(r.status, 0, r.out);
@@ -34,7 +34,9 @@ test("a stale table exits 2 with that finding only", () => {
     // The clock moves, not the table: every table is stale on this day.
     const r = runGate(tree, ["--today", "2099-12-31"]);
     assert.equal(r.status, 2, r.out);
-    assert.match(r.stdout, /past max_age_days 14/);
+    const latest = fs.readdirSync(path.join(tree, "pricing")).filter((n) => /^\d{4}-\d{2}-\d{2}\.json$/.test(n)).sort().pop();
+    const { max_age_days } = JSON.parse(fs.readFileSync(path.join(tree, "pricing", latest), "utf8"));
+    assert.match(r.stdout, new RegExp(`past max_age_days ${max_age_days}`));
     assert.match(r.stdout, /1 finding\(s\) \(one is the stale table\)/);
   });
 });

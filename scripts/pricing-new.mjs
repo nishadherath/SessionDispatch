@@ -37,4 +37,4 @@ for (const [fam, f] of Object.entries(table.families ?? {})) {
   if (Object.keys(f.models ?? {}).length === 0) missing.push("no models listed");
   if (missing.length) { nulls += missing.length; console.log(`  ${fam}: fill from ${f.source}: ${missing.join("; ")}`); }
 }
-console.log(`pricing-new: ${nulls} item(s) to fill; set each family's "fetched" to the day you read its page, then run node scripts/check.mjs`);
+console.log(`pricing-new: ${nulls} item(s) to fill; set each family's "fetched" to the day you read its page, then run node scripts/check-pricing.mjs`);

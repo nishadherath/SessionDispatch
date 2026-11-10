@@ -134,7 +134,7 @@ unmeasured, use 25,000 and say so.
    choices, in one message: (a) give the figure now, or (b) authorise a
    live assessment: you fetch the vendor's pricing page named in the
    row's `source`, write a new `pricing/<today>.json` with the figure
-   and the fetch date, run `node scripts/check.mjs`, and, if the
+   and the fetch date, run `node scripts/check-pricing.mjs` to validate the installed price table, and, if the
    operator also says so, commit it on a branch and open a pull request
    against the project's origin. Never fill a null from memory. Until
    the null is filled, compute what you can and mark the verdict as
