@@ -2,7 +2,7 @@
 stage: "Stage O6: the write price by cache lifetime (formula 2026-11-11), one owner for the table rules, the scorer contract for To and the lifetime, the F7 text findings"
 model: claude-opus-5-5
 effort: high
-status: in-progress
+status: done
 created: 2026-11-10
 from: "Stage F7 session local_3066f14f (claude-fable-5-2, xhigh), branch claude/cool-jang-ac61d5, main at the commit that adds this file"
 ---

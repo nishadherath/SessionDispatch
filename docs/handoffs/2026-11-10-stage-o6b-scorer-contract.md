@@ -2,7 +2,7 @@
 stage: "Stage O6b: the evaluation's result block and scorer taught To, the coordinator and the cache lifetime"
 model: claude-sonnet-5-5
 effort: high
-status: ready
+status: done
 created: 2026-11-10
 from: "Stage O6 session local_742a5347 (claude-opus-5-5, high), branch claude/stage-o6-write-price-003ba0"
 ---
