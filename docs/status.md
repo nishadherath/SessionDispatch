@@ -12,7 +12,10 @@ Stage F8 accepted Stage O6: 23 claims, none rejected. The note is `docs/acceptan
 F8 found one defect before the rerun: the evaluation sandbox could not start its calculator. F8 fixed the defect and added a test.
 The rerun met all three thresholds. Final agreement: 24 of 24. Scenarios 22, 23 and 24: 3 of 3. Scenarios 01 to 21: no miss on To and `ttl`.
 The class floor in `SKILL.md` now states these figures.
-The release steps come next in this stage: `main` moves to the stage commit, the two pushes, the install.
+The release steps are done. `main` holds the F8 stage commit `6ab7d33` and this status commit. `main` and the branch `claude/adoring-ardinghelli-e0270a` are pushed to `origin`.
+`node scripts/install.mjs --harness all` wrote four copies (18 files each) and the Cline rule file from `main` at `6ab7d33`. `node scripts/install.mjs --check` reports 4 copies, 0 files behind.
+The installed calculator runs: scenario 24 gives T* 14.2 turns from the copy in `~/.claude/skills/session-dispatch`.
+The next step is the tag. It is under 10 turns. Session dispatch not run: under 10 turns remain (estimate 4), no other trigger.
 F8 made no tag. The F7 session asks the operator for the tag v1.1.0.
 One decision waits for the operator: D16 (below). No work waits on it.
 The operator asked for status updates in ASD-STE100. This update and later updates use short active sentences.
@@ -63,7 +66,7 @@ The operator asked for status updates in ASD-STE100. This update and later updat
 | None. Stage F8 is done. | | | | |
 
 The four installed copies (claude, codex, zcode, opencode) and the Cline rule file were written with
-`node scripts/install.mjs --harness all` on 2026-11-10 in F7, from the tree this update is committed on;
+`node scripts/install.mjs --harness all` on 2026-11-10 in F8, from `main` at `6ab7d33`;
 `--check` reports 4 copies, 0 files behind. The Codex copy holds three files the installer does not own
 (`pricing/2026-11-04.before-openai-expansion.json.bak`, `scripts/check.mjs`,
 `scripts/pricing-new.mjs.before-graft-dispatch-20261104`), left by the Codex session of 2026-11-04; `--check`
