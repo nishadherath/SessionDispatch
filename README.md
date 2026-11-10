@@ -120,7 +120,8 @@ DeepSeek, Kimi and GLM rows are null until filled.
 node scripts/check.mjs
 ```
 
-Exit 0 is green. Exit 2 means only that the table is past its 14 days.
+Exit 0 is green. Exit 2 means only that a priced family is more than 14
+days past its `fetched` date.
 Exit 1 names each finding and its fix. The gate also runs the calculator
 on every scenario under `eval/scenarios/` and fails on any figure that
 differs from the scenario's stated expectation.

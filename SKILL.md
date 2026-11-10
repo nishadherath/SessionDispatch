@@ -18,9 +18,12 @@ Files this skill uses, relative to its own folder:
 - `templates/decision-record.md`: the section you fill in and paste
   into the handoff.
 - `templates/handoff.md`: the handoff shape, if the project has none.
+- `examples/2026-11-10-sessiondispatch-stage-o6.md`: a filled record
+  under the formula in force, at the 1-hour cache lifetime, with the
+  5-minute figures beside it.
 - `examples/2026-11-02-tsunami-rebalancing-dashboard.md`: a filled
-  record under the formula in force, with a coordinator, four pieces and
-  the measured costs beside the formula's.
+  record under the formula of 2026-11-10, with a coordinator, four
+  pieces and the measured costs beside the formula's.
 - `examples/2026-10-29-sessiondispatch-stage-0b.md`: a filled record
   under the formula of 2026-10-29, with a class change and the split.
 - `examples/2026-10-27-fork-graft-stage-26.md`: a filled record under
@@ -33,7 +36,7 @@ Prose rules for everything you write under this skill: Australian
 English, no em-dashes, no AI-telltale vocabulary (the engineering
 persona's section 14.1 lists it), numbers with their units and sources.
 
-**Class floor (measured 2026-10-30).** This procedure is written for the Sonnet class and above. On the twenty-scenario evaluation in the SessionDispatch repository (`eval/results-2026-10-31.md`), a Sonnet-class subject reached the expected verdict in 40 of 40 runs with the calculator and 40 of 40 by hand. A Haiku-class subject reached it in 17 of 20 with the calculator and 19 of 20 by hand on the scorer's count; the two further calculator misses were records whose verdict was right and whose machine-readable result block (the evaluation's output contract) was malformed. On the rerun through the command-line harness (`eval/results-2026-11-01.md`, 21 scenarios, one run each, calculator arm), Sonnet reached the expected verdict in 21 of 21 and Haiku in 13 of 21 on the scorer's count: every one of Haiku's 20 written records was right on the verdict, model and effort, 7 of them broke the result block's field types, and one run wrote no record. In that harness the shell refused every Haiku attempt to run the calculator and three Haiku runs report their own session summarised mid-run, so the Haiku figure there is a hand figure taken partly under compaction (Stage F5's reading, `docs/assessment-2026-10-30-f5.md`). A Haiku-class model therefore follows the procedure but is not relied on for the machine-readable record: where one runs it, keep the calculator on and have a parser check the handoff's front matter and the record's figures before anything acts on them. These figures were measured under the formula of 2026-10-29, before the coordinator term To of 2026-11-10 (step 2); no subject has been scored on that term yet, and it stays unscored until the next required rerun.
+**Class floor (measured 2026-10-30).** This procedure is written for the Sonnet class and above. On the twenty-scenario evaluation in the SessionDispatch repository (`eval/results-2026-10-31.md`), a Sonnet-class subject reached the expected verdict in 40 of 40 runs with the calculator and 40 of 40 by hand. A Haiku-class subject reached it in 17 of 20 with the calculator and 19 of 20 by hand on the scorer's count; the two further calculator misses were records whose verdict was right and whose machine-readable result block (the evaluation's output contract) was malformed. On the rerun through the command-line harness (`eval/results-2026-11-01.md`, 21 scenarios, one run each, calculator arm), Sonnet reached the expected verdict in 21 of 21 and Haiku in 13 of 21 on the scorer's count: every one of Haiku's 20 written records was right on the verdict, model and effort, 7 of them broke the result block's field types, and one run wrote no record. In that harness the shell refused every Haiku attempt to run the calculator and three Haiku runs report their own session summarised mid-run, so the Haiku figure there is a hand figure taken partly under compaction (Stage F5's reading, `docs/assessment-2026-10-30-f5.md`). A Haiku-class model therefore follows the procedure but is not relied on for the machine-readable record: where one runs it, keep the calculator on and have a parser check the handoff's front matter and the record's figures before anything acts on them. These figures were measured under the formula of 2026-10-29, before the coordinator term To of 2026-11-10 and the cache lifetime ttl of 2026-11-11 (step 2); no subject has been scored on either yet, and both stay unscored until the next required rerun.
 
 ## 0. Should this skill run at all
 
@@ -79,6 +82,7 @@ say so. Never present an estimate as a measurement.
 | Compaction point (tokens) | K | The harness's usage report (`autoCompactsAtPercent` times W in Claude Code desktop). If unknown, assume 0.9 W and say so. |
 | Current context (tokens) | C0 | The usage line, status line or usage tool. If the harness shows none, estimate: 1 token per 4 characters of prose, 1 per 3.5 characters of code, summed over the system prompt, tools and every message and tool result still in context. |
 | Compacted already | yes or no | Whether this session has been summarised at least once. After a compaction, the "why" behind earlier decisions is partly gone. |
+| Cache lifetime | ttl | `1h` or `5m`: how long the harness keeps the cache entries it writes, which sets the write price (step 1.4.3). Measured first: where the usage report or the transcript splits cache writes by lifetime (a Claude Code transcript's `cache_creation` gives `ephemeral_1h_input_tokens` and `ephemeral_5m_input_tokens`), take the lifetime that holds most write tokens. Else the harness's known default in step 7 (the Claude Code desktop app writes `1h`, measured, and `5m` in usage overage). Else `5m`, and say so. |
 | Unrecorded context | list | Facts, decisions and file knowledge this session holds that are in no file on disk. List them. Each one is either written into the handoff (costing output tokens now) or lost. |
 
 ### 1.2 The work ahead
@@ -90,16 +94,16 @@ say so. Never present an estimate as a measurement.
 | Output per turn (tokens) | O | Model output including reasoning. Default 1,500 (n = 1, fork_graft 2026-10-11). Writing-heavy stages: 3,000 (n = 0 for a piece, an estimate; the coordinator's 2,825 is n = 1, Tsunami 2026-11-02), where writing-heavy means matrix row 3's writing (a specification, a brief, a design note) or a new module written from a blank file; row 2 work with a stated test, a refactor and a chore take the default. The defaults were measured at high effort; at xhigh or max, reasoning is longer and billed as output, so mark O as an estimate and test a larger value in step 5. |
 | Re-read set (tokens) | R | What a fresh session must read before it can work: the handoff, the files it names, the project's instruction files. Sum their sizes in tokens (characters divided by 4). |
 | Handoff size (tokens) | H | What you would write to hand off. Default 2,500 for a handoff under 120 lines (n = 0, an estimate; no handoff has been priced); add the size of any unrecorded context you must write down. |
-| Cache misses over the stage | M | Turns whose prompt is no longer in cache and is written again in full. Pauses longer than the cache lifetime cause them (operator review, a long tool run), and so does any change early in the prompt. Unmeasured so far: default 0 (n = 0), say so, and in step 5 count one miss per review pause you expect. |
+| Cache misses over the stage | M | Turns whose prompt is no longer in cache and is written again in full. Pauses longer than the cache lifetime ttl cause them (operator review, a long tool run): under `5m` a short pause misses, under `1h` few do. So does any change early in the prompt, and so does a model switch, which writes the whole context to the new model's cache once (measured: 160,458 tokens, 2.06 USD in six calls, Stage S6 2026-11-10). Unmeasured so far for pauses: default 0 (n = 0), say so, and in step 5 count one miss per review pause longer than ttl that you expect. |
 | Rediscovery turns | L | Turns a fresh session would spend finding again the unrecorded context you choose not to write down. 0 when that list is empty. |
 | Acceptance turns and re-read | Ta, Ra | For the split of step 2.1 only: the turns an acceptance session takes and what it reads (the brief, the diff, the files named). |
-| Coordinating turns per piece | To | Turns the coordinating session spends after the briefs are written: starting each session, receiving its note, running the oracle on its result, merging, re-exporting, recording the outcome and talking to the operator. Count per piece: start 1, note 1, verification 3 to 10, merge 2 to 5, record 1 to 3; the floor by count is 8. Default 30 per piece, range 20 to 40 (n = 1, Tsunami 2026-11-02, an upper bound that included other work); test 40 in step 5. 0 when the operator starts the sessions and this session ends; say which. The fresh plan has 1 piece, the split 2 (run and acceptance), a step 3.3 plan as many as it lists. |
-| Coordinator and its turn sizes | Fo, Oo | The session that coordinates: this session unless the plan names another (step 3.2, rule 7). Its turns are writing-heavy: Fo 3,000 and Oo 3,000 unless measured (n = 1, the same stage: 6,446 tokens written and 2,825 output per call). |
+| Coordinating turns per piece | To | Turns the coordinating session spends after the briefs are written: starting each session, receiving its note, running the oracle on its result, merging, re-exporting, recording the outcome and talking to the operator. Count per piece: start 1, note 1, verification 3 to 10, merge 2 to 5, record 1 to 3; the floor by count is 8. Default 30 per piece, range 20 to 40 (n = 1, Tsunami 2026-11-02, an upper bound that included other work); test 40 in step 5. 0 when nobody coordinates: the operator starts the next session from a card, or this session starts it itself and ends (that one turn is already in T); say which. The fresh plan has 1 piece, the split 2 (run and acceptance), a step 3.3 plan as many as it lists. |
+| Coordinator and its turn sizes | Fo, Oo | The session that coordinates: this session unless the plan names another session (step 3.2, rule 7), on any model, the current one included. Its turns are writing-heavy: Fo 3,000 and Oo 3,000 unless measured (n = 1, the same stage: 6,446 tokens written and 2,825 output per call). |
 | Task type | one of the rows in step 3.1 | Decides the model class. If the stage mixes types, split it into pieces and dispatch each piece. |
 | Design-heavy | yes or no | Yes when the stage involves choosing between designs, cross-module changes, evaluation design, or an assessment. Guardrail 2 depends on this. |
 | Irreversible or outward-facing steps | list | Pushes, deletions, releases, messages, purchases, anything that leaves the machine. Guardrail 3 depends on this. |
 
-Measured figures for these defaults accumulate in `docs/dispatch/calibration.md`, priced from transcripts with `node scripts/session-cost.mjs`. A default moves only on that ledger and in a formula stage with its own example, never in a record.
+Measured figures for these defaults accumulate in the ledger of the SessionDispatch repository, `docs/dispatch/calibration.md`, priced from transcripts with `node scripts/session-cost.mjs`. The ledger is not part of an installed copy: in another project, put the measured row in the handoff and leave the ledger to that repository. A default moves only on that ledger and in a formula stage with its own example, never in a record.
 
 ### 1.3 Context growth
 
@@ -127,17 +131,23 @@ unmeasured, use 25,000 and say so.
 ### 1.4 The price table
 
 1. Open the newest `pricing/<date>.json` by filename.
-2. Check its age: today minus `table_date`. If older than
-   `max_age_days` (14), stop. Do not compute from it. Tell the operator
-   the table is stale, name `node scripts/pricing-new.mjs` as the
-   refresh step, and take the default (continue, same model, same
-   effort) with the staleness recorded. The reason: a verdict from a
-   stale price is a guess dressed as arithmetic.
+2. Check the age of each family you need: today minus that family's
+   `fetched`, the day its figures were read. A family more than
+   `max_age_days` (14) days past its `fetched` is stale; `table_date`
+   only names the file. If a model you need is in a stale family, stop.
+   Do not compute from it. Tell the operator the figures are stale,
+   name `node scripts/pricing-new.mjs` as the refresh step, and take the
+   default (continue, same model, same effort) with the staleness
+   recorded. The reason: a verdict from a stale price is a guess
+   dressed as arithmetic.
 3. Find the rows for the model you are on and the models you are
-   considering. Each row carries `input`, `output`, `cache_read` and
-   `cache_write` in USD per million tokens, and a `class` (haiku,
-   sonnet, opus, fable, or null).
-4. If any price you need is `null`, stop and offer the operator two
+   considering. Each row carries `input`, `output`, `cache_read`,
+   `cache_write` (the 5-minute write) and, where the vendor sells one,
+   `cache_write_1h` (the 1-hour write), in USD per million tokens, and a
+   `class` (haiku, sonnet, opus, fable, or null). The write price is
+   `cache_write_1h` when ttl is `1h` and `cache_write` when it is `5m`.
+4. If any price you need is `null`, or ttl is `1h` and the row has no
+   `cache_write_1h`, stop and offer the operator two
    choices, in one message: (a) give the figure now, or (b) authorise a
    live assessment: you fetch the vendor's pricing page named in the
    row's `source`, write a new `pricing/<today>.json` with the figure
@@ -184,8 +194,11 @@ a JSON file (keys as the symbols; `--help` lists them) or as flags:
 
 ```
 node scripts/dispatch.mjs --json inputs.json
-node scripts/dispatch.mjs --current <model id> --target <class> --W .. --K .. --C0 .. --T .. --F .. --O .. --B .. --R .. --H .. --To .. --coordinator <id or class> --compacted no
+node scripts/dispatch.mjs --current <model id> --target <class> --W .. --K .. --C0 .. --T .. --F .. --O .. --B .. --R .. --H .. --To .. --coordinator this --ttl 1h --compacted no
 ```
+
+`--coordinator this` (the default) is this session; `--coordinator <id
+or class>` is another session on that model, the current model included.
 
 It reads the table in force, refuses a stale table or a null price as
 step 1.4 says (exit 2 and 3), and prints the block below filled in,
@@ -212,15 +225,22 @@ cost_fresh    = H * p_output[current]              (writing the handoff, in this
               at the target model's prices, except H and cost_coord
 
 cost_coord    = To * pieces turns at the coordinator's model, Go = Fo + Oo:
-                this session:  from C0 + H, the continue side's terms
-                               (reads, Go * p_cache_write, Oo * p_output),
-                               no misses, penalty_compaction if
-                               C0 + H + To * pieces * Go > K
-                another model: (B + H) * p_cache_write, then the same
-                               terms from B + H
+                this session:    from C0 + H, the continue side's terms
+                                 (reads, Go * p_cache_write, Oo * p_output),
+                                 no misses, penalty_compaction if
+                                 C0 + H + To * pieces * Go > K
+                another session: (B + H) * p_cache_write, then the same
+                                 terms from B + H, on its model (the
+                                 current model or another)
 ```
 
 Prices are per token here (the table's figure divided by one million).
+`p_cache_write` is the write price at the cache lifetime ttl (step 1.1):
+the row's `cache_write_1h` under `1h`, its `cache_write` under `5m`. It
+prices every write term: the first read, the growth, the misses, the
+compaction penalty and `cost_coord`. Where the 1-hour write is the
+dearer figure, `1h` weighs the fresh side's first read more and moves
+T* out, and it makes misses from pauses rarer (M in step 1.2).
 
 `cost_coord` prices the session that stays alive after the briefs are
 written to start the sessions, receive their notes, verify, merge and
@@ -285,6 +305,10 @@ Verdict rule:
    cost | quality | break-even>, margin <amount and percent of the
    smaller>."
 
+Records dated 2026-11-10 used the formula of 2026-11-10: every write at
+`cache_write`, the 5-minute figure, whatever lifetime the harness wrote,
+and a coordinator named by the current model's id was this session.
+`node scripts/dispatch.mjs --formula 2026-11-10` reproduces them.
 Records dated before 2026-11-10 used the formula of 2026-10-29:
 everything above without `cost_coord` (To counts as 0). `node
 scripts/dispatch.mjs --formula 2026-10-29` reproduces them. Records
@@ -339,7 +363,7 @@ model in the needed class, use the next class up, never down.
 | Cross-module merges, evaluation design, specification of ambiguous work, diagnosis of intermittent failures, writing briefs a lower class executes | Opus | high | Long-horizon coherence and self-critique are the job. |
 | Adversarial acceptance of another agent's work | one class above the author; Fable when the author is Opus; the top class when the author is the top class | high; xhigh when the author is the top class (the acceptor shares the class, so effort is the only lever left) or when the accepted change is a release or a merge | A reviewer at the author's class shares the author's blind spots. This row is the one effort rule for acceptance; guardrail 6 points here. |
 | Whole-project assessments, roadmaps, cost models, the tiering decision itself | Fable (the top class available) | high | Mistakes here are copied into every later stage. |
-| Coordinating a dispatched chain whose briefs name their oracles: start, receive, verify, merge, record | Sonnet | medium | The oracle is the intelligence; a session that only reads an exit code and merges a branch pays for class it does not use. Escalate on a failed verification the oracle cannot explain. |
+| Coordinating a dispatched chain whose briefs name their oracles: start, receive, verify, merge, record | Sonnet | medium; high when it merges into the main branch or releases (the raise rule below). Merging a piece's branch into the stage branch after its oracle passes is this row's own work and raises nothing | The oracle is the intelligence; a session that only reads an exit code and merges a branch pays for class it does not use. Below Opus, a coordinator that pushes or releases carries guardrail 3's approval step in its brief. Escalate on a failed verification the oracle cannot explain. |
 
 Raise effort one step when any of these holds: the stage contains an
 irreversible or outward-facing step; the change touches security,
@@ -383,7 +407,8 @@ measured failure or an escalation trigger (the persona's section 3.3).
    session cannot start sessions (verified 2026-10-29), and a session
    starts only models at or below its own class, so the coordinator is
    either the operator or a session the operator starts. The plan names
-   the coordinator, its class and To, and prices To at that class.
+   the coordinator, its class and To, and prices To at that class as
+   another session (step 2), even on this session's model.
 
 ### 3.3 Write the plan
 
@@ -418,8 +443,9 @@ arithmetic says.
    brief, and never to any class without naming the approval step.
 4. Never pick a model by name from memory. The class comes from step
    3.1 and the model from the price table in force.
-5. Never compute from a price table older than `max_age_days`, and
-   never fill a null price from memory (step 1.4).
+5. Never compute from figures more than `max_age_days` past their
+   family's `fetched` date, and never fill a null price from memory
+   (step 1.4).
 6. Acceptance runs at the class and effort of matrix row 4 (step 3.1),
    in a fresh session.
 7. The record is capped at 4,000 tokens and the decision at 10 minutes
@@ -501,15 +527,15 @@ see it.
 Verified entries are marked; the rest name the documented place and
 are to be checked on first use in that harness and corrected here.
 
-| Harness | Context and usage | Compaction point | Delegation |
-|---|---|---|---|
-| Claude Code (desktop app) | Session usage tool: `tokensUsed`, `contextWindow`, `autoCompactsAtPercent`, categories (verified 2026-10-27) | From the same tool | `Agent` tool with `model` and `effort`; fresh sessions by the app's session tools, model chosen by the operator |
-| Claude Code (CLI) | `/context` and the status line | Auto-compact announced in the transcript | `Agent` tool; new terminal session |
-| Codex | `/status` shows context used | Documented auto-compaction near the window limit; check `/status` | Sub-agents where the build offers them; otherwise a new thread with the handoff |
-| OpenCode | Token count in the session header | Documented compaction on overflow; check the session header | Sub-agents by `@` mention or a new session |
-| Cline | The context window bar in the task header | Cline truncates by its own rule; treat the bar at 80 percent as K | New task with the handoff |
-| Gemini CLI and Antigravity | `/stats` | Documented compression near the limit | New session with the handoff |
-| Z-Code, Kimi Code, DeepSeek harness | Their status line, else estimate from characters | Unknown: assume 0.9 W and say so | New session with the handoff |
+| Harness | Context and usage | Compaction point | Cache lifetime ttl | Delegation |
+|---|---|---|---|---|
+| Claude Code (desktop app) | Session usage tool: `tokensUsed`, `contextWindow`, `autoCompactsAtPercent`, categories (verified 2026-10-27) | From the same tool | `1h`: 1,526,208 of 1,526,208 write tokens in five transcripts, 2026-10-29 to 2026-11-10 (measured); `5m` in usage overage | `Agent` tool with `model` and `effort`; fresh sessions by the app's session tools, model chosen by the operator |
+| Claude Code (CLI) | `/context` and the status line | Auto-compact announced in the transcript | Unknown: read the transcript's `cache_creation` split; else `5m` and say so | `Agent` tool; new terminal session |
+| Codex | `/status` shows context used | Documented auto-compaction near the window limit; check `/status` | Unknown: `5m` and say so | Sub-agents where the build offers them; otherwise a new thread with the handoff |
+| OpenCode | Token count in the session header | Documented compaction on overflow; check the session header | Unknown: `5m` and say so | Sub-agents by `@` mention or a new session |
+| Cline | The context window bar in the task header | Cline truncates by its own rule; treat the bar at 80 percent as K | Unknown: `5m` and say so | New task with the handoff |
+| Gemini CLI and Antigravity | `/stats` | Documented compression near the limit | Unknown: `5m` and say so | New session with the handoff |
+| Z-Code, Kimi Code, DeepSeek harness | Their status line, else estimate from characters | Unknown: assume 0.9 W and say so | Unknown: `5m` and say so | New session with the handoff |
 
 When a harness reports nothing, estimate C0 from characters (step 1.1)
 and mark every figure that depends on it as an estimate.

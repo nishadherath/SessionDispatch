@@ -30,8 +30,9 @@ records the decision and the token cost of making it in the handoff.
    procedure is a change to `SKILL.md` and, where the example's figures
    move, to `examples/`.
 3. **Prices live in `pricing/<date>.json`, never in text or code.** The
-   newest file by name is in force. The skill refuses a table older than
-   its `max_age_days` (14) and any null figure; a null is filled by the
+   newest file by name is in force. The skill refuses figures more than
+   `max_age_days` (14) days past their family's `fetched` date, and any
+   null figure; a null is filled by the
    operator or by a live read of the row's `source` page with the
    operator's yes, never from memory. No vendor fact in `SKILL.md` or the
    scripts.

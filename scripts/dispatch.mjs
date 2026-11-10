@@ -17,7 +17,7 @@ import path from "node:path";
 import { parseArgs } from "node:util";
 import { fileURLToPath } from "node:url";
 import {
-  FORMULA_IN_FORCE, FORMULA_GROWTH, FORMULA_COORD, FORMULAS, BAND_PERCENT, CLASS_RANK, REQUIRED_SYMBOLS, OPTIONAL_SYMBOLS,
+  FORMULA_IN_FORCE, FORMULA_GROWTH, FORMULA_COORD, FORMULA_TTL, FORMULAS, TTLS, TTL_DEFAULT, effectiveTtl, BAND_PERCENT, CLASS_RANK, REQUIRED_SYMBOLS, OPTIONAL_SYMBOLS,
   COORD_F_DEFAULT, COORD_O_DEFAULT, formulaHas, validateInputs, findModel, resolveModel, modelForClass, missingPrices,
   growth, continueSide, freshSide, draftVerdict, breakEven, splitCost, pieceCost, coordCost, planCoord, roundTo, parseTokens,
 } from "./dispatch-core.mjs";
@@ -35,9 +35,11 @@ Inputs (flags override the JSON file; token counts take 1,000,000, 86k or 1.5m):
   --L <turns>              rediscovery turns for unrecorded context (default 0)
   --Ta <turns> --Ra <tokens>   the split's acceptance turns and re-read
   --To <turns>             coordinating turns per piece (default 0: the operator starts the sessions)
-  --coordinator <id or class>  the session that coordinates (default: this session's model)
+  --coordinator this|<id or class>  who coordinates: this session (the default), or another session on that
+                           model, the current model included (before formula ${FORMULA_TTL} the current model's id is this session)
   --Fo --Oo <tokens>       the coordinator's fresh input and output per turn (default ${COORD_F_DEFAULT} and ${COORD_O_DEFAULT})
   --compacted yes|no       whether this session has been compacted
+  --ttl ${TTLS.join("|")}            the cache lifetime the harness writes (default ${TTL_DEFAULT}; ignored before formula ${FORMULA_TTL})
   --formula ${FORMULAS.join("|")}   default ${FORMULA_IN_FORCE}
   --table <file>           a specific price table (default: the newest in pricing/)
   --today YYYY-MM-DD       the date to judge the table's age against
@@ -50,7 +52,7 @@ function die(code, lines) {
 }
 
 function readInputs() {
-  const options = { json: { type: "string" }, current: { type: "string" }, target: { type: "string" }, coordinator: { type: "string" }, compacted: { type: "string" },
+  const options = { json: { type: "string" }, current: { type: "string" }, target: { type: "string" }, coordinator: { type: "string" }, compacted: { type: "string" }, ttl: { type: "string" },
     formula: { type: "string" }, table: { type: "string" }, today: { type: "string" }, help: { type: "boolean" } };
   for (const s of SYMBOLS) options[s] = { type: "string" };
   let parsed;
@@ -62,7 +64,9 @@ function readInputs() {
     try { inp = JSON.parse(fs.readFileSync(parsed.json, "utf8").replace(/^﻿/, "")); } catch (e) { die(1, `cannot read ${parsed.json} as JSON (${e.message})`); }
   }
   for (const [k, v] of Object.entries(parsed)) if (k !== "json" && v !== undefined) inp[k] = v;
-  for (const s of SYMBOLS) if (inp[s] !== undefined) inp[s] = parseTokens(inp[s]);
+  // A turn count stays fractional ("2.5") so validateInputs refuses it; parseTokens would round it.
+  const fractionalTurns = (s, v) => ["T", "Ta", "To"].includes(s) && /^\d+\.\d+$/.test(String(v).trim());
+  for (const s of SYMBOLS) if (inp[s] !== undefined) inp[s] = fractionalTurns(s, inp[s]) ? Number(inp[s]) : parseTokens(inp[s]);
   if (typeof inp.compacted === "string") inp.compacted = { yes: true, no: false, true: true, false: false }[inp.compacted.toLowerCase()] ?? inp.compacted;
   inp.formula ??= FORMULA_IN_FORCE;
   const errors = validateInputs(inp);
@@ -102,8 +106,9 @@ const shown = (file) => path.relative(ROOT, path.resolve(file)).split(path.sep).
 const tok = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const usd = (n, places = 3) => roundTo(n, places).toFixed(places);
 const line = (label, value, note = "") => `${label.padEnd(34)}= ${value}${note ? `   (${note})` : ""}`;
-const rates = (m) => `cache_read ${m.cache_read.toFixed(2)}, cache_write ${m.cache_write.toFixed(2)}, output ${m.output.toFixed(2)}`
-  + (m.long_context ? `; above ${tok(m.long_context.threshold_tokens)} tokens ${rates(m.long_context)}` : "");
+// The write figure named is the one the lifetime prices at: cache_write (5m) or cache_write_1h (1h).
+const rates = (m, ttl = TTL_DEFAULT) => `cache_read ${m.cache_read.toFixed(2)}, ${ttl === "1h" ? `cache_write_1h ${m.cache_write_1h.toFixed(2)}` : `cache_write ${m.cache_write.toFixed(2)}`}, output ${m.output.toFixed(2)}`
+  + (m.long_context ? `; above ${tok(m.long_context.threshold_tokens)} tokens ${rates(m.long_context, ttl)}` : "");
 
 function main() {
   const inp = readInputs();
@@ -113,24 +118,31 @@ function main() {
   const target = resolveModel(table, inp.target, current.family);
   if (!target) die(1, `--target ${inp.target} has no model at or above that class in family ${current.family}; models listed: ${listModels(table)}`);
   const hasCoord = formulaHas(inp.formula, FORMULA_COORD);
-  const coordinator = inp.coordinator === undefined ? current : resolveModel(table, inp.coordinator, current.family);
+  // The core takes no coordinator for this session (coordArg undefined); the print names this session's model.
+  const named = inp.coordinator !== undefined && inp.coordinator !== "this";
+  const coordArg = named ? resolveModel(table, inp.coordinator, current.family) : undefined;
+  const coordinator = named ? coordArg : current;
   if (!coordinator) die(1, `--coordinator ${inp.coordinator} has no model at or above that class in family ${current.family}; models listed: ${listModels(table)}`);
   const sonnet = modelForClass(table, current.family, "sonnet");
 
   const out = [];
   const isNew = formulaHas(inp.formula, FORMULA_GROWTH);
+  const hasTtl = formulaHas(inp.formula, FORMULA_TTL);
+  const ttl = effectiveTtl(inp);
+  const coordHere = planCoord(inp, current, coordArg, 1).continues;
   const era = inp.formula === FORMULA_IN_FORCE ? " (in force)"
+    : hasCoord ? " (as the records of that date applied it: writes at the 5-minute price; the current model's id as coordinator is this session)"
     : isNew ? " (as the records of that date applied it: no coordinator term)"
       : " (as the records of that date applied it: growth F, no miss term, handoff at the target's output rate)";
   out.push(`Session dispatch calculator, formula ${inp.formula}${era}`);
   out.push(`Table ${shown(file)}, age ${age} days of ${table.max_age_days}; today ${today}`);
-  out.push(`Current ${current.id} (${current.class}); target ${target.id} (${target.class})` + (hasCoord ? `; coordinator ${coordinator.id} (${coordinator.class})${coordinator.id === current.id ? ", this session" : ""}` : ""));
-  out.push(`Inputs: ${SYMBOLS.filter((s) => inp[s] !== undefined).map((s) => `${s} ${tok(inp[s])}`).join("; ")}; compacted ${inp.compacted ? "yes" : "no"}`);
+  out.push(`Current ${current.id} (${current.class}); target ${target.id} (${target.class})` + (hasCoord ? `; coordinator ${coordinator.id} (${coordinator.class})${coordHere ? ", this session" : ", another session"}` : ""));
+  out.push(`Inputs: ${SYMBOLS.filter((s) => inp[s] !== undefined).map((s) => `${s} ${tok(inp[s])}`).join("; ")}; compacted ${inp.compacted ? "yes" : "no"}${hasTtl ? `; ttl ${ttl}` : ""}`);
   out.push("");
 
   const priced = [current, target, ...(hasCoord && (inp.To ?? 0) > 0 ? [coordinator] : [])];
   const missing = [...new Map(priced.map((m) => [m.id, m])).values()]
-    .map((m) => ({ m, miss: missingPrices(m) })).filter((x) => x.miss.length);
+    .map((m) => ({ m, miss: missingPrices(m, ttl) })).filter((x) => x.miss.length);
   const g = growth(inp);
   out.push(line(isNew ? "G       = F + O" : "G       = F", tok(g.G)));
   out.push(line("C_end   = C0 + T * G", tok(g.cEnd)));
@@ -139,11 +151,11 @@ function main() {
   out.push(line("C_fresh = B + R + T * G / 2", tok(g.cFresh)));
   out.push("");
 
-  const okCurrent = missingPrices(current).length === 0;
-  const okTarget = missingPrices(target).length === 0;
-  const okCoord = !hasCoord || (inp.To ?? 0) === 0 || missingPrices(coordinator).length === 0;
+  const okCurrent = missingPrices(current, ttl).length === 0;
+  const okTarget = missingPrices(target, ttl).length === 0;
+  const okCoord = !hasCoord || (inp.To ?? 0) === 0 || missingPrices(coordinator, ttl).length === 0;
   const cont = okCurrent ? continueSide(inp, current) : null;
-  const fresh = okCurrent && okTarget && okCoord ? freshSide(inp, current, target, coordinator) : null;
+  const fresh = okCurrent && okTarget && okCoord ? freshSide(inp, current, target, coordArg) : null;
   const tiers = [current, target].some((m) => m.long_context);
 
   if (cont) {
@@ -168,7 +180,7 @@ function main() {
     out.push(`  = ${usd(fresh.total, 2)} USD`);
   } else out.push(`cost_fresh on ${target.id}: unknown, price of ${missing.map((x) => x.m.id).join(" and ")} unknown`);
   if (tiers && cont && fresh) out.push(`Long-context tier: ${cont.tierTurns} of ${inp.T} turns (continue), ${fresh.tierTurns} of ${inp.T} (fresh).`);
-  const rateLine = (m) => (missingPrices(m).length ? "unknown" : rates(m));
+  const rateLine = (m) => (missingPrices(m, ttl).length ? "unknown" : rates(m, ttl));
   out.push(`Prices per million: ${current.id} ${rateLine(current)}` + (target.id !== current.id ? `; ${target.id} ${rateLine(target)}` : "")
     + (hasCoord && ![current.id, target.id].includes(coordinator.id) ? `; ${coordinator.id} ${rateLine(coordinator)}` : ""));
   out.push("");
@@ -200,7 +212,7 @@ function main() {
     out.push("");
     const runner = modelForClass(table, current.family, "sonnet");
     const acceptor = modelForClass(table, current.family, "opus");
-    sp = runner && acceptor && !missingPrices(runner).length && !missingPrices(acceptor).length ? splitCost(inp, current, runner, acceptor, coordinator) : null;
+    sp = runner && acceptor && !missingPrices(runner, ttl).length && !missingPrices(acceptor, ttl).length ? splitCost(inp, current, runner, acceptor, coordArg) : null;
     if (!sp) out.push("cost_split: not computed; give Ta and Ra, and the table needs complete sonnet and opus rows in this family.");
     else {
       out.push(`cost_split: brief by ${current.id}, run on ${sp.runner}, acceptance on ${sp.acceptor}`);
@@ -221,16 +233,16 @@ function main() {
     // model as a fresh session: what a cheaper coordinator would cost (step 3.2 rule 7).
     const To = inp.To ?? 0;
     const plans = [["fresh", 1], ...(sp ? [["split", 2]] : []), ["Step B", pieces.length]];
-    const c0 = planCoord(inp, current, coordinator, 1);
+    const c0 = planCoord(inp, current, coordArg, 1);
     out.push("");
     out.push(`cost_coord: To ${tok(To)} per piece on ${coordinator.id}${c0.continues ? ", this session, from C0 + H" : ", a fresh session from B + H"} = ${tok(c0.cStart)}; Fo ${tok(inp.Fo ?? COORD_F_DEFAULT)}, Oo ${tok(inp.Oo ?? COORD_O_DEFAULT)}`
       + (To === 0 ? "; To 0: no session coordinates (the operator starts the sessions)" : ""));
     for (const [plan, n] of plans) {
-      const c = planCoord(inp, current, coordinator, n);
+      const c = planCoord(inp, current, coordArg, n);
       if (plan === "Step B") stepBCoord = c;
       out.push(line(`  ${plan}, ${n} piece${n === 1 ? "" : "s"}, ${tok(c.turns)} turns`, `${usd(c.total, 2)} USD`, c.crosses ? `crosses K: penalty_compaction ${usd(c.penaltyCompaction)}` : ""));
     }
-    if (!sonnet || missingPrices(sonnet).length) out.push("  on the sonnet-class model: not computed; the table has no complete sonnet row in this family");
+    if (!sonnet || missingPrices(sonnet, ttl).length) out.push("  on the sonnet-class model: not computed; the table has no complete sonnet row in this family");
     else {
       const alt = plans.map(([plan, n]) => `${plan} ${usd(coordCost(inp, sonnet, n, false).total, 2)}`).join(", ");
       out.push(`  on ${sonnet.id}, a fresh session from B + H = ${tok(inp.B + inp.H)}: ${alt} USD`);
@@ -248,7 +260,7 @@ function main() {
     if (bad.length || !(Number.isInteger(p.T) && p.T >= 1)) die(1, `piece "${p.name}": ${bad.concat(Number.isInteger(p.T) ? [] : ["T"]).join(", ")} must be non-negative numbers (T whole, 1 or more)`);
     const m = resolveModel(table, String(p.model), current.family);
     if (!m) die(1, `piece "${p.name}": model ${p.model} not in the table; models listed: ${listModels(table)}`);
-    if (missingPrices(m).length) die(3, `piece "${p.name}": price of ${m.id} unknown (${missingPrices(m).join(", ")}); step 1.4.4`);
+    if (missingPrices(m, ttl).length) die(3, `piece "${p.name}": price of ${m.id} unknown (${missingPrices(m, ttl).join(", ")}); step 1.4.4`);
     const c = pieceCost(inp, m, p).total;
     sum += c;
     out.push(`| ${p.name} | ${m.id} | ${p.effort ?? ""} | ${p.T} | ${tok(p.F)} | ${tok(p.O)} | ${tok(p.R)} | ${usd(c, 2)} |`);

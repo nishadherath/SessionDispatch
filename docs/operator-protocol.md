@@ -184,8 +184,8 @@ clean commit.
 The persona's section 3 applies. Prices live in `pricing/<date>.json`,
 never in this document or in any script: the newest file by name is the
 table in force, each family names the page it was read from and the day
-it was read, and the skill refuses a table older than its `max_age_days`
-(14) or any null figure (`SKILL.md` step 1.4). Cache reads are what a
+it was read, and the skill refuses figures more than `max_age_days` (14)
+days past that day, or any null figure (`SKILL.md` step 1.4). Cache reads are what a
 long agent session mostly pays for.
 
 | Class | Use on this project for |
@@ -351,7 +351,8 @@ operator's machine and this repository, not preferences.
 
 - **The gate is `node scripts/check.mjs`.** It validates the newest
   price table (filename date equals `table_date`, not in the future,
-  within `max_age_days`, every figure a number or null, every class one
+  each priced family within `max_age_days` of its `fetched` date, by the
+  rules of `scripts/price-table.mjs`, every figure a number or null, every class one
   of the four or null), the templates' required headings, the worked
   examples against the decision-record headings and the six cost rows,
   `SKILL.md`'s front matter, each adapter's required sections, the
@@ -360,7 +361,8 @@ operator's machine and this repository, not preferences.
   persona edition or a verbatim quote line. Exit 0 is green; exit 2 is a
   stale table and nothing else; exit 1 is any other finding. Quote the
   counts it prints.
-- **A stale table is expected, not a fault.** After 14 days the gate
+- **A stale table is expected, not a fault.** When a priced family is
+  more than 14 days past its `fetched` date, the gate
   exits 2 until `node scripts/pricing-new.mjs` creates today's file and
   the figures are refreshed from the source pages. A session that meets
   the stale exit offers the operator the refresh (pricing/README.md) and
