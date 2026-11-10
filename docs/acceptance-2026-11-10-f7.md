@@ -206,6 +206,7 @@ Options:       A at the next required rerun: the stage that reruns first adds To
 Pros and cons: A costs nothing until a rerun is needed and keeps the fix beside the run that proves it; the pin and the README note carry the knowledge meanwhile. A-now measures whether a Sonnet subject applies To correctly, the one unscored risk of v1.1.0, for about 15 to 17 USD (a Sonnet stage near S6's 2.09 measured, 23 subject runs near H3's 5.89, a Fable acceptance near this stage's cost; an estimate) and about 2 hours. B hides the only two scenarios that hold the new term. C leaves a scorer that is known to be wrong on a correct record.
 Blast radius:  A and C: none now; a rerun before the fix misreports measure 3 on 2 of 23 scenarios. A-now: the evaluation contract (block, prompt, rubric, scorer, 21 briefs), accepted before use. B: the scenario index and the test's count.
 Recommended:   A, because D12 option A' already accepted the term as unscored until the next rerun, and real dispatch records show To in their Inputs table, so a misapplied To is visible in the ledger loop at no cost; A-now is the choice if the operator wants the class floor's sentence replaced by a measurement before relying on the term.
+Decided:       A-now, by the operator on 2026-11-10 ("D-14 (do it now with rerun)"); the ruling below is overruled, and Stages O6 and F8 carry the work.
 ```
 
 Ruling: A. Nothing in `eval/` is changed by this stage. Scenarios 22 and
@@ -286,6 +287,7 @@ Options:       A an Opus stage at high and a Fable acceptance: a 1-hour write fi
 Pros and cons: A removes a 10 to 20 percent understatement from every projection and a break-even error of up to about half on the first-read term, and closes the validator split before it shows; about 22 to 25 USD and 2 hours (an estimate from this chain: O5 measured 10.71, this stage's cost below). B costs about 7 to 9 USD (S6 measured 2.09 for the Sonnet part; an Opus acceptance near 5, an estimate) and closes the dated faults; projections stay low by a known amount. C costs nothing; from 2026-11-13 the two validators disagree and a Fable 5.1 session cannot compute; from 2026-11-19 the table is stale and a refresh inherits the 8.
 Blast radius:  A: SKILL.md step 2 and 1.4, the table schema, the calculator, the pricer, every installed copy; past records safe by formula date; the class floor's figures stay on the older formulas. B: the table and its validators, six prose lines, the installed copies. C: none now.
 Recommended:   A, because the write price is an input to every verdict near the band and the evidence is 1.2 million tokens with no exception; B is the fallback if 2 hours is too much now, and A can follow it. Either way the stage should start before 2026-11-13.
+Decided:       A, by the operator on 2026-11-10 ("D-15 (A)"); the Stage O6 handoff carries it.
 ```
 
 Ruling: nothing in D15 is done by this stage. If the operator chooses A

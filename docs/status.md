@@ -7,7 +7,20 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-11-10, thirty-seventh update, by the Stage F7 session (claude-fable-5-2, xhigh, branch `claude/cool-jang-ac61d5`, cut from `main` and fast-forwarded to the S6 branch). O5, S6 and the pricing work of `1ae8c0d` are accepted (`docs/acceptance-2026-11-10-f7.md`); `main` carries them; the installed copies are current. Waiting on the operator: the yes for the tag v1.1.0, D14 (ruled A, open to overrule) and D15 (a follow-up stage, recommended A, dated faults from 2026-11-13). The thirty-sixth update was the S6 session.
+Last updated: 2026-11-10, thirty-eighth update, by the Stage F7 session (claude-fable-5-2, xhigh).
+The operator decided D15 option A and D14 option A-now on 2026-11-10.
+The operator said "Not yet" for the tag v1.1.0.
+Stage O6 is ready. Its handoff is `docs/handoffs/2026-11-10-then-stage-o6-write-price-scorer-contract.md`.
+The F7 session starts O6 (Opus, high). Stage F8 (Fable, xhigh) follows O6.
+The operator asked for status updates in ASD-STE100. This update and later updates use short active sentences.
+
+## Dashboards
+
+- `docs/status.md` (this file): work done, work in progress, work to do, decisions.
+- `docs/dispatch/calibration.md`: the cost ledger. It shows the projected cost and the measured cost of each stage.
+- `docs/handoffs/`: one file for each stage. The file of the active stage has the status `ready` or `in-progress`.
+- `docs/acceptance-2026-11-10-f7.md`: the F7 acceptance, its findings, and decisions D14 and D15.
+- `eval/results-<date>.md`: the evaluation results. Stage F8 adds the newest file.
 
 ## Done
 
@@ -41,7 +54,7 @@ Last updated: 2026-11-10, thirty-seventh update, by the Stage F7 session (claude
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| none | | | | |
+| O6: the write price by cache lifetime (formula 2026-11-11), one owner for the table rules, the scorer contract, the F7 text findings | started by the F7 session | Opus, high; two Sonnet sub-agents at the same time | its own worktree, cut from `main` | 90 to 120 min; 20.17 USD (16.06 + 1.74 + 2.37, `docs/dispatch/2026-11-10-o6-chain.json`) |
 
 The four installed copies (claude, codex, zcode, opencode) and the Cline rule file were written with
 `node scripts/install.mjs --harness all` on 2026-11-10 in F7, from the tree this update is committed on;
@@ -59,7 +72,9 @@ wall clock is the model's, operator review separate.
 
 None. H4 (the Haiku calculator cell rerun) was closed by D11 option A on 2026-10-30; the harness fix it would have proven stays a maintenance item in F5 section 4.
 
-The D12 chain is complete: O5, S6 and F7 are in the Done table. Measured by `node scripts/session-cost.mjs` on `pricing/2026-11-10.json`: O5 10.71 USD, S6 2.09 (plus 2.06 for six calls after its model was switched to Fable so that it could set F7), F7 8.78 just before its commit (49 calls against T 20), 23.64 in all, inside the 18.68 to 24.96 projected. Each figure is a lower bound by the 1-hour write difference (finding F7-1). What is left depends on D14 and D15 below.
+The D12 chain is complete: O5, S6 and F7 are in the Done table. Measured by `node scripts/session-cost.mjs` on `pricing/2026-11-10.json`: O5 10.71 USD, S6 2.09 (plus 2.06 for six calls after its model was switched to Fable so that it could set F7), F7 8.78 just before its commit (49 calls against T 20), 23.64 in all, inside the 18.68 to 24.96 projected. Each figure is a lower bound by the 1-hour write difference (finding F7-1). The operator decided D14 and D15 (below).
+
+Work to do after O6: Stage F8 (Fable, xhigh). F8 accepts the work of O6. F8 runs the evaluation again: 24 scenarios, Sonnet subjects, one run each. F8 merges into `main` and installs the skill. Estimate for F8: 70 to 100 min and 13.93 USD, and about 6.7 USD for the subjects. The F7 session coordinates. Estimate: 1.39 USD, and up to 7.40 USD more if its cache is cold at each of its two wakes. Estimate for the plan: 42 to 50 USD and 3 to 4 hours. Then the F7 session asks the operator for the tag.
 
 Not staged: C1 (variant C) and its acceptance F6, closed by D10 option A,
 confirmed by the operator on 2026-10-30; O4 declined (F4 section 2.3).
@@ -87,9 +102,9 @@ assessment; D8 and D9 are repeated below.
 - D11 Haiku cell rerun on the fixed harness, H4 (F5, 2026-10-30): A (decline), decided by the operator on 2026-10-30 ("Yes, A on both"); H4 is not run, and the floor's Haiku figure stays a hand figure taken partly under compaction, as the text says. Nothing waits on it.
 - D12 The coordinator's cost in the formula (2026-11-02, from the Tsunami report): A', decided by the operator on 2026-11-10 ("A' as recommended"). Stages O5, S6 and F7, operator-started. Five parts below and in `docs/assessment-2026-11-02.md` section 6.
 - D13 The uncommitted pricing work in the main checkout (found 2026-11-10): A, decided by the operator on 2026-11-10 ("Yes, commit it"); commit `1ae8c0d`. Stage F7's acceptance covers it. Five parts below.
-- D14 The scorer gap (F7, 2026-11-10): ruled A by F7. The stage that next reruns the evaluation adds To and the coordinator to the result block, teaches the scorer the scenario's formula, states who coordinates in the 21 older briefs and removes the pin; nothing in `eval/` changes now. The operator can overrule it, or choose A-now (the same work as its own stage with a 23-run Sonnet rerun, about 15 to 17 USD, an estimate). Five parts: `docs/acceptance-2026-11-10-f7.md` section 6.
-- D15 A follow-up stage for the pricing and text findings of F7 (2026-11-10): waiting on the operator. Recommended A: an Opus stage at high and a Fable acceptance (a 1-hour write figure in the table and the write price chosen per harness under a new formula date; staleness from each family's `fetched` date in one module; the Fable 5.1 row; findings F7-3 to F7-10 and F7-12), about 22 to 25 USD and 2 hours (an estimate). B is the Sonnet part without the formula change, about 7 to 9 USD. C is nothing now. The dated faults begin on 2026-11-13 (the two table validators disagree; a Fable 5.1 session cannot compute) and the table is stale from 2026-11-19. Five parts: the same note, section 8. This session writes the handoff once the operator decides.
-- The tag v1.1.0: waiting on the operator's yes to the push (a tag push is outside `approvals.push_origin`). On yes, F7 tags the commit that carries this update and pushes the tag; the outputs go in its report, since nothing is committed after the tag.
+- D14 The scorer gap (F7, 2026-11-10): A-now, decided by the operator on 2026-11-10 ("D-14 (do it now with rerun)"). This overrules the F7 ruling (A). Stage O6 changes the scorer contract. Stage F8 accepts it and then runs the evaluation again. Five parts: `docs/acceptance-2026-11-10-f7.md` section 6.
+- D15 A follow-up stage for the pricing and text findings of F7 (2026-11-10): A, decided by the operator on 2026-11-10 ("D-15 (A)"). Stage O6 does the work. Stage F8 accepts it. Five parts: the same note, section 8.
+- The tag v1.1.0: the operator said "Not yet" on 2026-11-10. No tag is on `82d9386`. The F7 session asks again after Stage F8. A tag push needs the operator's yes (it is outside `approvals.push_origin`).
 - F3-7 H2's runner (the coordinating session's, not the operator's): A, the `Agent` runner as H1 used it, decided 2026-10-30 so that H1 and H2 share one harness and F4 can attribute any change to the text; S4's CLI runner follows H2.
 - Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`: answered yes by the operator on 2026-10-30 (S3); the blocks were already there and stay.
 
