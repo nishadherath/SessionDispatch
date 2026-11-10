@@ -1,0 +1,7 @@
+{"type":"user","message":{"role":"user","content":"synthetic"}}
+{"type":"assistant","uuid":"u-m1","message":{"id":"m1","model":"model-big","usage":{"input_tokens":2,"cache_creation_input_tokens":40000,"cache_read_input_tokens":0,"output_tokens":500}}}
+{"type":"assistant","uuid":"u-m1","message":{"id":"m1","model":"model-big","usage":{"input_tokens":2,"cache_creation_input_tokens":40000,"cache_read_input_tokens":0,"output_tokens":500}}}
+{not json
+{"type":"assistant","uuid":"nousage","message":{"id":"m0","model":"model-big"}}
+{"type":"assistant","uuid":"u-m2","message":{"id":"m2","model":"model-big-20261101","usage":{"input_tokens":3,"cache_creation_input_tokens":2000,"cache_read_input_tokens":40000,"output_tokens":800}}}
+{"type":"assistant","uuid":"u-m3","message":{"id":"m3","model":"model-small","usage":{"input_tokens":1,"cache_creation_input_tokens":1000,"cache_read_input_tokens":150000,"output_tokens":300}}}
