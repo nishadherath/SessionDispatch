@@ -37,7 +37,7 @@ Model, assumed turns and context, the arithmetic, the number. API list price.
 |---|---|---|---|---|---|
 | (name) | (from the calculator) | (T) | pending | pending | `node scripts/session-cost.mjs <transcript>` |
 
-The Measured columns say `pending` until the stage closes. The session that closes it prices its own transcript, fills the row, and appends it to `docs/dispatch/calibration.md`.
+The Measured columns say `pending` until the stage closes. The session that closes it prices its own transcript and fills the row; the Source cell names the transcript by its file name (the id the pricer looks up, under the harness's project folder), not by the app's session id. In the SessionDispatch repository the row is also appended to its ledger, `docs/dispatch/calibration.md`; an installed copy has no ledger.
 
 ## Time projection
 Wall clock for the stage, and the operator review time separately.

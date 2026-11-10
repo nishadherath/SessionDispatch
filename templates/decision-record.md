@@ -7,13 +7,14 @@ Price table: `pricing/<date>.json` (age N days).
 
 | Input | Value | Source (measured or estimated, and how) |
 |---|---|---|
-| Formula | 2026-11-10 | `SKILL.md` step 2 as of that date |
+| Formula | 2026-11-11 | `SKILL.md` step 2 as of that date |
 | Current model | | The harness's report of this session's model |
 | Target model | | Matrix row of step 3.1, then the table's model for that class; null with the reason when the table cannot give one (step 1.4.4) |
 | Window W | | |
 | Compaction point K | | |
 | Current context C0 | | |
 | Compacted already | yes or no | |
+| Cache lifetime ttl | 1h or 5m | The usage report's or transcript's split of cache writes by lifetime; else the harness default of step 7; else 5m, said so |
 | Unrecorded context | list or "none" | |
 | Expected turns T | | |
 | Fresh input per turn F | | |
@@ -21,12 +22,12 @@ Price table: `pricing/<date>.json` (age N days).
 | Fresh baseline B | | |
 | Re-read set R | list with sizes, total | |
 | Handoff size H | | |
-| Cache misses M | 0 unless measured | Review pauses expected, cache lifetime the harness states |
+| Cache misses M | 0 unless measured | Review pauses longer than ttl expected; a model switch is one miss of the whole context |
 | Rediscovery turns L | 0 when the unrecorded list is empty | |
 | Acceptance turns Ta | split only | |
 | Acceptance re-read Ra | split only | |
-| Coordinating turns To | per piece; 0 when the operator starts the sessions | Who starts, receives, verifies, merges and records (step 3.2 rule 7); the count or the step 1.2 default |
-| Coordinator | model id or class; this session when left out | Matrix row "Coordinating a dispatched chain"; a session started by another cannot start sessions |
+| Coordinating turns To | per piece; 0 when nobody coordinates: the operator starts the next session, or this session starts it and ends | Who starts, receives, verifies, merges and records (step 3.2 rule 7); the count or the step 1.2 default |
+| Coordinator | "this session", or the model id or class of another session (the current model included) | Matrix row "Coordinating a dispatched chain"; a session started by another cannot start sessions |
 | Task type | row of the matrix | |
 | Design-heavy | yes or no | |
 | Irreversible or outward-facing steps | list or "none" | |
@@ -58,7 +59,8 @@ cost_coord: To <n> per piece on <coordinator>, from C0 + H (this session) or B +
   on <sonnet model id>, a fresh session from B + H = <n>: fresh <>, split <>, Step B <> USD
 ```
 
-Prices used (per million): input, output, cache_read, cache_write for
+Prices used (per million): input, output, cache_read, and the write
+figure ttl names (cache_write for 5m, cache_write_1h for 1h) for
 <current model id> and <target model id>.
 
 Draft verdict: <continue | fresh>, by <class | cost | quality |
@@ -84,7 +86,7 @@ Split (step 2.1): <an option or not, and why>.
 2. Design-heavy across a compaction: <>
 3. Irreversible steps and their approval step: <>
 4. Model chosen from the table, not memory: <>
-5. Table age and nulls: <>
+5. Each needed family's age from its fetched date, and nulls: <>
 6. Acceptance at matrix row 4's class and effort: <>
 7. Decision budget: <record size in tokens against 4,000; minutes against 10>
 8. Class and effort match the harness: <>

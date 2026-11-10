@@ -12,16 +12,19 @@
 // only to the turns past its threshold. Turn t reads C_start + (t - 1/2) * G,
 // which makes the per-turn sum equal the closed form T * C_avg of step 1.3
 // whenever no tier applies; the gate checks the examples on that identity.
-// Three formulas are kept, selected by name, each adding to the one before:
+// Four formulas are kept, selected by name, each adding to the one before:
 // 2026-10-27 (as the records of that date applied it); 2026-10-29 (growth
-// F + O, the miss term, the handoff at the current model); 2026-11-10, in
-// force (cost_coord, the session that coordinates a dispatched plan).
+// F + O, the miss term, the handoff at the current model); 2026-11-10
+// (cost_coord, the session that coordinates a dispatched plan); 2026-11-11, in
+// force (every cache write at the row's price for the lifetime ttl the harness
+// writes, and a coordinator the plan names is another session).
 
 export const FORMULA_OLD = "2026-10-27";
 export const FORMULA_GROWTH = "2026-10-29";
 export const FORMULA_COORD = "2026-11-10";
-export const FORMULA_IN_FORCE = FORMULA_COORD;
-export const FORMULAS = Object.freeze([FORMULA_OLD, FORMULA_GROWTH, FORMULA_COORD]);
+export const FORMULA_TTL = "2026-11-11";
+export const FORMULA_IN_FORCE = FORMULA_TTL;
+export const FORMULAS = Object.freeze([FORMULA_OLD, FORMULA_GROWTH, FORMULA_COORD, FORMULA_TTL]);
 /** Whether formula `f` carries the terms that formula `since` introduced. */
 export const formulaHas = (f, since) => FORMULAS.includes(f) && FORMULAS.indexOf(f) >= FORMULAS.indexOf(since);
 // SKILL.md step 1.2: the coordinator's turns are writing-heavy (briefs, notes,
@@ -34,8 +37,14 @@ export const BAND_PERCENT = 10;
 export const CLASS_RANK = Object.freeze({ haiku: 1, sonnet: 2, opus: 3, fable: 4 });
 const PRICE_KEYS = ["input", "output", "cache_read", "cache_write"];
 const USD_PER_TOKEN_PER_TABLE_UNIT = 1e-6; // table figures are USD per million tokens
+// SKILL.md step 1.1: the lifetime of the cache entries the harness writes. Under
+// 5m every write is priced at cache_write, under 1h at cache_write_1h; a row
+// without that figure is a null price under 1h (step 1.4.4).
+export const TTLS = Object.freeze(["5m", "1h"]);
+export const TTL_DEFAULT = "5m";
+const WRITE_KEY = Object.freeze({ "5m": "cache_write", "1h": "cache_write_1h" });
 
-/** Integer inputs every formula needs, in record order. M, L and To default to 0. */
+/** Integer inputs every formula needs, in record order. M, L and To default to 0, ttl to 5m. */
 export const REQUIRED_SYMBOLS = Object.freeze(["W", "K", "C0", "T", "F", "O", "B", "R", "H"]);
 export const OPTIONAL_SYMBOLS = Object.freeze(["M", "L", "Ta", "Ra", "To", "Fo", "Oo"]);
 
@@ -51,6 +60,7 @@ export function validateInputs(inp) {
   for (const k of ["T", "Ta"]) if (inp[k] !== undefined && !(Number.isInteger(inp[k]) && inp[k] >= 1)) errors.push(`${k} must be a whole number of turns, 1 or more, found ${JSON.stringify(inp[k])}`);
   if (nonNeg("To") && !Number.isInteger(inp.To)) errors.push(`To must be a whole number of turns, 0 or more, per piece, found ${JSON.stringify(inp.To)}`);
   if (typeof inp.compacted !== "boolean") errors.push(`compacted must be yes or no, found ${JSON.stringify(inp.compacted)}`);
+  if (inp.ttl !== undefined && !TTLS.includes(inp.ttl)) errors.push(`ttl must be ${TTLS.join(" or ")} (the cache lifetime the harness writes) or left out for ${TTL_DEFAULT}, found ${JSON.stringify(inp.ttl)}`);
   if (!FORMULAS.includes(inp.formula)) errors.push(`formula must be one of ${FORMULAS.join(", ")}, found ${JSON.stringify(inp.formula)}`);
   return errors;
 }
@@ -83,21 +93,33 @@ export function resolveModel(table, ref, family) {
   return Object.hasOwn(CLASS_RANK, ref) ? modelForClass(table, family, ref) : findModel(table, ref);
 }
 
-/** Names of the figures step 1.4 needs that are null for this model. */
-export function missingPrices(model) {
-  const missing = PRICE_KEYS.filter((k) => model[k] === null || model[k] === undefined);
+/** The lifetime a formula prices writes at: the stated ttl from formula 2026-11-11, else 5m. */
+export function effectiveTtl(inp) {
+  return formulaHas(inp.formula, FORMULA_TTL) ? (inp.ttl ?? TTL_DEFAULT) : TTL_DEFAULT;
+}
+
+/**
+ * Names of the figures step 1.4 needs that are null for this model when writes
+ * live `ttl` (pass effectiveTtl(inp)): under 1h, cache_write_1h null or absent.
+ */
+export function missingPrices(model, ttl = TTL_DEFAULT) {
+  const keys = ttl === "1h" ? [...PRICE_KEYS, WRITE_KEY["1h"]] : PRICE_KEYS;
+  const missing = keys.filter((k) => model[k] === null || model[k] === undefined);
   if (model.class === null || model.class === undefined) missing.push("class");
-  if (model.long_context) for (const k of PRICE_KEYS) if (model.long_context[k] === null) missing.push(`long_context.${k}`);
+  const lc = model.long_context;
+  if (lc) for (const k of keys) if (lc[k] === null || (k === WRITE_KEY["1h"] && lc[k] === undefined)) missing.push(`long_context.${k}`);
   return missing;
 }
 
-/** Per-token rates for one request whose prompt is `contextTokens` long. */
-export function ratesAt(model, contextTokens) {
+/** Per-token rates for one request whose prompt is `contextTokens` long, writes living `ttl`. */
+export function ratesAt(model, contextTokens, ttl = TTL_DEFAULT) {
   const lc = model.long_context;
   const tier = Boolean(lc) && contextTokens > lc.threshold_tokens;
   const p = tier ? lc : model;
   const u = USD_PER_TOKEN_PER_TABLE_UNIT;
-  return { cr: p.cache_read * u, cw: p.cache_write * u, out: p.output * u, tier };
+  const cw = p[WRITE_KEY[ttl]];
+  if (typeof cw !== "number") throw new Error(`ratesAt: ${model.id ?? "the model"} has no ${WRITE_KEY[ttl]}${tier ? " in its long_context tier" : ""} for ttl ${ttl}; check missingPrices(model, ttl) first (SKILL.md step 1.4.4)`);
+  return { cr: p.cache_read * u, cw: cw * u, out: p.output * u, tier };
 }
 
 /**
@@ -105,11 +127,11 @@ export function ratesAt(model, contextTokens) {
  * from cache, writes G new tokens to cache, emits O, and rewrites its whole
  * context M / T times (cache misses spread evenly over the stage).
  */
-export function sessionTurns(model, { cStart, T, G, O, M }) {
+export function sessionTurns(model, { cStart, T, G, O, M, ttl = TTL_DEFAULT }) {
   const s = { reads: 0, writes: 0, output: 0, misses: 0, tierTurns: 0 };
   for (let t = 1; t <= T; t += 1) {
     const c = cStart + (t - 0.5) * G;
-    const r = ratesAt(model, c);
+    const r = ratesAt(model, c, ttl);
     s.reads += c * r.cr;
     s.writes += G * r.cw;
     s.output += O * r.out;
@@ -124,12 +146,12 @@ export function sessionTurns(model, { cStart, T, G, O, M }) {
  * cache-write rate, T turns from there, and L rediscovery turns priced at the
  * average context. The handoff that precedes it is priced by the caller.
  */
-export function freshSession(model, { B, R, T, G, O, M = 0, L = 0 }) {
+export function freshSession(model, { B, R, T, G, O, M = 0, L = 0, ttl = TTL_DEFAULT }) {
   const cStart = B + R;
-  const first = cStart * ratesAt(model, cStart).cw;
-  const turns = sessionTurns(model, { cStart, T, G, O, M });
+  const first = cStart * ratesAt(model, cStart, ttl).cw;
+  const turns = sessionTurns(model, { cStart, T, G, O, M, ttl });
   const cAvg = cStart + (T * G) / 2;
-  const r = ratesAt(model, cAvg);
+  const r = ratesAt(model, cAvg, ttl);
   const loss = L * (cAvg * r.cr + G * r.cw + O * r.out);
   return { first, ...turns, loss, cAvg, total: first + turns.reads + turns.writes + turns.output + turns.misses + loss };
 }
@@ -137,7 +159,7 @@ export function freshSession(model, { B, R, T, G, O, M = 0, L = 0 }) {
 /** Growth per turn and the miss count under a formula. */
 function formulaTerms(inp) {
   const isNew = formulaHas(inp.formula, FORMULA_GROWTH);
-  return { G: isNew ? inp.F + inp.O : inp.F, M: isNew ? (inp.M ?? 0) : 0, isNew };
+  return { G: isNew ? inp.F + inp.O : inp.F, M: isNew ? (inp.M ?? 0) : 0, isNew, ttl: effectiveTtl(inp) };
 }
 
 /**
@@ -157,22 +179,30 @@ export function coordCost(inp, model, pieces, continues) {
   const cStart = continues ? inp.C0 + inp.H : inp.B + inp.H;
   const base = { model: model.id, continues, pieces, turns, G, O: Oo, cStart, crosses: false };
   if (turns === 0) return { ...base, first: 0, reads: 0, writes: 0, output: 0, misses: 0, tierTurns: 0, penaltyCompaction: 0, total: 0 };
-  const first = continues ? 0 : cStart * ratesAt(model, cStart).cw;
-  const s = sessionTurns(model, { cStart, T: turns, G, O: Oo, M: 0 });
+  const ttl = effectiveTtl(inp);
+  const first = continues ? 0 : cStart * ratesAt(model, cStart, ttl).cw;
+  const s = sessionTurns(model, { cStart, T: turns, G, O: Oo, M: 0, ttl });
   const crosses = cStart + turns * G > inp.K;
-  const cb = ratesAt(model, 0);
+  // The continue side's penalty with the stage's R as the re-read (F7-7): the
+  // record does not size a coordinator's working set apart, and the term is
+  // small (0.975 of 62.24 USD in the one case worked, Tsunami at To 40).
+  const cb = ratesAt(model, 0, ttl);
   const penaltyCompaction = crosses ? inp.R * cb.cw + inp.H * cb.out : 0;
   return { ...base, crosses, first, ...s, penaltyCompaction, total: first + s.reads + s.writes + s.output + penaltyCompaction };
 }
 
 /**
- * The plan's cost_coord at the coordinator (default: this session); To counts
+ * The plan's cost_coord at the coordinator. `coordinator` null or undefined:
+ * this session. A model: from formula 2026-11-11 another session on that
+ * model, the current one included (F7-3); before it, this session when the id
+ * is the current model's, as the records of 2026-11-10 applied it. To counts
  * as 0 before formula 2026-11-10, so the older formulas reproduce their records.
  */
 export function planCoord(inp, current, coordinator, pieces) {
   const c = coordinator ?? current;
   const x = formulaHas(inp.formula, FORMULA_COORD) ? inp : { ...inp, To: 0 };
-  return coordCost(x, c, pieces, c.id === current.id);
+  const continues = !coordinator || (!formulaHas(inp.formula, FORMULA_TTL) && c.id === current.id);
+  return coordCost(x, c, pieces, continues);
 }
 
 /** Step 1.3: growth and the three context figures, before any price. */
@@ -185,10 +215,11 @@ export function growth(inp) {
 /** Step A, `continue`: this session, on its own model, for T more turns. */
 export function continueSide(inp, current) {
   const g = growth(inp);
-  const ct = sessionTurns(current, { cStart: inp.C0, T: inp.T, G: g.G, O: inp.O, M: g.M });
+  const ttl = effectiveTtl(inp);
+  const ct = sessionTurns(current, { cStart: inp.C0, T: inp.T, G: g.G, O: inp.O, M: g.M, ttl });
   // The compaction's re-read and re-statement, at base rates: the summary's
   // size, which decides any tier, is unknown.
-  const cb = ratesAt(current, 0);
+  const cb = ratesAt(current, 0, ttl);
   const penaltyCompaction = g.crosses ? inp.R * cb.cw + inp.H * cb.out : 0;
   return { model: current.id, ...ct, penaltyCompaction, total: ct.reads + ct.writes + ct.output + ct.misses + penaltyCompaction };
 }
@@ -203,7 +234,7 @@ export function freshSide(inp, current, target, coordinator) {
   const g = growth(inp);
   const isNew = formulaHas(inp.formula, FORMULA_GROWTH);
   const handoff = inp.H * (isNew ? ratesAt(current, inp.C0).out : ratesAt(target, 0).out);
-  const fs = freshSession(target, { B: inp.B, R: inp.R, T: inp.T, G: g.G, O: inp.O, M: g.M, L: g.L });
+  const fs = freshSession(target, { B: inp.B, R: inp.R, T: inp.T, G: g.G, O: inp.O, M: g.M, L: g.L, ttl: effectiveTtl(inp) });
   const coord = planCoord(inp, current, coordinator, 1);
   return { model: target.id, handoff, ...fs, coord, total: handoff + fs.total + coord.total };
 }
@@ -225,7 +256,7 @@ export function stepA(inp, current, target, coordinator) {
  */
 export function breakEven(inp, current, target, a) {
   if (current.id !== target.id) return { turns: null, settles: ["the model changes; compare the totals"] };
-  const r = ratesAt(current, 0);
+  const r = ratesAt(current, 0, effectiveTtl(inp));
   // cost_coord is a fixed cost of the fresh plan: To does not grow with T.
   const fixed = inp.H * r.out + (inp.B + inp.R) * r.cw + (a.fresh.coord?.total ?? 0);
   const gap = inp.C0 - inp.B - inp.R;
@@ -248,18 +279,18 @@ export function breakEven(inp, current, target, a) {
  */
 export function splitCost(inp, current, runner, acceptor, coordinator) {
   if (inp.Ta === undefined || inp.Ra === undefined) return null;
-  const { G, M } = formulaTerms(inp);
+  const { G, M, ttl } = formulaTerms(inp);
   const brief = inp.H * ratesAt(current, inp.C0).out;
-  const run = freshSession(runner, { B: inp.B, R: inp.R, T: inp.T, G, O: inp.O, M, L: inp.L ?? 0 });
-  const accept = freshSession(acceptor, { B: inp.B, R: inp.Ra, T: inp.Ta, G, O: inp.O });
+  const run = freshSession(runner, { B: inp.B, R: inp.R, T: inp.T, G, O: inp.O, M, L: inp.L ?? 0, ttl });
+  const accept = freshSession(acceptor, { B: inp.B, R: inp.Ra, T: inp.Ta, G, O: inp.O, ttl });
   const coord = planCoord(inp, current, coordinator, 2);
   return { brief, run, accept, coord, runner: runner.id, acceptor: acceptor.id, total: brief + run.total + accept.total + coord.total };
 }
 
 /** Step 3.3: one piece priced as a fresh session or sub-agent (no handoff). */
 export function pieceCost(inp, model, piece) {
-  const { G } = formulaTerms({ ...inp, F: piece.F, O: piece.O });
-  return freshSession(model, { B: piece.B ?? inp.B, R: piece.R, T: piece.T, G, O: piece.O, M: piece.M ?? 0 });
+  const { G, ttl } = formulaTerms({ ...inp, F: piece.F, O: piece.O });
+  return freshSession(model, { B: piece.B ?? inp.B, R: piece.R, T: piece.T, G, O: piece.O, M: piece.M ?? 0, ttl });
 }
 
 /** The verdict rule of step 2: the band, then the quality terms. */

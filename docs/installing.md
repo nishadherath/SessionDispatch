@@ -134,8 +134,9 @@ reads. Second, check that the path in the pointer block exists.
 
 ## Update the price table
 
-The skill refuses a price table that is more than 14 days old. When
-this happens, run the following command in this repository:
+The skill refuses prices that were read more than 14 days ago. Each
+family in the table has a `fetched` date: the day its prices were read.
+When a family that you need is too old, run the following command in this repository:
 
 ```bash
 node scripts/pricing-new.mjs
@@ -151,7 +152,7 @@ run `node scripts/check.mjs` and `node scripts/install.mjs --check`.
 | `node` is not found | Node.js is not installed or not on the path | Install Node.js 20 or later |
 | `--check` reports files behind | The repository changed after the last install | Run the install command again |
 | The harness does not use the skill | The pointer block is not in the instruction file | Paste the block (see above) |
-| The skill says the table is stale | The newest price table is more than 14 days old | Refresh the table (see above) |
+| The skill says the table is stale | The prices of a family that you need were read more than 14 days ago | Refresh the table (see above) |
 | The installer says a flag is not valid | A flag has a typing error | Use a flag from `node scripts/install.mjs --help` |
 
 For harness-specific detail, read `adapters/<harness>.md`.
