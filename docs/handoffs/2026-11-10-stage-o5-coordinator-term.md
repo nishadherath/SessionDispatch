@@ -2,7 +2,7 @@
 stage: "Stage O5: the coordinator term, formula revision, worked example, two scenarios"
 model: claude-opus-5-5
 effort: high
-status: ready
+status: done
 created: 2026-11-10
 from: "Session local_4e26ead3 (Fable 5.2, high; Fable 5.1 until the operator's /model on 2026-11-10): assessment 2026-11-02, D12 decided A'"
 ---
