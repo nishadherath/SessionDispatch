@@ -17,6 +17,8 @@
     "A handoff for this stage would be about 100 lines. If an acceptance session were used, it would take about 15 turns and read about 30,000 tokens.",
     "Everything this session knows that the next stage needs is already written in files on disk.",
     "No cache-miss measurement exists, and no review pauses are expected during the stage.",
+    "If the plan includes a fresh session, this session starts it itself with its own tools and then ends; the operator receives its note, verifies it and merges it.",
+    "The usage report shows every cache write in this session as a 5-minute write.",
     "The stage writes files and commits locally; nothing leaves the machine."
   ],
   "table": "pricing/2026-10-29.json",
@@ -68,6 +70,7 @@
   },
   "notes": [
     "F is the step 1.2 default; O is the writing-heavy figure of step 1.2.",
-    "The split is cheaper than fresh but is not an option: choosing the formula's terms is the design, so no brief can carry a contract that settles them."
+    "The split is cheaper than fresh but is not an option: choosing the formula's terms is the design, so no brief can carry a contract that settles them.",
+    "Stage O6b (2026-11-10): the brief gained two lines so a subject on the current SKILL.md reaches To 0, no coordinator and ttl 5m: any next session is started by this session itself, which then ends, and the brief states the cache lifetime as 5 minutes where the harness shows it (its usage report, its transcript or its documentation). No expected figure moves."
   ]
 }

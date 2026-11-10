@@ -8,10 +8,13 @@
 // never re-implemented.
 //
 // Non-obvious: measure 3 recomputes from the subject's own inputs, never the
-// scenario's, so arithmetic is separated from input gathering. Subject prose
-// is data: this module reads it, counts faults in it and never quotes it.
+// scenario's, so arithmetic is separated from input gathering, and under the
+// formula in force (FORMULA_IN_FORCE), so the subject's To, Fo, Oo, coordinator
+// and ttl move the figures it is held to. Three of those it must also state as
+// the scenario expects (the contract of rubric section 2). Subject prose is
+// data: this module reads it, counts faults in it and never quotes it.
 import {
-  CLASS_RANK, findModel, resolveModel, modelForClass, missingPrices, validateInputs, stepA, breakEven, splitCost, roundTo,
+  CLASS_RANK, FORMULA_IN_FORCE, findModel, resolveModel, modelForClass, missingPrices, validateInputs, stepA, breakEven, splitCost, roundTo,
 } from "../scripts/dispatch-core.mjs";
 
 const EM_DASH = "â€”";
@@ -21,6 +24,13 @@ const BANNED_RE = BANNED.map((w) => new RegExp(`(^|[^a-z])${w.replace(/'/g, "['â
 const OPEN_FENCE = "```json dispatch-result";
 const OUTCOMES = ["continue", "fresh", "split", "not-run", "incomplete", "stop"];
 const INPUT_SYMBOLS = ["current", "target", "W", "K", "C0", "compacted", "T", "F", "O", "B", "R", "H", "M", "L", "Ta", "Ra"];
+// The contract's three stated facts, scored on every run that has inputs against
+// the scenario's value or the default below (rubric section 2). Fo and Oo are
+// the subject's own figures for the core and are not scored against a scenario.
+const CONTRACT_SYMBOLS = ["To", "coordinator", "ttl"];
+const TTL_VALUES = ["5m", "1h"];
+const TO_DEFAULT = 0;
+const TTL_DEFAULT = "5m";
 const DECIDE_CAP_RECORD_TOKENS = 4000; // guardrail 7's cap on the record (SKILL.md step 0)
 const DECIDE_CAP_MINUTES = 10;
 const CHARS_PER_TOKEN = 4; // the skill's estimate for prose (step 1.1)
@@ -65,6 +75,11 @@ export function validateBlock(b) {
     for (const k of ["W", "K", "C0", "T", "F", "O", "B", "R", "H", "M", "L"]) if (!isNum(i[k])) return bad(`inputs.${k}`, "a number");
     if (typeof i.compacted !== "boolean") return bad("inputs.compacted", "a boolean");
     for (const k of ["Ta", "Ra", "G"]) if (!isNumOrNull(i[k])) return bad(`inputs.${k}`, "a number or null");
+    // The O6 contract: all five optional, absent meaning the default.
+    if (i.To !== undefined && !(Number.isInteger(i.To) && i.To >= 0)) return bad("inputs.To", "a whole number, 0 or more, or left out");
+    for (const k of ["Fo", "Oo"]) if (i[k] !== undefined && !isNumOrNull(i[k])) return bad(`inputs.${k}`, "a number, null or left out");
+    if (i.coordinator !== undefined && !isStrOrNull(i.coordinator)) return bad("inputs.coordinator", "a model id or class string, null or left out");
+    if (i.ttl !== undefined && !TTL_VALUES.includes(i.ttl)) return bad("inputs.ttl", `one of ${TTL_VALUES.join(", ")} or left out`);
   }
   if (!isNumOrNull(b.table_age_days)) return bad("table_age_days", "a number or null");
   const t = b.totals;
@@ -124,20 +139,29 @@ function recompute(inputs, table, scenarioToday) {
   if (inputs.target === null) return { computable: false, reason: "target not named (null)" };
   const target = resolveModel(table, inputs.target, current.family);
   if (!target) return { computable: false, reason: "target model not in the table" };
-  if (missingPrices(current).length || missingPrices(target).length) return { computable: false, reason: "a price is null" };
-  const inp = { W: inputs.W, K: inputs.K, C0: inputs.C0, T: inputs.T, F: inputs.F, O: inputs.O, B: inputs.B, R: inputs.R, H: inputs.H, M: inputs.M, L: inputs.L, compacted: inputs.compacted, formula: "2026-10-29" };
+  const ttl = inputs.ttl ?? TTL_DEFAULT;
+  // Absent or null: this session coordinates (stepA and splitCost take undefined). A string: another session
+  // on that model does, even when it is the current model; a class string resolves in the current family.
+  let coordinator;
+  if (inputs.coordinator !== undefined && inputs.coordinator !== null) {
+    coordinator = resolveModel(table, inputs.coordinator, current.family);
+    if (!coordinator) return { computable: false, reason: "coordinator model not in the table" };
+  }
+  if ([current, target, coordinator].some((m) => m && missingPrices(m, ttl).length)) return { computable: false, reason: "a price is null" };
+  const inp = { W: inputs.W, K: inputs.K, C0: inputs.C0, T: inputs.T, F: inputs.F, O: inputs.O, B: inputs.B, R: inputs.R, H: inputs.H, M: inputs.M, L: inputs.L, compacted: inputs.compacted, formula: FORMULA_IN_FORCE, ttl };
   if (isNum(inputs.Ta)) inp.Ta = inputs.Ta;
   if (isNum(inputs.Ra)) inp.Ra = inputs.Ra;
+  for (const k of ["To", "Fo", "Oo"]) if (isNum(inputs[k])) inp[k] = inputs[k];
   if (isNum(inputs.G) && inputs.G !== inputs.F + inputs.O) inp.F = inputs.G - inputs.O; // growth G, all of O billed as output
   const errors = validateInputs(inp);
   if (errors.length) return { computable: false, reason: `inputs not computable (${errors[0]})` };
-  const a = stepA(inp, current, target);
+  const a = stepA(inp, current, target, coordinator);
   const be = breakEven(inp, current, target, a);
   const settled = be.turns !== null && be.settles.length === 0;
   let costSplit = null;
   if (CLASS_RANK[target.class] >= CLASS_RANK.opus) {
     const runner = modelForClass(table, current.family, "sonnet"), acceptor = modelForClass(table, current.family, "opus");
-    if (runner && acceptor && !missingPrices(runner).length && !missingPrices(acceptor).length) costSplit = splitCost(inp, current, runner, acceptor)?.total ?? null;
+    if (runner && acceptor && !missingPrices(runner, ttl).length && !missingPrices(acceptor, ttl).length) costSplit = splitCost(inp, current, runner, acceptor, coordinator)?.total ?? null;
   }
   return {
     computable: true,
@@ -201,11 +225,32 @@ function boundGuardrailFailures(scenario, block) {
   return failed;
 }
 
-function inputFidelity(scenario, inputs) {
+// The contract's three checks against the scenario (rubric section 2): To and ttl
+// by value with their defaults, the coordinator by the model it resolves to in the
+// scenario's table (both null counts), so a class string equals its model id.
+function contractChecks(scenario, table, inputs) {
+  const family = findModel(table, scenario.current)?.family;
+  const same = (stated, want) => {
+    if (stated === null || want === null) return stated === want;
+    const a = resolveModel(table, stated, family), b = resolveModel(table, want, family);
+    return a && b ? a.id === b.id : stated === want;
+  };
+  return {
+    To: (inputs.To ?? TO_DEFAULT) === (scenario.To ?? TO_DEFAULT),
+    coordinator: same(inputs.coordinator ?? null, scenario.coordinator ?? null),
+    ttl: (inputs.ttl ?? TTL_DEFAULT) === (scenario.ttl ?? TTL_DEFAULT),
+  };
+}
+
+function inputFidelity(scenario, inputs, checks) {
   if (inputs === null) return { scored: 0, matched: 0, misses: [] };
   const accept = scenario.expected.accept_inputs ?? {};
   let scored = 0, matched = 0;
   const misses = [];
+  for (const k of CONTRACT_SYMBOLS) {
+    scored += 1;
+    if (checks[k]) matched += 1; else misses.push(k);
+  }
   for (const k of INPUT_SYMBOLS) {
     if (scenario[k] === undefined) continue;
     scored += 1;
@@ -259,7 +304,7 @@ export function scoreRun({ scenario, table, record, usage = null, pricing = tabl
     return {
       ...base, unscorable: true, reason: typeError, outcome_got: null, final_ok: false, draft_ok: scenario.expected.draft_required ? false : null,
       guardrails_ok: false, bound: [...scenario.expected.guardrails], bound_failed: [...scenario.expected.guardrails], g4_ok: false, false_alarms: [],
-      arithmetic: arithmetic(null, { computable: false, reason: "unscorable" }, {}), inputs: { scored: 0, matched: 0, misses: [] },
+      arithmetic: arithmetic(null, { computable: false, reason: "unscorable" }, {}), inputs: { scored: 0, matched: 0, misses: [] }, contract: null,
       decide: decideCost(null, usage, pricing, record), consistency: { draft_line_ok: null, skill_ran_ok: null }, overrun_default_not_taken: null, note: `unscorable: ${typeError}`,
     };
   }
@@ -276,6 +321,9 @@ export function scoreRun({ scenario, table, record, usage = null, pricing = tabl
   const ids = [b.inputs?.current, b.inputs?.target, f.model].filter((m) => m !== null && m !== undefined);
   const g4_ok = ids.every((m) => findModel(table, m) !== null);
   const rc = recompute(b.inputs, table, scenario.today);
+  // The contract's three checks, apart (null when the block has no inputs): the acceptance counts them.
+  const checks = b.inputs === null ? null : contractChecks(scenario, table, b.inputs);
+  const contract = checks === null ? null : { to_ok: checks.To, coordinator_ok: checks.coordinator, ttl_ok: checks.ttl };
   const arith = arithmetic(b, rc, e.calculator);
   const drafted = x.outside.match(/Draft verdict:\**\s*(continue|fresh|incomplete)/i)?.[1]?.toLowerCase() ?? null;
   const consistency = {
@@ -292,12 +340,13 @@ export function scoreRun({ scenario, table, record, usage = null, pricing = tabl
     ?? (draft_ok === false ? "draft" : null)
     ?? (boundFailed.length ? `guardrail ${boundFailed[0]}` : null)
     ?? (!g4_ok ? "guardrail 4 (model id not in the table)" : null)
-    ?? (arith.scored && arith.errors.length ? `arithmetic (${arith.errors[0].figure})` : null);
+    ?? (arith.scored && arith.errors.length ? `arithmetic (${arith.errors[0].figure})` : null)
+    ?? (contract && !(contract.to_ok && contract.coordinator_ok && contract.ttl_ok) ? `contract (${CONTRACT_SYMBOLS.filter((k) => !checks[k]).join(", ")})` : null);
   return {
     ...base, unscorable: false, reason: null, outcome_got: f.outcome, final_ok, draft_ok,
     guardrails_ok: boundFailed.length === 0 && g4_ok, bound: [...e.guardrails], bound_failed: boundFailed, g4_ok,
     false_alarms: b.guardrails_triggered.filter((g) => !e.guardrails.includes(g)),
-    arithmetic: arith, inputs: inputFidelity(scenario, b.inputs), decide, consistency, overrun_default_not_taken,
+    arithmetic: arith, inputs: inputFidelity(scenario, b.inputs, checks), contract, decide, consistency, overrun_default_not_taken,
     note: fail ? `first failed check: ${fail}` : "",
   };
 }
@@ -324,7 +373,10 @@ export function summarise(scores) {
   return [...groups.values()].sort((a, b) => a.subject.localeCompare(b.subject) || a.arm.localeCompare(b.arm)).map(({ subject, arm, runs }) => {
     const drafted = runs.filter((r) => r.draft_ok !== null), bound = runs.filter((r) => r.bound.length > 0);
     const sum = (f) => runs.reduce((t, r) => t + f(r), 0);
+    const withContract = runs.filter((r) => r.contract !== null && r.contract !== undefined);
+    const contractCount = (key) => [withContract.filter((r) => r.contract[key]).length, withContract.length];
     return {
+      to: contractCount("to_ok"), coordinator: contractCount("coordinator_ok"), ttl: contractCount("ttl_ok"),
       subject, arm, n: runs.length, unscorable: runs.filter((r) => r.unscorable).length,
       final: [runs.filter((r) => r.final_ok).length, runs.length],
       draft: [drafted.filter((r) => r.draft_ok).length, drafted.length],
@@ -356,23 +408,24 @@ export function renderReport({ header, scores }) {
   L.push(`- Subjects: ${subjects.map((s) => `${s} (${header.subjectModels?.[s] ?? "model id not reported"})`).join(", ")}`);
   L.push(`- Arms: ${arms.join(", ")}`, `- Runs: ${scores.length}; unscorable: ${scores.filter((s) => s.unscorable).length}`, `- ${header.promptNote}`, "");
   L.push("## Summary", "");
-  L.push("| Subject | Arm | Runs | Final agreement | Draft agreement | Bound guardrails | Guardrail 4 | Arithmetic correct/stated | Runs with an error | Inputs matched/scored | USD to decide, median | USD to decide, largest | Over cap | Median minutes |");
-  L.push("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
+  L.push("| Subject | Arm | Runs | Final agreement | Draft agreement | Bound guardrails | Guardrail 4 | Arithmetic correct/stated | Runs with an error | Inputs matched/scored | To equal | Coordinator equal | ttl equal | USD to decide, median | USD to decide, largest | Over cap | Median minutes |");
+  L.push("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
+  const frac = ([k, n]) => (n ? `${k}/${n}` : "n/a");
   for (const r of rows) {
-    L.push(`| ${r.subject} | ${r.arm} | ${r.n} (${r.unscorable} unscorable) | ${rate(...r.final)} | ${r.draft[1] ? `${r.draft[0]}/${r.draft[1]}` : "n/a"} | ${r.bound[1] ? `${r.bound[0]}/${r.bound[1]}` : "n/a"} | ${r.g4[0]}/${r.g4[1]} | ${r.arithmetic[0]}/${r.arithmetic[1]} | ${r.arithmetic_error_runs} | ${r.inputs[0]}/${r.inputs[1]} | ${num(r.usd_median, 4)} | ${num(r.usd_max, 4)} | ${r.over_cap[0]}/${r.over_cap[1]} | ${num(r.minutes_median, 1)} |`);
+    L.push(`| ${r.subject} | ${r.arm} | ${r.n} (${r.unscorable} unscorable) | ${rate(...r.final)} | ${r.draft[1] ? `${r.draft[0]}/${r.draft[1]}` : "n/a"} | ${r.bound[1] ? `${r.bound[0]}/${r.bound[1]}` : "n/a"} | ${r.g4[0]}/${r.g4[1]} | ${r.arithmetic[0]}/${r.arithmetic[1]} | ${r.arithmetic_error_runs} | ${r.inputs[0]}/${r.inputs[1]} | ${frac(r.to)} | ${frac(r.coordinator)} | ${frac(r.ttl)} | ${num(r.usd_median, 4)} | ${num(r.usd_max, 4)} | ${r.over_cap[0]}/${r.over_cap[1]} | ${num(r.minutes_median, 1)} |`);
   }
   L.push("", "## Runs", "");
-  L.push("| Scenario | Subject | Arm | Outcome got | Outcome expected | Final | Draft | Guardrails | Arithmetic | Inputs | Tokens reported | Tokens measured | Minutes | USD to decide | Note |");
-  L.push("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
+  L.push("| Scenario | Subject | Arm | Outcome got | Outcome expected | Final | Draft | Guardrails | Arithmetic | Inputs | To | Coordinator | ttl | Tokens reported | Tokens measured | Minutes | USD to decide | Note |");
+  L.push("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
   for (const s of sorted) {
-    const a = s.arithmetic, d = s.decide;
+    const a = s.arithmetic, d = s.decide, c = s.contract ?? {};
     const arith = a.scored ? `${a.correct}/${a.stated}${a.missing ? `, ${a.missing} missing` : ""}` : `not scored (${a.reason})`;
-    L.push(`| ${s.scenario} | ${s.subject} | ${s.arm} | ${s.outcome_got ?? "n/a"} | ${s.outcome_expected} | ${cell(s.final_ok)} | ${cell(s.draft_ok)} | ${cell(s.guardrails_ok)} | ${arith} | ${s.inputs.matched}/${s.inputs.scored} | ${d.reported_tokens ?? "n/a"} | ${d.measured_tokens ?? "n/a"} | ${num(d.measured_minutes ?? d.reported_minutes, 1)} | ${num(d.usd_to_decide, 4)} | ${s.note || ""} |`);
+    L.push(`| ${s.scenario} | ${s.subject} | ${s.arm} | ${s.outcome_got ?? "n/a"} | ${s.outcome_expected} | ${cell(s.final_ok)} | ${cell(s.draft_ok)} | ${cell(s.guardrails_ok)} | ${arith} | ${s.inputs.matched}/${s.inputs.scored} | ${cell(c.to_ok)} | ${cell(c.coordinator_ok)} | ${cell(c.ttl_ok)} | ${d.reported_tokens ?? "n/a"} | ${d.measured_tokens ?? "n/a"} | ${num(d.measured_minutes ?? d.reported_minutes, 1)} | ${num(d.usd_to_decide, 4)} | ${s.note || ""} |`);
   }
   L.push("", "## Input misses per symbol", "");
   const columns = rows.map((r) => `${r.subject}.${r.arm}`);
   L.push(`| Symbol | ${columns.join(" | ")} |`, `|---|${columns.map(() => "---").join("|")}|`);
-  for (const sym of INPUT_SYMBOLS) {
+  for (const sym of [...INPUT_SYMBOLS, ...CONTRACT_SYMBOLS]) {
     const counts = rows.map((r) => scores.filter((s) => s.subject === r.subject && s.arm === r.arm && s.inputs.misses.includes(sym)).length);
     if (counts.some((c) => c > 0)) L.push(`| ${sym} | ${counts.join(" | ")} |`);
   }

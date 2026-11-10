@@ -43,7 +43,7 @@ them to the subject in the same order):
 | Key | Type |
 |---|---|
 | `skill_ran` | boolean |
-| `inputs` | null, or object: `current` (string); `target` (string, or null where the table cannot give one, `SKILL.md` step 1.4.4); `W`, `K`, `C0`, `T`, `F`, `O`, `B`, `R`, `H`, `M`, `L` (numbers); `compacted` (boolean); `Ta`, `Ra`, `G` (number or null) |
+| `inputs` | null, or object: `current` (string); `target` (string, or null where the table cannot give one, `SKILL.md` step 1.4.4); `W`, `K`, `C0`, `T`, `F`, `O`, `B`, `R`, `H`, `M`, `L` (numbers); `compacted` (boolean); `Ta`, `Ra`, `G` (number or null); and five optional keys, absent meaning the default: `To` (a whole number, 0 or more; absent: 0), `Fo` and `Oo` (numbers or null; absent or null: the core's defaults), `coordinator` (a model id or class string, or null; absent or null: this session coordinates, a string: another session on that model does, even when it is the current model) and `ttl` (`"5m"` or `"1h"`; absent: `"5m"`) |
 | `table_age_days` | number or null |
 | `totals` | null, or object: `cost_continue`, `cost_fresh`, `cost_split`, `t_star` (string or null each) |
 | `draft` | null, or object: `side` (`continue`, `fresh`, `incomplete`), `by` (`class`, `cost`, `quality`, `break-even` or null) |
@@ -55,6 +55,12 @@ The block goes on its own lines after the last table, never inside a table
 cell. `totals.t_star` is null when the model changes (no break-even exists)
 and `"never"` only when C0 is not above B + R; the recompute of section 5
 returns null for the first and infinity for the second.
+
+The five optional keys are the contract of Stage O6b. A block written
+before it (none of the five) still validates and reads as To 0, this
+session coordinates and `5m`. A key present with the wrong type (a `To`
+that is not a whole number, a `ttl` other than the two, a `coordinator`
+that is neither a string nor null) is a type break.
 
 A run is **unscorable** when the block is missing, is not valid JSON, or
 breaks a type above. An unscorable run fails measures 1 and 2, states no
@@ -115,8 +121,15 @@ scenario's, so this measure isolates arithmetic from input gathering
 (section 7 scores the gathering). With `scripts/dispatch-core.mjs` and the
 run's table:
 
-- `cost_continue`, `cost_fresh` and the draft from `stepA`, under formula
-  2026-10-29;
+- `cost_continue`, `cost_fresh` and the draft from `stepA`, under the
+  formula in force (`FORMULA_IN_FORCE`, imported from
+  `scripts/dispatch-core.mjs`, never written as a date) and with the
+  subject's own `To`, `Fo`, `Oo` and `ttl` on the input object. The
+  coordinator is the fourth argument of `stepA` and the fifth of
+  `splitCost`: undefined for this session (absent or null), else the model
+  `coordinator` resolves to in the current model's family. A coordinator
+  that resolves to nothing, or any priced model with a null price at the
+  stated `ttl`, makes the run not computable, with that reason;
 - `cost_split` from `splitCost`, when the target's class is opus or fable
   and `Ta` and `Ra` are numbers (runner sonnet and acceptor opus by
   `modelForClass` in the current model's family, as the calculator does);
@@ -182,6 +195,21 @@ Reported, never part of a headline:
   elsewhere. Per run matched out of scored; in the
   summary, the miss count per symbol, which is the map of where subjects
   misread a brief.
+- **The contract's three facts** (Stage O6b), scored on every run that has
+  `inputs`, in the same count and the same miss list. Expected values: `To`
+  the scenario's `To`, else 0; `coordinator` the scenario's `coordinator`,
+  else null; `ttl` the scenario's `ttl`, else `"5m"`. A stated key left out
+  reads as its default. A stated `coordinator` matches when it resolves in
+  the scenario's table (a class string in the current model's family) to
+  the same model as the expected one, or both are null; a coordinator
+  stated where the scenario has none is a miss. Each run's score also
+  holds `contract: { to_ok, coordinator_ok, ttl_ok }`, the three checks
+  apart (null when the block has no inputs), so an acceptance can count
+  them: the report shows them beside the arithmetic. A wrong `To`,
+  `coordinator` or `ttl` usually also moves measure 3, because the
+  recompute uses the subject's own values; the contract says which input
+  was wrong, measure 3 says what it cost. `Fo` and `Oo` are the subject's
+  own figures, used in the recompute and not scored against a scenario.
 - **Consistency.** `draft.side` agrees with the side on the record's
   `Draft verdict:` line; `skill_ran` is false exactly when the record has a
   `Session dispatch not run` line.
@@ -210,13 +238,14 @@ Reported, never part of a headline:
 2. A summary, one row per subject and arm: final agreement k/n with its
    Wilson 95 percent interval, draft agreement k/m, bound guardrails k/n,
    guardrail 4 k/n, arithmetic correct/stated with the runs holding any
-   error, input fidelity matched/scored, median and largest `usd_to_decide`,
+   error, input fidelity matched/scored, `To`, `coordinator` and `ttl`
+   equal k/n (over runs with inputs), median and largest `usd_to_decide`,
    over-cap k/n, median minutes.
 3. One row per scenario per subject per arm: scenario, subject, arm,
    outcome got and expected, `final_ok`, `draft_ok`, `guardrails_ok`,
-   arithmetic correct/stated, inputs matched/scored, tokens reported and
-   measured, minutes, `usd_to_decide`, and a note naming the first failed
-   check.
+   arithmetic correct/stated, inputs matched/scored, the three contract
+   checks, tokens reported and measured, minutes, `usd_to_decide`, and a
+   note naming the first failed check.
 4. Input misses per symbol (section 7).
 
 The Wilson interval for k successes in n at z = 1.96:
