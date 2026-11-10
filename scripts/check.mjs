@@ -13,7 +13,10 @@ import { execFile } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { FORMULAS, FORMULA_IN_FORCE, REQUIRED_SYMBOLS, OPTIONAL_SYMBOLS, validateInputs, findModel, missingPrices, stepA, splitCost, breakEven, pieceCost, modelForClass, CLASS_RANK } from "./dispatch-core.mjs";
+import {
+  FORMULAS, FORMULA_GROWTH, FORMULA_COORD, REQUIRED_SYMBOLS, OPTIONAL_SYMBOLS, formulaHas, validateInputs, findModel, resolveModel,
+  missingPrices, stepA, splitCost, breakEven, pieceCost, planCoord, coordCost, modelForClass, CLASS_RANK,
+} from "./dispatch-core.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CLASSES = new Set(["haiku", "sonnet", "opus", "fable"]);
@@ -33,11 +36,12 @@ const RECORD_HEADINGS = [
   "### Adversarial pass", "### Final verdict", "### Cost of deciding",
 ];
 const COST_ROWS = ["Context at start", "Context at end", "Input tokens read", "Output tokens", "Wall clock", "Priced"];
-// Inputs table rows the recompute reads. Labels end in the step 1 symbol.
+// Inputs table rows the recompute reads. Labels end in the step 1 symbol;
+// "Coordinator" names a model id or a class, and is this session when absent.
 const INPUT_ROWS = [
   "Formula", "Current model", "Target model", "Window W", "Compaction point K", "Current context C0",
   "Compacted already", "Expected turns T", "Fresh input per turn F", "Output per turn O", "Fresh baseline B",
-  "Re-read set R", "Handoff size H", "Cache misses M", "Rediscovery turns L",
+  "Re-read set R", "Handoff size H", "Cache misses M", "Rediscovery turns L", "Coordinating turns To", "Coordinator",
 ];
 const ADAPTER_HEADINGS = ["## Where it goes", "## How it loads", "## Pointer block", "## Numbers"];
 
@@ -59,7 +63,9 @@ const proseFaults = (line) => [
 const EVAL_OUTCOMES = new Set(["continue", "fresh", "split", "not-run", "incomplete", "stop"]);
 const EVAL_GUARDRAILS = new Set([1, 2, 3, 5, 6, 7, 8]); // 4 is scored on every run through the model ids
 const EFFORTS = new Set(["low", "medium", "high", "xhigh", "max"]);
-const EVAL_FIGURES = ["exit", "draft", "percent", "cost_continue", "cost_fresh", "cost_split", "t_star", "crosses"];
+// cost_coord and cost_coord_sonnet are null before formula 2026-11-10, so the
+// scenarios pinned to an older formula need not state them.
+const EVAL_FIGURES = ["exit", "draft", "percent", "cost_continue", "cost_fresh", "cost_split", "t_star", "crosses", "cost_coord", "cost_coord_sonnet"];
 
 const findings = [];
 let stale = false;
@@ -226,6 +232,35 @@ function checkStepBColumn(file, text, inp, table) {
   }
 }
 
+// The calculator's cost_coord block inside Step A (formula 2026-11-10): each "<plan>, n
+// pieces, t turns = x USD" line is To x n turns at the coordinator, and the "on <sonnet
+// id>, a fresh session from B + H" line states the same plans at the sonnet-class model.
+// Fresh is 1 piece and the split 2 (step 2); Step B states its own count.
+const COORD_LINE_RE = /^\s*(fresh|split|Step B), (\d+) pieces?, ([\d,]+) turns\s*=\s*(\d[\d,]*\.\d+) USD/;
+function checkCoordLines(file, stepAText, inp, current, coordinator, table) {
+  const counts = {};
+  for (const l of stepAText.split(/\r?\n/)) {
+    const m = l.match(COORD_LINE_RE);
+    if (!m) continue;
+    const [, plan, n, turns, stated] = m;
+    const pieces = Number(n);
+    counts[plan] = pieces;
+    if ((plan === "fresh" && pieces !== 1) || (plan === "split" && pieces !== 2)) { fail(file, `Step A: cost_coord prices ${plan} as ${pieces} pieces; fresh is 1 piece and the split 2 (SKILL.md step 2)`); continue; }
+    const c = planCoord(inp, current, coordinator, pieces);
+    if (Number(turns.replace(/,/g, "")) !== c.turns) fail(file, `Step A: cost_coord ${plan} states ${turns} turns, To ${inp.To ?? 0} x ${pieces} gives ${c.turns}`);
+    if (!matchesStated(stated, c.total)) fail(file, `Step A: cost_coord ${plan} is ${stated} USD, the inputs give ${c.total.toFixed(4)} on ${coordinator.id}`);
+  }
+  const alt = stepAText.match(/^\s*on (\S+), a fresh session from B \+ H = [\d,]+: (.*) USD$/m);
+  if (!alt) return;
+  const sonnet = findModel(table, alt[1]);
+  if (!sonnet) return fail(file, `Step A: cost_coord compares with ${alt[1]}, which is not in the example's table`);
+  for (const [, plan, stated] of alt[2].matchAll(/(fresh|split|Step B) (\d[\d,]*\.\d+)/g)) {
+    if (counts[plan] === undefined) { fail(file, `Step A: cost_coord compares ${plan} on ${sonnet.id} with no "${plan}, n pieces" line above it`); continue; }
+    const want = coordCost(inp, sonnet, counts[plan], false).total;
+    if (!matchesStated(stated, want)) fail(file, `Step A: cost_coord ${plan} on ${sonnet.id} is ${stated} USD, the inputs give ${want.toFixed(4)}`);
+  }
+}
+
 // Reads the example's Inputs table, recomputes Step A with dispatch-core.mjs
 // against the table the example names, and compares every figure it states:
 // the cost_continue, cost_fresh and cost_split totals, T*, the draft
@@ -251,20 +286,24 @@ function recomputeExample(file, text) {
   inp.formula = cell("Formula").match(/\d{4}-\d{2}-\d{2}/)?.[0];
   inp.compacted = { yes: true, no: false }[cell("Compacted already").split(/\W/)[0].toLowerCase()];
   const errors = validateInputs(inp);
-  if (inp.formula === FORMULA_IN_FORCE && inp.M === undefined) errors.push("M must be stated under the formula in force (0 when unmeasured, and say so)");
+  if (formulaHas(inp.formula, FORMULA_GROWTH) && inp.M === undefined) errors.push(`M must be stated under formula ${inp.formula} (0 when unmeasured, and say so)`);
+  if (formulaHas(inp.formula, FORMULA_COORD) && inp.To === undefined) errors.push(`"Coordinating turns To" must be stated under formula ${inp.formula} (0 when the operator starts the sessions, and say so)`);
   const current = findModel(table, cell("Current model").split(/\s/)[0]);
   const target = findModel(table, cell("Target model").split(/\s/)[0]);
   if (!current) errors.push(`"Current model" must open with a model id from ${tableRef[1]}, found "${cell("Current model")}"`);
   if (!target) errors.push(`"Target model" must open with a model id from ${tableRef[1]}, found "${cell("Target model")}"`);
+  const coordRef = cell("Coordinator").split(/\s/)[0];
+  const coordinator = !current ? null : coordRef ? resolveModel(table, coordRef, current.family) : current;
+  if (current && !coordinator) errors.push(`"Coordinator" must open with a model id or a class from ${tableRef[1]}, found "${cell("Coordinator")}"`);
   if (errors.length) return errors.forEach((e) => fail(file, `Inputs table: ${e}`));
-  for (const m of [current, target]) if (missingPrices(m).length) return fail(file, `${m.id} has null prices in ${tableRef[1]}; an example must be computable`);
+  for (const m of [current, target, coordinator]) if (missingPrices(m).length) return fail(file, `${m.id} has null prices in ${tableRef[1]}; an example must be computable`);
 
   const compute = (formula) => {
     const x = { ...inp, formula };
-    const a = stepA(x, current, target);
+    const a = stepA(x, current, target, coordinator);
     const runner = modelForClass(table, current.family, "sonnet");
     const acceptor = modelForClass(table, current.family, "opus");
-    const split = CLASS_RANK[target.class] >= CLASS_RANK.opus && runner && acceptor ? splitCost(x, current, runner, acceptor) : null;
+    const split = CLASS_RANK[target.class] >= CLASS_RANK.opus && runner && acceptor ? splitCost(x, current, runner, acceptor, coordinator) : null;
     return { cost_continue: a.cont.total, cost_fresh: a.fresh.total, cost_split: split?.total, a, be: breakEven(x, current, target, a) };
   };
   const own = compute(inp.formula);
@@ -279,9 +318,10 @@ function recomputeExample(file, text) {
   }
   const tStar = stepAText.match(/^T\* =.*\s(\d[\d,]*(?:\.\d+)?) turns$/m)?.[1];
   if (tStar && !(own.be.turns !== null && matchesStated(tStar, own.be.turns))) fail(file, `Step A: T* is ${tStar} turns, the inputs give ${own.be.turns === null ? "none (the model changes)" : own.be.turns.toFixed(2)}`);
-  const isNew = inp.formula === FORMULA_IN_FORCE, c = own.a.cont, f = own.a.fresh;
+  const isNew = formulaHas(inp.formula, FORMULA_GROWTH), hasCoord = formulaHas(inp.formula, FORMULA_COORD), c = own.a.cont, f = own.a.fresh;
   checkTermLines(file, stepAText, inp.formula, "cost_continue", [["cache reads", c.reads], ["new context written", c.writes], ["output", c.output], ...(isNew ? [["cache misses", c.misses]] : []), ["penalty_compaction", c.penaltyCompaction]]);
-  checkTermLines(file, stepAText, inp.formula, "cost_fresh", [["handoff", f.handoff], ["first read", f.first], ["cache reads", f.reads], ["new context written", f.writes], ["output", f.output], ...(isNew ? [["cache misses", f.misses]] : []), ["penalty_loss", f.loss]]);
+  checkTermLines(file, stepAText, inp.formula, "cost_fresh", [["handoff", f.handoff], ["first read", f.first], ["cache reads", f.reads], ["new context written", f.writes], ["output", f.output], ...(isNew ? [["cache misses", f.misses]] : []), ["penalty_loss", f.loss], ...(hasCoord ? [["cost_coord", f.coord.total]] : [])]);
+  if (hasCoord) checkCoordLines(file, stepAText, { ...inp }, current, coordinator, table);
   checkStepBColumn(file, text, inp, table);
   const side = text.match(/^Draft verdict: (continue|fresh)/m)?.[1];
   if (side && side !== own.a.verdict.side) fail(file, `Draft verdict says ${side}, the arithmetic says ${own.a.verdict.side} (by ${own.a.verdict.by}); a guardrail changes the final verdict, not the draft`);
@@ -419,6 +459,12 @@ async function calculatorFigures(scenarioFile, flags = {}) {
   };
   const d = out.match(/^Draft verdict: (continue|fresh|incomplete)(?:, by (class|cost|quality|break-even))?/m);
   const crosses = out.match(/^crosses = C_end > K\s+= (true|false)/m)?.[1];
+  // The cost_coord block (formula 2026-11-10): each plan's figure at the coordinator and on the sonnet model.
+  const key = (plan) => (plan === "Step B" ? "step_b" : plan);
+  const coordLines = out.split(/\r?\n/).map((l) => l.match(COORD_LINE_RE)).filter(Boolean);
+  const coord = coordLines.length ? Object.fromEntries(coordLines.map((m) => [key(m[1]), m[4]])) : null;
+  const alt = out.match(/^\s*on \S+, a fresh session from B \+ H = [\d,]+: (.*) USD$/m)?.[1];
+  const coordSonnet = alt ? Object.fromEntries([...alt.matchAll(/(fresh|split|Step B) (\d[\d,]*\.\d+)/g)].map((m) => [key(m[1]), m[2]])) : null;
   return {
     exit: r.status,
     draft: d ? { side: d[1], by: d[2] ?? null } : null,
@@ -426,6 +472,7 @@ async function calculatorFigures(scenarioFile, flags = {}) {
     cost_continue: total("cost_continue on"), cost_fresh: total("cost_fresh on"), cost_split: total("cost_split: brief"),
     t_star: out.match(/^T\* =.*\s(\d[\d,]*(?:\.\d+)?) turns$/m)?.[1] ?? (/^T\* =.*never/m.test(out) ? "never" : null),
     crosses: crosses === undefined ? null : crosses === "true",
+    cost_coord: coord, cost_coord_sonnet: coordSonnet,
   };
 }
 

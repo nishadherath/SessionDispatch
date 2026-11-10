@@ -17,9 +17,9 @@ import path from "node:path";
 import { parseArgs } from "node:util";
 import { fileURLToPath } from "node:url";
 import {
-  FORMULA_IN_FORCE, FORMULAS, BAND_PERCENT, CLASS_RANK, REQUIRED_SYMBOLS, OPTIONAL_SYMBOLS,
-  validateInputs, findModel, resolveModel, modelForClass, missingPrices, growth, continueSide, freshSide,
-  draftVerdict, breakEven, splitCost, pieceCost, roundTo, parseTokens,
+  FORMULA_IN_FORCE, FORMULA_GROWTH, FORMULA_COORD, FORMULAS, BAND_PERCENT, CLASS_RANK, REQUIRED_SYMBOLS, OPTIONAL_SYMBOLS,
+  COORD_F_DEFAULT, COORD_O_DEFAULT, formulaHas, validateInputs, findModel, resolveModel, modelForClass, missingPrices,
+  growth, continueSide, freshSide, draftVerdict, breakEven, splitCost, pieceCost, coordCost, planCoord, roundTo, parseTokens,
 } from "./dispatch-core.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -34,11 +34,15 @@ Inputs (flags override the JSON file; token counts take 1,000,000, 86k or 1.5m):
   --M <misses>             cache misses over the stage (default 0, unmeasured)
   --L <turns>              rediscovery turns for unrecorded context (default 0)
   --Ta <turns> --Ra <tokens>   the split's acceptance turns and re-read
+  --To <turns>             coordinating turns per piece (default 0: the operator starts the sessions)
+  --coordinator <id or class>  the session that coordinates (default: this session's model)
+  --Fo --Oo <tokens>       the coordinator's fresh input and output per turn (default ${COORD_F_DEFAULT} and ${COORD_O_DEFAULT})
   --compacted yes|no       whether this session has been compacted
   --formula ${FORMULAS.join("|")}   default ${FORMULA_IN_FORCE}
   --table <file>           a specific price table (default: the newest in pricing/)
   --today YYYY-MM-DD       the date to judge the table's age against
-The JSON file may also carry "pieces": [{ "name", "model", "effort", "T", "F", "O", "R", "B"?, "M"? }].`;
+The JSON file may also carry "coordinator" and "pieces": [{ "name", "model", "effort", "T", "F", "O", "R", "B"?, "M"? }].
+Under formula ${FORMULA_COORD} cost_coord is To turns per piece: 1 piece for fresh, 2 for the split, every piece for Step B.`;
 
 function die(code, lines) {
   for (const l of [].concat(lines)) console.error(`dispatch: ${l}`);
@@ -46,7 +50,7 @@ function die(code, lines) {
 }
 
 function readInputs() {
-  const options = { json: { type: "string" }, current: { type: "string" }, target: { type: "string" }, compacted: { type: "string" },
+  const options = { json: { type: "string" }, current: { type: "string" }, target: { type: "string" }, coordinator: { type: "string" }, compacted: { type: "string" },
     formula: { type: "string" }, table: { type: "string" }, today: { type: "string" }, help: { type: "boolean" } };
   for (const s of SYMBOLS) options[s] = { type: "string" };
   let parsed;
@@ -64,6 +68,7 @@ function readInputs() {
   const errors = validateInputs(inp);
   if (typeof inp.current !== "string") errors.push("--current must name the model id this session runs on");
   if (typeof inp.target !== "string") errors.push("--target must name a model id or a class (haiku, sonnet, opus, fable)");
+  if (inp.coordinator !== undefined && typeof inp.coordinator !== "string") errors.push(`--coordinator must name a model id or a class, found ${JSON.stringify(inp.coordinator)}`);
   if (errors.length) die(1, [...errors, "run with --help for the accepted flags"]);
   return inp;
 }
@@ -107,16 +112,24 @@ function main() {
   if (!current) die(1, `--current ${inp.current} is not in ${path.relative(ROOT, file)}; models listed: ${listModels(table)}`);
   const target = resolveModel(table, inp.target, current.family);
   if (!target) die(1, `--target ${inp.target} has no model at or above that class in family ${current.family}; models listed: ${listModels(table)}`);
+  const hasCoord = formulaHas(inp.formula, FORMULA_COORD);
+  const coordinator = inp.coordinator === undefined ? current : resolveModel(table, inp.coordinator, current.family);
+  if (!coordinator) die(1, `--coordinator ${inp.coordinator} has no model at or above that class in family ${current.family}; models listed: ${listModels(table)}`);
+  const sonnet = modelForClass(table, current.family, "sonnet");
 
   const out = [];
-  const isNew = inp.formula === FORMULA_IN_FORCE;
-  out.push(`Session dispatch calculator, formula ${inp.formula}${isNew ? " (in force)" : " (as the records of that date applied it: growth F, no miss term, handoff at the target's output rate)"}`);
+  const isNew = formulaHas(inp.formula, FORMULA_GROWTH);
+  const era = inp.formula === FORMULA_IN_FORCE ? " (in force)"
+    : isNew ? " (as the records of that date applied it: no coordinator term)"
+      : " (as the records of that date applied it: growth F, no miss term, handoff at the target's output rate)";
+  out.push(`Session dispatch calculator, formula ${inp.formula}${era}`);
   out.push(`Table ${shown(file)}, age ${age} days of ${table.max_age_days}; today ${today}`);
-  out.push(`Current ${current.id} (${current.class}); target ${target.id} (${target.class})`);
+  out.push(`Current ${current.id} (${current.class}); target ${target.id} (${target.class})` + (hasCoord ? `; coordinator ${coordinator.id} (${coordinator.class})${coordinator.id === current.id ? ", this session" : ""}` : ""));
   out.push(`Inputs: ${SYMBOLS.filter((s) => inp[s] !== undefined).map((s) => `${s} ${tok(inp[s])}`).join("; ")}; compacted ${inp.compacted ? "yes" : "no"}`);
   out.push("");
 
-  const missing = [...new Map([current, target].map((m) => [m.id, m])).values()]
+  const priced = [current, target, ...(hasCoord && (inp.To ?? 0) > 0 ? [coordinator] : [])];
+  const missing = [...new Map(priced.map((m) => [m.id, m])).values()]
     .map((m) => ({ m, miss: missingPrices(m) })).filter((x) => x.miss.length);
   const g = growth(inp);
   out.push(line(isNew ? "G       = F + O" : "G       = F", tok(g.G)));
@@ -128,8 +141,9 @@ function main() {
 
   const okCurrent = missingPrices(current).length === 0;
   const okTarget = missingPrices(target).length === 0;
+  const okCoord = !hasCoord || (inp.To ?? 0) === 0 || missingPrices(coordinator).length === 0;
   const cont = okCurrent ? continueSide(inp, current) : null;
-  const fresh = okCurrent && okTarget ? freshSide(inp, current, target) : null;
+  const fresh = okCurrent && okTarget && okCoord ? freshSide(inp, current, target, coordinator) : null;
   const tiers = [current, target].some((m) => m.long_context);
 
   if (cont) {
@@ -150,11 +164,13 @@ function main() {
     out.push(line("  T*O*p_out", usd(fresh.output), "output"));
     if (isNew) out.push(line("  M*C_fresh*(p_cw - p_cr)", usd(fresh.misses), `cache misses, M ${tok(g.M)}`));
     out.push(line("  penalty_loss", usd(fresh.loss), `L ${tok(g.L)} rediscovery turns`));
+    if (hasCoord) out.push(line("  cost_coord", usd(fresh.coord.total), `To ${tok(inp.To ?? 0)} x 1 piece on ${coordinator.id}`));
     out.push(`  = ${usd(fresh.total, 2)} USD`);
   } else out.push(`cost_fresh on ${target.id}: unknown, price of ${missing.map((x) => x.m.id).join(" and ")} unknown`);
   if (tiers && cont && fresh) out.push(`Long-context tier: ${cont.tierTurns} of ${inp.T} turns (continue), ${fresh.tierTurns} of ${inp.T} (fresh).`);
   const rateLine = (m) => (missingPrices(m).length ? "unknown" : rates(m));
-  out.push(`Prices per million: ${current.id} ${rateLine(current)}` + (target.id !== current.id ? `; ${target.id} ${rateLine(target)}` : ""));
+  out.push(`Prices per million: ${current.id} ${rateLine(current)}` + (target.id !== current.id ? `; ${target.id} ${rateLine(target)}` : "")
+    + (hasCoord && ![current.id, target.id].includes(coordinator.id) ? `; ${coordinator.id} ${rateLine(coordinator)}` : ""));
   out.push("");
 
   if (missing.length) {
@@ -179,20 +195,45 @@ function main() {
     : v.by === "class" ? `: the work needs ${target.class} and this session is ${current.class}; ` : ", ";
   out.push(`Draft verdict: ${v.side}, by ${settled ? "break-even" : v.by}${why}margin ${usd(v.margin, 2)} USD (${roundTo(v.percent, 1).toFixed(1)} percent of the smaller; band ${BAND_PERCENT}).`);
 
+  let sp = null;
   if (CLASS_RANK[target.class] >= CLASS_RANK.opus) {
     out.push("");
     const runner = modelForClass(table, current.family, "sonnet");
     const acceptor = modelForClass(table, current.family, "opus");
-    const sp = runner && acceptor && !missingPrices(runner).length && !missingPrices(acceptor).length ? splitCost(inp, current, runner, acceptor) : null;
+    sp = runner && acceptor && !missingPrices(runner).length && !missingPrices(acceptor).length ? splitCost(inp, current, runner, acceptor, coordinator) : null;
     if (!sp) out.push("cost_split: not computed; give Ta and Ra, and the table needs complete sonnet and opus rows in this family.");
     else {
       out.push(`cost_split: brief by ${current.id}, run on ${sp.runner}, acceptance on ${sp.acceptor}`);
       out.push(line("  H*p_out", usd(sp.brief), "the brief"));
       out.push(line("  run, fresh session", usd(sp.run.total), `T ${inp.T}, R ${tok(inp.R)}`));
       out.push(line("  acceptance, fresh session", usd(sp.accept.total), `Ta ${inp.Ta}, Ra ${tok(inp.Ra)}`));
+      if (hasCoord) out.push(line("  cost_coord", usd(sp.coord.total), `To ${tok(inp.To ?? 0)} x 2 pieces on ${coordinator.id}`));
       out.push(`  = ${usd(sp.total, 2)} USD`);
       const d = fresh.total - sp.total;
       out.push(`Split against fresh: ${d >= 0 ? "cheaper" : "dearer"} by ${usd(Math.abs(d), 2)} USD (${roundTo((Math.abs(d) / Math.min(fresh.total, sp.total)) * 100, 1).toFixed(1)} percent). An option only when the brief makes the run matrix row 1 or 2 (step 2.1).`);
+    }
+  }
+
+  const pieces = Array.isArray(inp.pieces) && inp.pieces.length ? inp.pieces : [{ name: "the stage", model: target.id, effort: "", T: inp.T, F: inp.F, O: inp.O, R: inp.R }];
+  let stepBCoord = null;
+  if (hasCoord) {
+    // cost_coord per plan (step 2 and 3.3), and the same turns on the sonnet-class
+    // model as a fresh session: what a cheaper coordinator would cost (step 3.2 rule 7).
+    const To = inp.To ?? 0;
+    const plans = [["fresh", 1], ...(sp ? [["split", 2]] : []), ["Step B", pieces.length]];
+    const c0 = planCoord(inp, current, coordinator, 1);
+    out.push("");
+    out.push(`cost_coord: To ${tok(To)} per piece on ${coordinator.id}${c0.continues ? ", this session, from C0 + H" : ", a fresh session from B + H"} = ${tok(c0.cStart)}; Fo ${tok(inp.Fo ?? COORD_F_DEFAULT)}, Oo ${tok(inp.Oo ?? COORD_O_DEFAULT)}`
+      + (To === 0 ? "; To 0: no session coordinates (the operator starts the sessions)" : ""));
+    for (const [plan, n] of plans) {
+      const c = planCoord(inp, current, coordinator, n);
+      if (plan === "Step B") stepBCoord = c;
+      out.push(line(`  ${plan}, ${n} piece${n === 1 ? "" : "s"}, ${tok(c.turns)} turns`, `${usd(c.total, 2)} USD`, c.crosses ? `crosses K: penalty_compaction ${usd(c.penaltyCompaction)}` : ""));
+    }
+    if (!sonnet || missingPrices(sonnet).length) out.push("  on the sonnet-class model: not computed; the table has no complete sonnet row in this family");
+    else {
+      const alt = plans.map(([plan, n]) => `${plan} ${usd(coordCost(inp, sonnet, n, false).total, 2)}`).join(", ");
+      out.push(`  on ${sonnet.id}, a fresh session from B + H = ${tok(inp.B + inp.H)}: ${alt} USD`);
     }
   }
 
@@ -200,7 +241,6 @@ function main() {
   out.push("Step B: cost per piece (each a fresh session or sub-agent; step 3.3)");
   out.push("| Piece | Model | Effort | T | F | O | R | Cost USD |");
   out.push("|---|---|---|---|---|---|---|---|");
-  const pieces = Array.isArray(inp.pieces) && inp.pieces.length ? inp.pieces : [{ name: "the stage", model: target.id, effort: "", T: inp.T, F: inp.F, O: inp.O, R: inp.R }];
   let sum = 0;
   for (const p of pieces) {
     for (const k of ["T", "F", "O", "R", "B", "M"]) if (p[k] !== undefined) p[k] = parseTokens(p[k]);
@@ -213,7 +253,8 @@ function main() {
     sum += c;
     out.push(`| ${p.name} | ${m.id} | ${p.effort ?? ""} | ${p.T} | ${tok(p.F)} | ${tok(p.O)} | ${tok(p.R)} | ${usd(c, 2)} |`);
   }
-  out.push(`Pieces total: ${usd(sum, 2)} USD, plus the handoff ${usd(fresh.handoff, 3)} when the stage starts fresh.`);
+  if (!stepBCoord) out.push(`Pieces total: ${usd(sum, 2)} USD, plus the handoff ${usd(fresh.handoff, 3)} when the stage starts fresh.`);
+  else out.push(`Pieces total: ${usd(sum, 2)} USD; cost_coord ${usd(stepBCoord.total, 2)} USD (To ${tok(inp.To ?? 0)} x ${pieces.length} piece${pieces.length === 1 ? "" : "s"} on ${coordinator.id}); plan ${usd(sum + stepBCoord.total, 2)} USD, plus the handoff ${usd(fresh.handoff, 3)} when the stage starts fresh.`);
   console.log(out.join("\n"));
 }
 
