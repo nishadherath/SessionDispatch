@@ -136,6 +136,16 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-11-10: Stage S6, the calibration loop. `scripts/session-cost.mjs`
+  prices a Claude Code transcript (a path, or a session id under
+  `~/.claude/projects/`) with the table in force or `--table`: calls counted
+  once per message id, context at the last call, cache write and output per
+  call, cost per model, sub-agent transcripts listed apart, `--json`. The
+  cost projection in `templates/handoff.md` and `docs/handoffs/README.md`
+  gains the Measured columns. `docs/dispatch/calibration.md` is the ledger,
+  seeded with the five Tsunami rows, O1, F1 and O5, and the gate checks its
+  header. `SKILL.md` step 1.2 states a sample size on each default and moves
+  none. Formula 2026-11-10 is unchanged.
 - 2026-11-10: Stage O5, the coordinator term (D12 option A'). Formula
   2026-11-10 adds `cost_coord`: To coordinating turns per piece, priced at
   the coordinator's model (this session from C0 + H, or a fresh session
