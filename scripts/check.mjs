@@ -17,10 +17,9 @@ import {
   FORMULAS, FORMULA_GROWTH, FORMULA_COORD, REQUIRED_SYMBOLS, OPTIONAL_SYMBOLS, formulaHas, validateInputs, findModel, resolveModel,
   missingPrices, stepA, splitCost, breakEven, pieceCost, planCoord, coordCost, modelForClass, CLASS_RANK,
 } from "./dispatch-core.mjs";
+import { localToday, newestTableFile, validateTable } from "./price-table.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const CLASSES = new Set(["haiku", "sonnet", "opus", "fable"]);
-const PRICE_KEYS = ["input", "output", "cache_read", "cache_write"];
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 // Required headings, matched as whole lines.
@@ -77,53 +76,24 @@ const hasLine = (text, line) => text.split(/\r?\n/).some((l) => l.trim() === lin
 // dry runs), else the local calendar day, the convention pricing-new.mjs
 // names tables by and dispatch.mjs shares.
 const argToday = process.argv.includes("--today") ? process.argv[process.argv.indexOf("--today") + 1] : null;
-const two = (n) => String(n).padStart(2, "0");
-const todayIso = () => argToday ?? (() => { const d = new Date(); return `${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())}`; })();
-const daysBetween = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
+const todayIso = () => argToday ?? localToday();
 
+// The price table: every rule lives in scripts/price-table.mjs, shared with the installed
+// validator. This function reads the newest file and turns the result into findings. The
+// stale families make exactly one finding, so the exit code logic below counts one stale table.
 function checkPricing() {
   const dir = path.join(ROOT, "pricing");
-  const names = fs.readdirSync(dir).filter((n) => /^\d{4}-\d{2}-\d{2}\.json$/.test(n)).sort();
-  if (names.length === 0) return fail(dir, "no pricing/YYYY-MM-DD.json file; create one with node scripts/pricing-new.mjs");
-  const name = names[names.length - 1];
-  const file = path.join(dir, name);
+  const file = newestTableFile(dir);
+  if (file === null) return fail(dir, "no pricing/YYYY-MM-DD.json file; create one with node scripts/pricing-new.mjs");
   let table;
   try { table = JSON.parse(read(file)); } catch (e) { return fail(file, `not valid JSON (${e.message})`); }
-  const fileDate = name.slice(0, 10);
-  if (table.table_date !== fileDate) fail(file, `table_date ${table.table_date} must equal the filename date ${fileDate}`);
-  if (!DATE_RE.test(String(table.table_date)) || Number.isNaN(Date.parse(table.table_date))) fail(file, `table_date ${table.table_date} is not a valid YYYY-MM-DD date`);
   const today = todayIso();
-  if (table.table_date > today) fail(file, `table_date ${table.table_date} is in the future (today is ${today})`);
-  if (!Number.isInteger(table.max_age_days) || table.max_age_days < 1) fail(file, `max_age_days must be a positive integer, found ${table.max_age_days}`);
-  else {
-    const age = daysBetween(table.table_date, today);
-    if (age > table.max_age_days) {
-      stale = true;
-      findings.push(`${path.relative(ROOT, file)}: table is ${age} days old, past max_age_days ${table.max_age_days}; run node scripts/pricing-new.mjs and refresh the figures from each family's source page`);
-    }
-  }
-  if (table.currency !== "USD") fail(file, `currency must be USD (the skill's arithmetic assumes it), found ${table.currency}`);
-  if (typeof table.families !== "object" || table.families === null) return fail(file, "families must be an object");
-  for (const [fam, f] of Object.entries(table.families)) {
-    if (typeof f.source !== "string" || !/^https?:\/\//.test(f.source)) fail(file, `families.${fam}.source must be the vendor pricing page URL`);
-    if (f.fetched !== null && !DATE_RE.test(String(f.fetched))) fail(file, `families.${fam}.fetched must be null or YYYY-MM-DD, found ${f.fetched}`);
-    if (typeof f.models !== "object" || f.models === null) { fail(file, `families.${fam}.models must be an object`); continue; }
-    for (const [id, m] of Object.entries(f.models)) {
-      if (!(m.class === null || CLASSES.has(m.class))) fail(file, `families.${fam}.models.${id}.class must be haiku, sonnet, opus, fable or null, found ${m.class}`);
-      const checkPrices = (obj, where) => {
-        for (const k of PRICE_KEYS) {
-          const v = obj[k];
-          if (!(v === null || (typeof v === "number" && Number.isFinite(v) && v >= 0))) fail(file, `${where}.${k} must be a non-negative number or null, found ${JSON.stringify(v)}`);
-        }
-      };
-      checkPrices(m, `families.${fam}.models.${id}`);
-      if (m.long_context !== undefined) {
-        if (!Number.isInteger(m.long_context.threshold_tokens) || m.long_context.threshold_tokens <= 0) fail(file, `families.${fam}.models.${id}.long_context.threshold_tokens must be a positive integer`);
-        checkPrices(m.long_context, `families.${fam}.models.${id}.long_context`);
-      }
-      const nulls = PRICE_KEYS.filter((k) => m[k] === null).length;
-      if (nulls > 0 && f.fetched !== null && nulls < PRICE_KEYS.length) fail(file, `families.${fam}.models.${id} has ${nulls} null price(s) although the family was fetched on ${f.fetched}; fill them or set fetched to null`);
-    }
+  const { errors, stale: staleList } = validateTable(table, { fileName: path.basename(file), today });
+  for (const e of errors) fail(file, e);
+  if (staleList.length) {
+    stale = true;
+    const which = staleList.map((s) => `${s.family} fetched ${s.fetched}, ${s.ageDays} days old`).join("; ");
+    findings.push(`${path.relative(ROOT, file)}: ${which}; past max_age_days ${table.max_age_days}; run node scripts/pricing-new.mjs and refresh those figures from each family's source page`);
   }
 }
 
