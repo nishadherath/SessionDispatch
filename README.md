@@ -136,6 +136,9 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-11-04: add the operator-confirmed Codex model classes and OpenAI API
+  pricing, including long-context rates, to the portable price table.
+
 - 2026-11-02: assessment of the Tsunami coordinating session's report on the
   cost of coordinating a dispatched chain, `docs/assessment-2026-11-02.md`.
   The measured figures checked (orchestration about 56 USD against 5.3
