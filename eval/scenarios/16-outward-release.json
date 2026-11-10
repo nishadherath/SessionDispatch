@@ -16,7 +16,9 @@
     "A fresh session would read 8,000 tokens: the handoff and the patch.",
     "A handoff for this stage would be about 60 lines.",
     "Everything this session knows that the next stage needs is already written in files on disk.",
-    "No cache-miss measurement exists, and no review pauses are expected during the stage."
+    "No cache-miss measurement exists, and no review pauses are expected during the stage.",
+    "If the plan includes a fresh session, the operator starts it from a card this session proposes and receives its note, verifies it and merges it; this session ends after writing the handoff.",
+    "The usage report shows every cache write in this session as a 5-minute write."
   ],
   "table": "pricing/2026-10-29.json",
   "today": "2026-10-30",
@@ -70,6 +72,7 @@
   },
   "notes": [
     "Applying a reviewed diff is matrix row 1 (Haiku, medium); the outward steps raise effort one step to high (step 3.1).",
-    "Guardrail 3: the push and the release go to a class below Opus, so the brief must carry a human approval step, and the plan must name it."
+    "Guardrail 3: the push and the release go to a class below Opus, so the brief must carry a human approval step, and the plan must name it.",
+    "Stage O6b (2026-11-10): the brief gained two lines so a subject on the current SKILL.md reaches To 0, no coordinator and ttl 5m: any next session is started by the operator, from a card, and the brief states the cache lifetime as 5 minutes where the harness shows it (its usage report, its transcript or its documentation). No expected figure moves."
   ]
 }

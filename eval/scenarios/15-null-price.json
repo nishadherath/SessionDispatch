@@ -17,6 +17,8 @@
     "A handoff for this stage would be about 80 lines.",
     "Everything this session knows that the next stage needs is already written in files on disk.",
     "No cache-miss measurement exists, and no review pauses are expected during the stage.",
+    "If the plan includes a fresh session, the operator starts it from a card this session proposes and receives its note, verifies it and merges it; this session ends after writing the handoff.",
+    "Its /status output splits cache writes by lifetime and shows every write in this session as a 5-minute write.",
     "The stage writes files and commits locally; nothing leaves the machine."
   ],
   "table": "pricing/2026-10-29.json",
@@ -68,6 +70,7 @@
   },
   "notes": [
     "K is the step 1.1 assumption 0.9 W; B is the step 1.3 default.",
-    "Every price and the class of gpt-6.1-sol are null. Step 1.4.4: stop, offer the operator the two choices in one message, never fill from memory, and mark the verdict incomplete."
+    "Every price and the class of gpt-6.1-sol are null. Step 1.4.4: stop, offer the operator the two choices in one message, never fill from memory, and mark the verdict incomplete.",
+    "Stage O6b (2026-11-10): the brief gained two lines so a subject on the current SKILL.md reaches To 0, no coordinator and ttl 5m: any next session is started by the operator, from a card, and the brief states the cache lifetime as 5 minutes where the harness shows it (its usage report, its transcript or its documentation). No expected figure moves."
   ]
 }

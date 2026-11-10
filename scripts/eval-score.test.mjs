@@ -1,6 +1,6 @@
 // The evaluation scorer (eval/score.mjs) and runner (eval/run.mjs) against the
-// oracle of Stage S2: a perfect block synthesised from each of the 23
-// scenarios must score clean, each mutation must fail exactly its own check,
+// oracle of Stage S2: a perfect block synthesised from each scenario in
+// eval/scenarios/ must score clean, each mutation must fail exactly its own check,
 // the Wilson interval must match the rubric's worked values, and `prepare`
 // must date each sandbox table by the scenario's own age. Everything runs
 // from temp folders; the live tree is only read.
@@ -19,13 +19,16 @@ const byId = (prefix) => scenarios.find((s) => s.id.startsWith(prefix));
 
 // The block a flawless subject would write for a scenario. Scenario 13 states
 // F 3,000 with growth G 3,800 (the second reading its notes accept). A
-// scenario where the skill does not run has no inputs, totals or draft.
+// scenario where the skill does not run has no inputs, totals or draft. The
+// five fields of the O6 contract come from the scenario: To, else 0;
+// coordinator, else null; ttl, else "5m"; Fo and Oo null (the core's defaults).
 function perfectBlock(s) {
   const e = s.expected, c = e.calculator;
   const ran = e.skill_runs;
   const inputs = ran ? {
     current: s.current, target: s.target, W: s.W, K: s.K, C0: s.C0, T: s.T, F: s.id.startsWith("13") ? 3000 : s.F, O: s.O,
     B: s.B, R: s.R, H: s.H, M: s.M, L: s.L, compacted: s.compacted, Ta: s.Ta ?? null, Ra: s.Ra ?? null, G: s.id.startsWith("13") ? 3800 : null,
+    To: s.To ?? 0, Fo: null, Oo: null, coordinator: s.coordinator ?? null, ttl: s.ttl ?? "5m",
   } : null;
   return {
     skill_ran: ran,
@@ -50,14 +53,11 @@ function recordOf(s, block) {
 const score = (s, block) => scoreRun({ scenario: s, table: tableOf(s), record: recordOf(s, block), subject: "sonnet", arm: "calculator" });
 const clone = (o) => JSON.parse(JSON.stringify(o));
 
-// Scenarios 22 and 23 (Stage O5) are under formula 2026-11-10. The scorer's measure 3
-// recomputes under 2026-10-29 and reads no To (eval/score.mjs, frozen in O5), so it
-// marks the coordinator's figures wrong on a correct record: exactly these, and only
-// those. Until the scorer learns To (before the next required rerun), that is the gap.
-const COORD_FIGURES = { "22": ["cost_fresh", "cost_split"], "23": ["cost_fresh", "t_star"] };
-
-test("a perfect block scores clean on all 23 scenarios, measure 3 on 22 and 23 aside", () => {
-  assert.equal(scenarios.length, 23);
+// The perfect block has no exception: scenarios 22 and 23 (formula 2026-11-10) score
+// clean because measure 3 recomputes under FORMULA_IN_FORCE from the block's own To,
+// coordinator and ttl. The test reads the directory, so a scenario added later joins it.
+test("a perfect block scores clean on every scenario, with no exception", () => {
+  assert.ok(scenarios.length >= 23, String(scenarios.length));
   for (const s of scenarios) {
     const r = score(s, perfectBlock(s));
     const why = `${s.id}: ${JSON.stringify(r.note)}`;
@@ -67,12 +67,13 @@ test("a perfect block scores clean on all 23 scenarios, measure 3 on 22 and 23 a
     assert.equal(r.guardrails_ok, true, why);
     assert.equal(r.g4_ok, true, why);
     assert.deepEqual(r.false_alarms, [], why);
-    const gap = COORD_FIGURES[s.id.slice(0, 2)] ?? [];
-    assert.deepEqual(r.arithmetic.errors.map((e) => e.figure), gap, why);
-    assert.equal(r.arithmetic.correct, r.arithmetic.stated - gap.length, why);
+    assert.deepEqual(r.arithmetic.errors, [], why);
+    assert.equal(r.arithmetic.correct, r.arithmetic.stated, why);
     assert.equal(r.arithmetic.missing, 0, why);
     if (r.arithmetic.scored && !s.id.startsWith("21")) assert.equal(r.arithmetic.rule_ok, true, why);
     assert.equal(r.inputs.matched, r.inputs.scored, why);
+    assert.deepEqual(r.inputs.misses, [], why);
+    assert.deepEqual(r.contract, s.expected.skill_runs ? { to_ok: true, coordinator_ok: true, ttl_ok: true } : null, why);
     assert.equal(r.consistency.draft_line_ok === false || r.consistency.skill_ran_ok === false, false, why);
     assert.equal(r.prose.em_dashes, 0, why);
   }
@@ -82,6 +83,98 @@ test("scenarios the arithmetic cannot score say why", () => {
   assert.match(score(byId("14"), perfectBlock(byId("14"))).arithmetic.reason, /stale/);
   assert.match(score(byId("15"), perfectBlock(byId("15"))).arithmetic.reason, /price/);
   assert.equal(score(byId("18"), perfectBlock(byId("18"))).arithmetic.scored, false);
+});
+
+const figures = (r) => r.arithmetic.errors.map((e) => e.figure).sort();
+
+test("a wrong To on scenario 22 is an inputs miss and moves the recompute off the stated totals", () => {
+  const s = byId("22"), b = perfectBlock(s);
+  assert.deepEqual([s.To, s.coordinator, s.ttl], [30, "claude-sonnet-5-5", undefined]);
+  b.inputs.To = 0;
+  const r = score(s, b);
+  assert.deepEqual(r.contract, { to_ok: false, coordinator_ok: true, ttl_ok: true });
+  assert.deepEqual(r.inputs.misses, ["To"]);
+  assert.equal(r.inputs.matched, r.inputs.scored - 1);
+  assert.deepEqual(figures(r), ["cost_fresh", "cost_split"]);
+  assert.equal(r.final_ok, true);
+});
+
+test("a wrong coordinator on scenario 22 is an inputs miss and an arithmetic error; a class string or a model id that resolves to the expected model is not", () => {
+  const s = byId("22");
+  let b = perfectBlock(s);
+  b.inputs.coordinator = "claude-fable-5-1"; // this session's own model: the dearest coordinator
+  let r = score(s, b);
+  assert.deepEqual(r.contract, { to_ok: true, coordinator_ok: false, ttl_ok: true });
+  assert.deepEqual(r.inputs.misses, ["coordinator"]);
+  assert.deepEqual(figures(r), ["cost_fresh", "cost_split"]);
+  b = perfectBlock(s);
+  b.inputs.coordinator = null; // this session coordinates
+  r = score(s, b);
+  assert.deepEqual([r.contract.coordinator_ok, figures(r)], [false, ["cost_fresh", "cost_split"]]);
+  b = perfectBlock(s);
+  b.inputs.coordinator = "sonnet"; // a class string, resolved in the current model's family
+  r = score(s, b);
+  assert.deepEqual([r.contract, r.inputs.misses, r.arithmetic.errors], [{ to_ok: true, coordinator_ok: true, ttl_ok: true }, [], []]);
+  b = perfectBlock(s);
+  b.inputs.coordinator = "claude-nope-1"; // resolves to nothing: a miss, and the recompute says why
+  r = score(s, b);
+  assert.deepEqual([r.contract.coordinator_ok, r.arithmetic.scored], [false, false]);
+  assert.match(r.arithmetic.reason, /coordinator/);
+});
+
+test("a stated coordinator is a miss where the scenario has none", () => {
+  const s = byId("07"), b = perfectBlock(s);
+  assert.equal(s.coordinator, undefined);
+  b.inputs.coordinator = "claude-sonnet-5-5";
+  const r = score(s, b);
+  assert.deepEqual([r.contract, r.inputs.misses], [{ to_ok: true, coordinator_ok: false, ttl_ok: true }, ["coordinator"]]);
+});
+
+test("ttl 1h on a 5-minute scenario is an inputs miss (the contract check only; the figures follow the core)", () => {
+  const s = byId("03"), b = perfectBlock(s);
+  assert.equal(s.ttl, undefined);
+  b.inputs.ttl = "1h";
+  const r = score(s, b);
+  assert.deepEqual(r.contract, { to_ok: true, coordinator_ok: true, ttl_ok: false });
+  assert.deepEqual(r.inputs.misses, ["ttl"]);
+  assert.equal(r.final_ok, true);
+});
+
+test("an absent To on scenario 23 is the default 0, which is a miss there", () => {
+  const s = byId("23"), b = perfectBlock(s);
+  assert.equal(s.To, 4);
+  delete b.inputs.To;
+  const r = score(s, b);
+  assert.equal(r.unscorable, false);
+  assert.deepEqual(r.contract, { to_ok: false, coordinator_ok: true, ttl_ok: true });
+  assert.deepEqual(r.inputs.misses, ["To"]);
+  assert.ok(figures(r).includes("cost_fresh"), JSON.stringify(r.arithmetic.errors));
+});
+
+test("a block written to the old contract still validates and scores To 0, this session and 5m", () => {
+  for (const id of ["03", "11", "07"]) {
+    const s = byId(id), b = perfectBlock(s);
+    for (const k of ["To", "Fo", "Oo", "coordinator", "ttl"]) delete b.inputs[k];
+    const r = score(s, b);
+    assert.equal(r.unscorable, false, id);
+    assert.deepEqual(r.contract, { to_ok: true, coordinator_ok: true, ttl_ok: true }, id);
+    assert.deepEqual([r.inputs.misses, r.arithmetic.errors], [[], []], id);
+  }
+});
+
+test("the five new fields have types: a break makes the run unscorable and names the field", () => {
+  const s = byId("22");
+  for (const [k, v] of [["To", 1.5], ["To", -1], ["To", null], ["To", "30"], ["Fo", "3000"], ["Oo", true], ["coordinator", 5], ["ttl", "2h"], ["ttl", null]]) {
+    const b = perfectBlock(s);
+    b.inputs[k] = v;
+    const r = score(s, b);
+    assert.equal(r.unscorable, true, `${k} ${JSON.stringify(v)}`);
+    assert.match(r.reason, new RegExp(`inputs\\.${k}`), `${k} ${JSON.stringify(v)}`);
+    assert.equal(r.contract, null);
+  }
+  const b = perfectBlock(s);
+  Object.assign(b.inputs, { Fo: 2000, Oo: 1000, To: 0 });
+  assert.equal(score(s, b).unscorable, false);
 });
 
 test("each mutation fails exactly its own check", () => {
@@ -354,4 +447,19 @@ test("prepare merges into the day's manifest and refuses a different text under 
     const runs = JSON.parse(fs.readFileSync(file, "utf8")).runs;
     assert.ok(runs.every((r) => r.prompt && r.sandbox && r.record));
   } finally { rm(work); }
+});
+
+test("the report shows the three contract checks per run, their counts per row and the misses per symbol", () => {
+  const s = byId("22"), wrong = perfectBlock(s), s18 = byId("18");
+  wrong.inputs.To = 0;
+  const header = { date: "2026-11-10", commit: "x", tableName: "t", subjectModels: {}, promptNote: "n" };
+  const none = score(s18, perfectBlock(s18));
+  const md = renderReport({ header, scores: [score(s, perfectBlock(s)), score(s, wrong), none] }).split("\n");
+  const summary = md.find((l) => l.startsWith("| sonnet | calculator |"));
+  assert.match(summary, /\| 1\/2 \| 2\/2 \| 2\/2 \| /); // To equal, coordinator equal, ttl equal: the skipped run has no contract
+  assert.ok(md.some((l) => l.startsWith("| 22-") && l.includes("| yes | yes | yes |")));
+  assert.ok(md.some((l) => l.startsWith("| 22-") && l.includes("| no | yes | yes |")));
+  assert.ok(md.some((l) => l.startsWith("| 18-") && l.includes("| n/a | n/a | n/a |")));
+  assert.ok(md.some((l) => l.startsWith("| To | 1 |")), "the miss table lists To");
+  assert.ok(md.every((l) => !l.startsWith("| ttl |")), "no ttl miss to list");
 });

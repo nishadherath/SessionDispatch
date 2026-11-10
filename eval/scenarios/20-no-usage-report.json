@@ -17,6 +17,8 @@
     "A handoff for this stage would be about 80 lines.",
     "Everything this session knows that the next stage needs is already written in files on disk.",
     "No cache-miss measurement exists, and no review pauses are expected during the stage.",
+    "If the plan includes a fresh session, the operator starts it from a card this session proposes and receives its note, verifies it and merges it; this session ends after writing the handoff.",
+    "The harness reports no token usage, but its documentation states that it writes every cache entry with the 5-minute lifetime.",
     "The stage writes files and commits locally; nothing leaves the machine."
   ],
   "table": "pricing/2026-10-29.json",
@@ -66,6 +68,7 @@
   },
   "notes": [
     "C0 by step 1.1: 80,000 / 4 + 220,000 / 4 + 140,000 / 3.5 = 20,000 + 55,000 + 40,000 = 115,000. K = 0.9 W = 180,000. B = 25,000. R = 80,000 / 4 = 20,000 (step 1.2 divides every file by 4).",
-    "The margin is about 12 percent: an input read wrongly can move the verdict into the band, which is what this scenario is for."
+    "The margin is about 12 percent: an input read wrongly can move the verdict into the band, which is what this scenario is for.",
+    "Stage O6b (2026-11-10): the brief gained two lines so a subject on the current SKILL.md reaches To 0, no coordinator and ttl 5m: any next session is started by the operator, from a card, and the brief states the cache lifetime as 5 minutes where the harness shows it (its usage report, its transcript or its documentation). No expected figure moves."
   ]
 }

@@ -16,6 +16,8 @@
     "A handoff for this stage would be about 100 lines. If an acceptance session were used, it would take about 15 turns and read about 30,000 tokens.",
     "Everything this session knows that the next stage needs is already written in files on disk.",
     "No cache-miss measurement exists, and no review pauses are expected during the stage.",
+    "If the plan includes a fresh session, the operator starts it from a card this session proposes and receives its note, verifies it and merges it; this session ends after writing the handoff.",
+    "The usage report shows every cache write in this session as a 5-minute write.",
     "The stage writes files and commits locally; nothing leaves the machine."
   ],
   "table": "pricing/2026-10-29.json",
@@ -69,6 +71,7 @@
   },
   "notes": [
     "The arithmetic favours fresh on Opus by a wide margin, but the budget of step 0 and guardrail 7 (8,000 tokens, 10 minutes) is spent before step 4: stop, take the default (continue, same model, same effort) and record the overrun.",
-    "2026-10-30, Stage O3: changed with the guardrail 7 rule (F2 section 3.6; SKILL.md step 0): the cap is on the record and the minutes, and past it step 2's draft stands where it was written. The brief's record covers steps 1 to 3, so the draft (fresh by cost, 134.8 percent) is written: the verdict is fresh on claude-opus-5-5 at high (matrix row 3), and guardrail 7 still binds on its time clause (11 minutes). This expectation moved with the rule, ruled by the coordinating session before H2 ran, not on any result; H1's four rows stay as scored against the earlier expectation, so scenario 17 is not comparable between H1 and H2. The fallback branch (cap passed with no draft) is scenario 21."
+    "2026-10-30, Stage O3: changed with the guardrail 7 rule (F2 section 3.6; SKILL.md step 0): the cap is on the record and the minutes, and past it step 2's draft stands where it was written. The brief's record covers steps 1 to 3, so the draft (fresh by cost, 134.8 percent) is written: the verdict is fresh on claude-opus-5-5 at high (matrix row 3), and guardrail 7 still binds on its time clause (11 minutes). This expectation moved with the rule, ruled by the coordinating session before H2 ran, not on any result; H1's four rows stay as scored against the earlier expectation, so scenario 17 is not comparable between H1 and H2. The fallback branch (cap passed with no draft) is scenario 21.",
+    "Stage O6b (2026-11-10): the brief gained two lines so a subject on the current SKILL.md reaches To 0, no coordinator and ttl 5m: any next session is started by the operator, from a card, and the brief states the cache lifetime as 5 minutes where the harness shows it (its usage report, its transcript or its documentation). No expected figure moves."
   ]
 }
