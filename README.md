@@ -136,6 +136,15 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-11-10: Stage F7, acceptance and release of v1.1.0. O5, S6 and the
+  pricing work of `1ae8c0d` are accepted (`docs/acceptance-2026-11-10-f7.md`:
+  21 claims, none rejected, 13 findings handed on, decisions D14 and D15)
+  and the installed copies refreshed. The skill text is unchanged by this
+  stage. Recorded here because `1ae8c0d` carried no line for it: the table
+  in force is `pricing/2026-11-10.json`, in which `claude-fable-5-2`
+  replaces `claude-fable-5-1` as the fable-class model, at that row's
+  prices; a session on Fable 5.1 has no row there (the table's note says
+  what to do).
 - 2026-11-10: Stage S6, the calibration loop. `scripts/session-cost.mjs`
   prices a Claude Code transcript (a path, or a session id under
   `~/.claude/projects/`) with the table in force or `--table`: calls counted

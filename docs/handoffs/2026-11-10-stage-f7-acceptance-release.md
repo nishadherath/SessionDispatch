@@ -2,7 +2,7 @@
 stage: "Stage F7: acceptance of O5, S6 and the pricing work of 1ae8c0d; merge into main; install; tag v1.1.0; ruling on the scorer gap"
 model: claude-fable-5-2
 effort: xhigh
-status: ready
+status: done
 created: 2026-11-10
 from: "Stage S6 session local_64c9f68d (claude-sonnet-5-5, medium), branch claude/strange-thompson-08340e"
 ---
