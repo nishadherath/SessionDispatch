@@ -141,7 +141,7 @@ for the evaluation's subjects. Under the 5-minute figure the record said
 the lifetime this harness writes. The two Sonnet pieces are sub-agents,
 which in this harness write 5-minute entries (`SKILL.md` step 7, measured
 on these two after the fact): at that lifetime they are 1.74 and 2.37
-USD, not 2.05 and 2.76, and the plan is 40.62 USD. The table above keeps
+USD, not 2.05 and 2.76, and the plan is 40.61 USD. The table above keeps
 the record's one ttl, as the calculator does. Serial chain: O6 (90 to 120 minutes),
 F8 (70 to 100). Coordinator: the F7 session, held to To 2 per piece
 because its class is above the coordinator row.
