@@ -2,7 +2,7 @@
 stage: "Stage S6: the transcript pricer, the Measured column, the calibration ledger, sample sizes on the defaults"
 model: claude-sonnet-5-5
 effort: medium
-status: ready
+status: done
 created: 2026-11-10
 from: "Stage O5 session local_810f83cf (claude-opus-5-5, high), branch claude/stoic-varahamihira-e520ec"
 ---
