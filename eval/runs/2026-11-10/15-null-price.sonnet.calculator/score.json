@@ -1,0 +1,61 @@
+{
+  "scenario": "15-null-price",
+  "subject": "sonnet",
+  "arm": "calculator",
+  "outcome_expected": "incomplete",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "incomplete",
+  "final_ok": true,
+  "draft_ok": null,
+  "guardrails_ok": true,
+  "bound": [
+    5
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [
+    4
+  ],
+  "arithmetic": {
+    "scored": false,
+    "reason": "target not named (null)",
+    "stated": 0,
+    "correct": 0,
+    "missing": 0,
+    "max_error_usd": null,
+    "rule_ok": null,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 17,
+    "matched": 17,
+    "misses": []
+  },
+  "contract": {
+    "to_ok": true,
+    "coordinator_ok": true,
+    "ttl_ok": true
+  },
+  "decide": {
+    "reported_tokens": 23000,
+    "reported_minutes": 6,
+    "measured_tokens": 711886,
+    "measured_minutes": 1.05335,
+    "record_tokens": 2466,
+    "usd_to_decide": 0.08,
+    "usd_measured": 0.2331,
+    "over_cap": false,
+    "report_ratio": 0.032
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": ""
+}

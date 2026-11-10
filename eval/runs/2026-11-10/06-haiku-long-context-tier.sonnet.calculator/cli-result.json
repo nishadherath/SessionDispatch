@@ -1,0 +1,152 @@
+{
+  "duration_api_ms": 69599,
+  "stop_reason": "end_turn",
+  "session_id": "1d176eb6-22eb-4ff2-898e-2edffab3b38e",
+  "total_cost_usd": 0.3309023,
+  "usage": {
+    "input_tokens": 12,
+    "cache_creation_input_tokens": 35344,
+    "cache_read_input_tokens": 1088223,
+    "output_tokens": 8068,
+    "output_tokens_details": {
+      "thinking_tokens": 3189
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 35344,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 50,
+        "cache_read_input_tokens": 191912,
+        "cache_creation_input_tokens": 6609,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 6609
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "claude-sonnet-5-5": {
+      "inputTokens": 12,
+      "outputTokens": 8068,
+      "cacheReadInputTokens": 1088223,
+      "cacheCreationInputTokens": 35344,
+      "webSearchRequests": 0,
+      "costUSD": 0.3309023,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "thinkingTokens": 3189,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationEphemeral1hInputTokens": 35344,
+      "canonicalModel": "claude-sonnet-5-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01D3V4y9DFMuduUqmfZCgSs7",
+      "tool_input": {
+        "command": "cd \"C:/Users/Bob/AppData/Local/Temp/sd-eval/2026-11-10/06-haiku-long-context-tier.sonnet.calculator/skill\" && node scripts/dispatch.mjs --help 2>&1 | head -40; for T in 20 40; do for M in 0 1; do echo T$T M$M; node scripts/dispatch.mjs --current claude-haiku-5-5 --target haiku --W 1000000 --K 970000 --C0 90000 --T $T --F 3000 --O 1500 --B 86450 --R 10000 --H 2500 --M $M --L 0 --To 0 --ttl 5m --compacted no 2>&1 | grep -E \"^  = |Draft\"; done; done"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 6,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Finished: the decision record is written. The verdict is to continue in this session on claude-haiku-5-5 at medium effort, with no handoff.\n\ndone",
+  "ttft_ms": 2443,
+  "type": "result",
+  "duration_ms": 80354,
+  "uuid": "1c25ea48-ed08-4739-adb1-a1e7e490cae5",
+  "ttft_stream_ms": 1610,
+  "time_to_request_ms": 408,
+  "time_to_request_phases_ms": {
+    "other": 19,
+    "system_prompt": 62,
+    "resume_other": 0,
+    "process_user_input": 10,
+    "input_attachments": 35,
+    "input_hooks": 8,
+    "conversation_append": 1,
+    "tool_pool_refresh": 9,
+    "system_prompt_rebuild": 3,
+    "init_message": 95,
+    "init_frame_send": 2,
+    "engine_pickup": 3,
+    "loop_entry": 9,
+    "message_prep": 2,
+    "model_config_wait": 4,
+    "autocompact": 6,
+    "request_announcements": 19,
+    "query_setup": 7,
+    "model_gates": 1,
+    "tool_schema_build": 53,
+    "message_normalization": 8,
+    "client_creation": 9,
+    "request_build": 43
+  },
+  "turn_start_resume_kind": "none",
+  "process_turn_index": 0,
+  "time_to_request_loop_lag_ms": 143,
+  "time_to_request_cpu_ms": 501,
+  "time_to_request_major_faults": 4567,
+  "input_attachments_detail": {
+    "slowest_producer": "deferred_tools_delta",
+    "slowest_producer_ms": 2,
+    "cpu_ms": 16,
+    "major_faults": 261,
+    "setup_ms": 2,
+    "prompt_producers_ms": 1,
+    "ambient_start_ms": 19,
+    "ambient_wait_ms": 4,
+    "render_ms": 6,
+    "producers": 43,
+    "token_counts": 0
+  },
+  "first_content_frame_ms": 1610,
+  "queued_turn_count": 0,
+  "result_index": 0
+}

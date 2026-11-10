@@ -1,0 +1,151 @@
+{
+  "duration_api_ms": 67624,
+  "stop_reason": "end_turn",
+  "session_id": "f44a58b3-87d6-4e56-8292-3dfcba225a59",
+  "total_cost_usd": 0.4308267,
+  "usage": {
+    "input_tokens": 18,
+    "cache_creation_input_tokens": 40269,
+    "cache_read_input_tokens": 1692647,
+    "output_tokens": 10045,
+    "output_tokens_details": {
+      "thinking_tokens": 583
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 40269,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 3,
+        "cache_read_input_tokens": 199218,
+        "cache_creation_input_tokens": 4228,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 4228
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "claude-sonnet-5-5": {
+      "inputTokens": 18,
+      "outputTokens": 10045,
+      "cacheReadInputTokens": 1692647,
+      "cacheCreationInputTokens": 40269,
+      "webSearchRequests": 0,
+      "costUSD": 0.4308267,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "thinkingTokens": 583,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationEphemeral1hInputTokens": 40269,
+      "canonicalModel": "claude-sonnet-5-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01Ck8CjtpJWXZZq6CpwTR2QQ",
+      "tool_input": {
+        "command": "cd \"C:/Users/Bob/AppData/Local/Temp/sd-eval/2026-11-10/24-cache-lifetime-break-even.sonnet.calculator\"; sed -i '/^  \"table_date\": \"2026-11-09\",$/d' record.md; grep -n 'table_' record.md"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 10,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "done",
+  "ttft_ms": 4603,
+  "type": "result",
+  "duration_ms": 75399,
+  "uuid": "4771a68e-7d78-4971-8e93-d6a8ac2cc8c2",
+  "ttft_stream_ms": 3792,
+  "time_to_request_ms": 237,
+  "time_to_request_phases_ms": {
+    "other": 12,
+    "system_prompt": 18,
+    "resume_other": 1,
+    "process_user_input": 5,
+    "input_attachments": 21,
+    "input_hooks": 4,
+    "conversation_append": 1,
+    "tool_pool_refresh": 5,
+    "init_message": 62,
+    "init_frame_send": 3,
+    "engine_pickup": 3,
+    "loop_entry": 7,
+    "message_prep": 2,
+    "model_config_wait": 2,
+    "autocompact": 4,
+    "request_announcements": 13,
+    "query_setup": 3,
+    "model_gates": 1,
+    "tool_schema_build": 35,
+    "message_normalization": 4,
+    "client_creation": 6,
+    "request_build": 25
+  },
+  "turn_start_resume_kind": "none",
+  "process_turn_index": 0,
+  "time_to_request_loop_lag_ms": 76,
+  "time_to_request_cpu_ms": 251,
+  "time_to_request_major_faults": 3758,
+  "input_attachments_detail": {
+    "slowest_producer": "deferred_tools_delta",
+    "slowest_producer_ms": 2,
+    "cpu_ms": 0,
+    "major_faults": 251,
+    "setup_ms": 1,
+    "prompt_producers_ms": 0,
+    "ambient_start_ms": 11,
+    "ambient_wait_ms": 3,
+    "render_ms": 3,
+    "producers": 43,
+    "token_counts": 0
+  },
+  "first_content_frame_ms": 3793,
+  "queued_turn_count": 0,
+  "result_index": 0
+}

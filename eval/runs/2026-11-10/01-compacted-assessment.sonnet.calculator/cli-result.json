@@ -1,0 +1,151 @@
+{
+  "duration_api_ms": 61677,
+  "stop_reason": "end_turn",
+  "session_id": "bf00b187-1a5b-4063-8c47-5f73d3153890",
+  "total_cost_usd": 0.9774264,
+  "usage": {
+    "input_tokens": 12,
+    "cache_creation_input_tokens": 204071,
+    "cache_read_input_tokens": 893984,
+    "output_tokens": 7172,
+    "output_tokens_details": {
+      "thinking_tokens": 1480
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 204071,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 28,
+        "cache_read_input_tokens": 194284,
+        "cache_creation_input_tokens": 5705,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 5705
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "claude-sonnet-5-5": {
+      "inputTokens": 12,
+      "outputTokens": 7172,
+      "cacheReadInputTokens": 893984,
+      "cacheCreationInputTokens": 204071,
+      "webSearchRequests": 0,
+      "costUSD": 0.9774264,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "thinkingTokens": 1480,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationEphemeral1hInputTokens": 204071,
+      "canonicalModel": "claude-sonnet-5-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01MafroiFQEhomE395aDvq1j",
+      "tool_input": {
+        "command": "cd \"C:\\Users\\Bob\\AppData\\Local\\Temp\\sd-eval\\2026-11-10\\01-compacted-assessment.sonnet.calculator\\skill\"; for a in \"--T 30\" \"--T 120\" \"--F 6000\" \"--M 3\" \"--C0 70000\"; do echo \"== $a\"; node scripts/dispatch.mjs --current claude-fable-5-1 --target fable --W 200000 --K 190000 --C0 100000 --T 60 --F 3000 --O 1500 --B 25000 --R 30000 --H 2500 --To 0 --Ta 15 --Ra 40000 --ttl 5m --compacted yes --today 2026-11-10 $a | grep -E \"^  = |Draft|crosses\"; done"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 7,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "The record is written; I'm just confirming that now, and nothing else is pending.\n\ndone",
+  "ttft_ms": 4445,
+  "type": "result",
+  "duration_ms": 76050,
+  "uuid": "d7aac779-6129-44a2-bead-b480ecb03ead",
+  "ttft_stream_ms": 3980,
+  "time_to_request_ms": 810,
+  "time_to_request_phases_ms": {
+    "other": 25,
+    "system_prompt": 133,
+    "resume_other": 1,
+    "process_user_input": 9,
+    "input_attachments": 56,
+    "input_hooks": 9,
+    "conversation_append": 1,
+    "tool_pool_refresh": 8,
+    "init_message": 295,
+    "init_frame_send": 6,
+    "engine_pickup": 4,
+    "loop_entry": 12,
+    "message_prep": 21,
+    "model_config_wait": 5,
+    "autocompact": 6,
+    "request_announcements": 27,
+    "query_setup": 7,
+    "model_gates": 1,
+    "tool_schema_build": 86,
+    "message_normalization": 15,
+    "client_creation": 14,
+    "request_build": 69
+  },
+  "turn_start_resume_kind": "none",
+  "process_turn_index": 0,
+  "time_to_request_loop_lag_ms": 633,
+  "time_to_request_cpu_ms": 593,
+  "time_to_request_major_faults": 4631,
+  "input_attachments_detail": {
+    "slowest_producer": "deferred_tools_delta",
+    "slowest_producer_ms": 6,
+    "cpu_ms": 31,
+    "major_faults": 341,
+    "setup_ms": 2,
+    "prompt_producers_ms": 1,
+    "ambient_start_ms": 36,
+    "ambient_wait_ms": 7,
+    "render_ms": 7,
+    "producers": 43,
+    "token_counts": 0
+  },
+  "first_content_frame_ms": 3981,
+  "queued_turn_count": 0,
+  "result_index": 0
+}

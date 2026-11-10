@@ -1,0 +1,57 @@
+{
+  "scenario": "03-break-even-continue",
+  "subject": "sonnet",
+  "arm": "calculator",
+  "outcome_expected": "continue",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "continue",
+  "final_ok": true,
+  "draft_ok": true,
+  "guardrails_ok": true,
+  "bound": [],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 3,
+    "correct": 3,
+    "missing": 0,
+    "max_error_usd": 0.005,
+    "rule_ok": true,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 17,
+    "matched": 17,
+    "misses": []
+  },
+  "contract": {
+    "to_ok": true,
+    "coordinator_ok": true,
+    "ttl_ok": true
+  },
+  "decide": {
+    "reported_tokens": 22000,
+    "reported_minutes": 8,
+    "measured_tokens": 794263,
+    "measured_minutes": 1.0264,
+    "record_tokens": 2333,
+    "usd_to_decide": 0.085,
+    "usd_measured": 0.5658,
+    "over_cap": false,
+    "report_ratio": 0.028
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": ""
+}
