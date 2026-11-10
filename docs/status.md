@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-11-10, thirty-third update, by the Fable session (claude-fable-5-2, high; the operator moved it from claude-fable-5-1 with /model on 2026-11-10) after the operator decided D12 as A'. Stage O5 is ready: handoff `docs/handoffs/2026-11-10-stage-o5-coordinator-term.md`, proposed as a card for an Opus high session in its own worktree. D13 waits on the operator: the main checkout holds uncommitted pricing work from two other sessions.
+Last updated: 2026-11-10, thirty-fourth update, by the Fable session (claude-fable-5-2, high) after the operator decided D13 as A. The pricing work of the Codex session of 2026-11-04 and the price-table session of 2026-11-10 is on `main` as commit `1ae8c0d`, as found and unaccepted; Stage F7 accepts it. Stage O5 is running in its own worktree (session `local_810f83cf`, Opus high), started by the operator from the card.
 
 ## Done
 
@@ -38,7 +38,7 @@ Last updated: 2026-11-10, thirty-third update, by the Fable session (claude-fabl
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| O5: the coordinator term, formula revision, worked example, scenarios 22 and 23 | not started; proposed as a card on 2026-11-10 | Opus, high | its own worktree, cut from `main` | 60 to 90 min; 10.06 to 16.34 USD |
+| O5: the coordinator term, formula revision, worked example, scenarios 22 and 23 | `local_810f83cf`, started by the operator from the card on 2026-11-10 | Opus, high | its own worktree, cut from `main` | 60 to 90 min; 10.06 to 16.34 USD |
 
 The four installed copies (claude, codex, zcode, opencode) and the Cline rule file were written with
 `node scripts/install.mjs --harness all` on 2026-10-30 in S3; `--check` reports 0
@@ -82,7 +82,7 @@ assessment; D8 and D9 are repeated below.
 - D10 Variant C staged or closed (F4, 2026-10-30; reopened by H3; ruled by F5 on 2026-10-30): A, variant C closed, confirmed by the operator on 2026-10-30 ("Yes, A on both"); `docs/assessment-2026-10-30-f5.md` section 2; the D2 note in `docs/operator-preferences.json` records the closure. Nothing waits on it.
 - D11 Haiku cell rerun on the fixed harness, H4 (F5, 2026-10-30): A (decline), decided by the operator on 2026-10-30 ("Yes, A on both"); H4 is not run, and the floor's Haiku figure stays a hand figure taken partly under compaction, as the text says. Nothing waits on it.
 - D12 The coordinator's cost in the formula (2026-11-02, from the Tsunami report): A', decided by the operator on 2026-11-10 ("A' as recommended"). Stages O5, S6 and F7, operator-started. Five parts below and in `docs/assessment-2026-11-02.md` section 6.
-- D13 The uncommitted pricing work in the main checkout (found 2026-11-10): waiting on the operator. Recommended A, commit it as found in one commit of its own and put it in F7's acceptance. Five parts below.
+- D13 The uncommitted pricing work in the main checkout (found 2026-11-10): A, decided by the operator on 2026-11-10 ("Yes, commit it"); commit `1ae8c0d`. Stage F7's acceptance covers it. Five parts below.
 - F3-7 H2's runner (the coordinating session's, not the operator's): A, the `Agent` runner as H1 used it, decided 2026-10-30 so that H1 and H2 share one harness and F4 can attribute any change to the text; S4's CLI runner follows H2.
 - Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`: answered yes by the operator on 2026-10-30 (S3); the blocks were already there and stay.
 
@@ -144,4 +144,5 @@ Options:       A commit it now on `main`, as found, in one commit that names bot
 Pros and cons: A makes `main` clean, so O5's branch can be merged and every session prices from the same table; the gate is green on it (109 files, 0 findings; 49 tests pass, 2026-11-10); it puts on `main` a change to `SKILL.md` and a second table validator that no session has accepted. B costs nothing now and keeps authorship with its sessions; `main` stays unmergeable, a fresh worktree prices from the table of 2026-10-29 (stale from 2026-11-13) and has no row for `claude-fable-5-2`, and six days have already passed without a commit. C gets the prices onto `main` and defers the unaccepted code; the working tree stays dirty in five files.
 Blast radius:  A and C: `main` and `origin` (the standing yes covers the push); the installed copies stay as they are until F7 reinstalls. B: none now; the merge of O5, S6 and the tag wait.
 Recommended:   A, because the work is green, the operator asked for it in those sessions, and an uncommitted table in force is the state the protocol's handoff rule exists to prevent. F7 then looks at three things in it: `max_age_days` is 8 in the table while `SKILL.md`, `AGENTS.md` rule 3, `pricing/README.md` and the protocol say 14 in prose; the `claude-fable-5-1` row is gone although the vendor still lists the model, so a session on it gets an input error and the table's note tells it to price from an older table, which step 1.4 does not allow; and `scripts/check-pricing.mjs` repeats the rules of `checkPricing` in `scripts/check.mjs` with small differences (https only, the unit, staleness per family), two owners for one rule.
+Decided:       A, by the operator on 2026-11-10 ("Yes, commit it"); committed as `1ae8c0d`, unchanged, and pushed. The three points go to F7.
 ```
