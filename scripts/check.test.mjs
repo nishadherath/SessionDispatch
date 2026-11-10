@@ -146,6 +146,36 @@ test("a wrong cost_coord figure in the Tsunami example exits 1, in the term line
   });
 });
 
+test("F7-6: a wrong coordination row, plan total or draft margin in the Tsunami example exits 1", () => {
+  withTree("gate-f7-6", (tree) => {
+    const ex = "2026-11-02-tsunami-rebalancing-dashboard.md";
+    mutateExample(tree, ex, "| throughout | To 30 x 4 pieces: 42.35 USD |", "| throughout | To 30 x 4 pieces: 42.95 USD |"); // M12
+    mutateExample(tree, ex, "Pieces 33.36 USD, cost_coord 42.35 USD, plan 75.71 USD.", "Pieces 33.36 USD, cost_coord 42.35 USD, plan 76.71 USD."); // M13
+    mutateExample(tree, ex, "Draft verdict: continue, by cost, margin 1.61 USD (10.2 percent", "Draft verdict: continue, by cost, margin 1.71 USD (11.2 percent"); // M18
+    const r = runGate(tree);
+    assert.equal(r.status, 1, r.out);
+    assert.match(r.stdout, /Step B: the coordination row is 42\.95 USD, To 30 x 4 pieces gives 42\.3485 on claude-fable-5-1/);
+    assert.match(r.stdout, /Step B: "plan 76\.71 USD" but pieces 33\.36 plus cost_coord 42\.35 is 75\.71/);
+    assert.match(r.stdout, /Draft verdict: margin 1\.71 USD, the inputs give 1\.6135/);
+    assert.match(r.stdout, /Draft verdict: 11\.2 percent of the smaller, the inputs give 10\.16/);
+  });
+});
+
+test("the O6 example at the wrong cache lifetime, or without its ttl row, exits 1", () => {
+  withTree("gate-ttl", (tree) => {
+    mutateExample(tree, "2026-11-10-sessiondispatch-stage-o6.md", "| Cache lifetime ttl | 1h |", "| Cache lifetime ttl | 5m |");
+    const r = runGate(tree);
+    assert.equal(r.status, 1, r.out);
+    assert.match(r.stdout, /Step A: cost_continue is 29\.58 USD, the inputs give 26\.7024 under formula 2026-11-11/);
+  });
+  withTree("gate-ttl-row", (tree) => {
+    mutateExample(tree, "2026-11-10-sessiondispatch-stage-o6.md", "| Cache lifetime ttl | 1h |", "| Cache lifetime | 1h |");
+    const r = runGate(tree);
+    assert.equal(r.status, 1, r.out);
+    assert.match(r.stdout, /"Cache lifetime ttl" must be stated under formula 2026-11-11/);
+  });
+});
+
 test("an example under formula 2026-11-10 without its To row exits 1", () => {
   withTree("gate-coord-row", (tree) => {
     mutateExample(tree, "2026-11-02-tsunami-rebalancing-dashboard.md", "| Coordinating turns To | 30 per piece |", "| Coordinating turns | 30 per piece |");

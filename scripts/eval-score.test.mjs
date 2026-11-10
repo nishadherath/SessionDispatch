@@ -140,6 +140,21 @@ test("ttl 1h on a 5-minute scenario is an inputs miss (the contract check only; 
   assert.equal(r.final_ok, true);
 });
 
+test("ttl 5m on scenario 24 is an inputs miss and moves every figure off the stated ones (Stage O6)", () => {
+  const s = byId("24"), b = perfectBlock(s);
+  assert.equal(s.ttl, "1h");
+  b.inputs.ttl = "5m";
+  const r = score(s, b);
+  assert.deepEqual(r.contract, { to_ok: true, coordinator_ok: true, ttl_ok: false });
+  assert.deepEqual(r.inputs.misses, ["ttl"]);
+  assert.deepEqual(figures(r), ["cost_continue", "cost_fresh", "t_star"]);
+  assert.equal(r.arithmetic.rule_ok, false, "at 5m the rule says fresh by cost, the block says continue by break-even");
+  // An absent ttl is the default 5m, the same miss.
+  const b2 = perfectBlock(s);
+  delete b2.inputs.ttl;
+  assert.deepEqual(score(s, b2).inputs.misses, ["ttl"]);
+});
+
 test("an absent To on scenario 23 is the default 0, which is a miss there", () => {
   const s = byId("23"), b = perfectBlock(s);
   assert.equal(s.To, 4);

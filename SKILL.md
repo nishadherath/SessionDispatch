@@ -515,7 +515,7 @@ names its source; a figure you estimated yourself is marked
 | Input tokens read | Everything you read for the decision: table, templates, files sized for R. Usually the difference of the two rows above, less your output. |
 | Output tokens | What you wrote: the record, the adversarial pass, the handoff lines. From the harness's usage reporting where it has one; else characters divided by 4, marked as a self-estimate. The record's own size (characters divided by 4) is the figure guardrail 7 caps. |
 | Wall clock | Minutes from the first line of step 1 to the end of the record, from timestamps where the harness gives them. |
-| Priced | Input at the cache-write rate plus output at the output rate for the model that decided, from the table in force, with the table date. |
+| Priced | Input at the write price for the lifetime ttl (step 1.4.3) plus output at the output rate for the model that decided, from the table in force, with the table date. |
 
 The operator reads this row over time to judge whether the procedure
 pays for itself. A decision that costs more than the stage it dispatches
