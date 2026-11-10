@@ -9,10 +9,12 @@
 // as a Fable 5.1 session), or any projection.
 //
 // Non-obvious: a streamed message appears on several lines with one id, so a call is counted
-// once and each field takes its largest value. Cache writes are priced at the table's
-// cache_write figure; a write the transcript marks as 1-hour costs more than that, so the
-// cost is a lower bound by the 1-hour tokens, which are reported. The pricer does not refuse
-// an old table (a measurement of a past session needs the table of its day); it prints the age.
+// once and each field takes its largest value. Cache writes the transcript marks as 1-hour
+// (cache_creation.ephemeral_1h_input_tokens) are priced at the row's cache_write_1h where it
+// has one, the rest at cache_write; a row with no cache_write_1h prices every write at
+// cache_write, which understates the cost by the 1-hour tokens. The report and --json say
+// which figure priced the 1-hour tokens per model. The pricer does not refuse an old table
+// (a measurement of a past session needs the table of its day); it prints the age.
 //
 // Exit codes: 0 priced; 1 an input or table error, named with its fix; 3 a model in the
 // transcript has no row in the table, so its cost is not in the total.
@@ -47,10 +49,17 @@ export function findPrice(table, id) {
   return best;
 }
 
+/**
+ * The USD for one call and the figure that priced its 1-hour write tokens ("cache_write_1h"
+ * or "cache_write"). 1-hour tokens are capped at the call's writes.
+ */
 function costOf(row, t) {
   const lc = row.long_context;
   const p = lc && t.input + t.cacheRead + t.cacheWrite > lc.threshold_tokens ? lc : row;
-  return (t.input * p.input + t.cacheWrite * p.cache_write + t.cacheRead * p.cache_read + t.output * p.output) / PER_MILLION;
+  const hasOneHour = typeof p.cache_write_1h === "number";
+  const oneHour = hasOneHour ? Math.min(t.oneHour, t.cacheWrite) : 0;
+  const writes = (t.cacheWrite - oneHour) * p.cache_write + oneHour * (hasOneHour ? p.cache_write_1h : 0);
+  return { cost: (t.input * p.input + writes + t.cacheRead * p.cache_read + t.output * p.output) / PER_MILLION, figure: hasOneHour ? "cache_write_1h" : "cache_write" };
 }
 
 /** Reads the unique API calls of one transcript, in file order. */
@@ -85,13 +94,17 @@ export function priceTranscript(file, table) {
   for (const c of calls) {
     const row = findPrice(table, c.model);
     // Dated ids of one model share a row, so they share a line.
-    const m = (models[row ? row.id : c.model] ??= { calls: 0, tokens: { input: 0, cacheWrite: 0, cacheRead: 0, output: 0 }, cost: 0 });
+    const m = (models[row ? row.id : c.model] ??= { calls: 0, tokens: { input: 0, cacheWrite: 0, cacheRead: 0, output: 0 }, oneHourTokens: 0, oneHourPricedAt: [], cost: 0 });
     m.calls += 1;
     for (const k of KEYS) { m.tokens[k] += c[k]; totals[k] += c[k]; }
     oneHourWrite += c.oneHour;
     maxContext = Math.max(maxContext, c.input + c.cacheRead + c.cacheWrite);
-    if (row) m.cost += costOf(row, c);
-    else m.unpriced = true;
+    m.oneHourTokens += c.oneHour;
+    if (row) {
+      const r = costOf(row, c);
+      m.cost += r.cost;
+      if (c.oneHour > 0 && !m.oneHourPricedAt.includes(r.figure)) m.oneHourPricedAt.push(r.figure);
+    } else m.unpriced = true;
   }
   const last = calls[calls.length - 1];
   const n = calls.length;
@@ -143,7 +156,10 @@ function describe(label, r) {
   const out = [`${label}: ${r.calls} calls, context at the last call ${tok(r.lastContext)}, largest ${tok(r.maxContext)}`];
   out.push(`  cache read ${tok(r.totals.cacheRead)}, cache write ${tok(r.totals.cacheWrite)}, output ${tok(r.totals.output)}, fresh input ${tok(r.totals.input)}`);
   out.push(`  per call: cache write ${tok(r.cacheWritePerCall)} (${tok(r.cacheWritePerCallAfterFirst)} after the first call), output ${tok(r.outputPerCall)}`);
-  for (const [id, m] of Object.entries(r.models)) out.push(`  ${id}: ${m.calls} calls, ${m.unpriced ? "no price row" : `${usd(m.cost)} USD`}`);
+  for (const [id, m] of Object.entries(r.models)) {
+    out.push(`  ${id}: ${m.calls} calls, ${m.unpriced ? "no price row" : `${usd(m.cost)} USD`}`);
+    if (m.oneHourTokens > 0) out.push(`    ${tok(m.oneHourTokens)} 1-hour write tokens: ${m.unpriced ? "not priced" : `priced at ${m.oneHourPricedAt.join(" and ")}`}`);
+  }
   out.push(`  cost ${usd(r.cost)} USD`);
   return out;
 }
@@ -170,7 +186,8 @@ function main() {
     console.log(describe(`Session ${path.basename(file)}`, main_).join("\n"));
     for (const s of subagents) console.log(describe(`sub-agent ${s.name}`, s).join("\n"));
     console.log(`total ${usd(total)} USD${subagents.length ? ` (session ${usd(main_.cost)} + ${subagents.length} sub-agents)` : ""}`);
-    if (oneHour) console.log(`note: ${tok(oneHour)} cache-write tokens were 1-hour writes, priced at the table's cache_write; the cost is a lower bound by that much`);
+    const lower = [main_, ...subagents].flatMap((r) => Object.entries(r.models)).filter(([, m]) => m.oneHourPricedAt.includes("cache_write")).map(([id]) => id);
+    if (lower.length) console.log(`note: the row for ${[...new Set(lower)].join(", ")} has no cache_write_1h, so its 1-hour write tokens were priced at cache_write; that cost is a lower bound`);
     if (unpriced.length) console.error(`session-cost: no price row for ${unpriced.join(", ")}; those calls are counted but their cost is not in the total. Pass --table with a table that lists them.`);
   }
   if (unpriced.length) process.exit(3);

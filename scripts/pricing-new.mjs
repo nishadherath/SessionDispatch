@@ -31,7 +31,7 @@ let nulls = 0;
 for (const [fam, f] of Object.entries(table.families ?? {})) {
   const missing = [];
   for (const [id, m] of Object.entries(f.models ?? {})) {
-    const keys = ["class", "input", "output", "cache_read", "cache_write"].filter((k) => m[k] === null);
+    const keys = ["class", "input", "output", "cache_read", "cache_write", "cache_write_1h"].filter((k) => m[k] === null);
     if (keys.length) missing.push(`${id} (${keys.join(", ")})`);
   }
   if (Object.keys(f.models ?? {}).length === 0) missing.push("no models listed");

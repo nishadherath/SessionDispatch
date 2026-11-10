@@ -14,8 +14,9 @@ test('portable checker validates tables and rejects invalid, future and stale fi
     fs.mkdirSync(scripts); fs.mkdirSync(pricing);
     const original = path.join(path.dirname(fileURLToPath(import.meta.url)), 'check-pricing.mjs');
     fs.copyFileSync(original, path.join(scripts, 'check-pricing.mjs'));
+    fs.copyFileSync(path.join(path.dirname(original), 'price-table.mjs'), path.join(scripts, 'price-table.mjs'));
     const file = path.join(pricing, '2026-11-04.json');
-    const table = { table_date:'2026-11-04', max_age_days:8, currency:'USD', unit:'per million tokens', families:{ test:{ source:'https://example.com', fetched:'2026-11-04', models:{ model:{ class:'opus', input:2, output:10, cache_read:0.1, cache_write:2.5, long_context:{ threshold_tokens:100, input:4, output:15, cache_read:0.2, cache_write:5 } }, unknown:{ class:null, input:null, output:null, cache_read:null, cache_write:null } } } } };
+    const table = { table_date:'2026-11-04', max_age_days:14, currency:'USD', unit:'per million tokens', families:{ test:{ source:'https://example.com', fetched:'2026-11-04', models:{ model:{ class:'opus', input:2, output:10, cache_read:0.1, cache_write:2.5, long_context:{ threshold_tokens:100, input:4, output:15, cache_read:0.2, cache_write:5 } }, unknown:{ class:null, input:null, output:null, cache_read:null, cache_write:null } } } } };
     const run = value => { fs.writeFileSync(file, JSON.stringify(value)); return spawnSync(process.execPath, [path.join(scripts, 'check-pricing.mjs'), '--today', '2026-11-04'], { encoding:'utf8' }); };
     assert.equal(run(table).status, 0);
     for (const mutate of [
@@ -23,11 +24,15 @@ test('portable checker validates tables and rejects invalid, future and stale fi
       t => { delete t.families.test.models.model.output; },
       t => { t.families.test.models.model.long_context.threshold_tokens = 0; },
       t => { t.families.test.fetched = '2026-11-05'; },
-      t => { t.families.test.fetched = '2026-10-01'; },
       t => { t.table_date = '2026-02-30'; },
+      t => { t.families.test.models.model.cache_write_1h = -1; },
     ]) {
       const bad = structuredClone(table); mutate(bad);
-      assert.notEqual(run(bad).status, 0);
+      assert.equal(run(bad).status, 1);
     }
+    // A priced family fetched more than max_age_days (14) before today is stale and nothing
+    // else is wrong: exit 2, from the family's fetched date (table_date is today's).
+    const stale = structuredClone(table); stale.families.test.fetched = '2026-10-01';
+    assert.equal(run(stale).status, 2);
   } finally { fs.rmSync(temp, { recursive:true, force:true }); }
 });
