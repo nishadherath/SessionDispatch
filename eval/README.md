@@ -77,6 +77,8 @@ moved expectation is regenerated, with the reason added to `notes`.
 | 19 | Taking over a handoff on the wrong model | fresh by class, 259.0% | stop, sonnet-5-5 medium | 8 |
 | 20 | A harness that reports no usage: every figure estimated | fresh by cost, 11.7% | fresh, sonnet-5-5 medium | none |
 | 21 | The decision has used its budget before any draft (added in S4; 01 to 20 unchanged) | fresh by cost, 134.8% (priced for the gate, not drafted by the subject) | continue, fable-5-1 xhigh | 7 |
+| 22 | A split whose price turns on who coordinates it (added in O5, formula 2026-11-10) | fresh by cost, 84.6%; split cheaper by 15.5% at a Sonnet coordinator, dearer by 30.6% at this Fable session | split, sonnet-5-5 medium; coordinator sonnet-5-5 medium | none |
+| 23 | Inside the band after a compaction, with this session coordinating the fresh one (added in O5) | fresh by quality, 7.5% at To 4; 3.2% at To 0 | fresh, sonnet-5-5 medium | none |
 
 Model ids drop the `claude-` prefix here; the files carry them whole.
 
@@ -98,6 +100,24 @@ calculator's line fails. In 17 guardrail 7 binds and keeps the draft (since
 O3); in 21 the cap passes before any draft and the default stands. F4
 (section 2.4) added 21 in Stage S4; H2 ran the first twenty, so 21 has no
 measured result until H3.
+
+Scenarios 22 and 23 (Stage O5, 2026-11-10, `docs/assessment-2026-11-02.md`
+section 3.4) are the only ones under formula 2026-11-10; 01 to 21 pin
+2026-10-29 and do not move. They cover `cost_coord` at the current model
+and at another, the split paying it for two pieces, the coordinator row of
+the matrix and step 3.2 rule 7 (22), and To stated inside the band (23).
+Their `expected.calculator` carries `cost_coord` and `cost_coord_sonnet`,
+each plan's coordination figure at the coordinator and on the sonnet
+model; the gate checks them, and they are null for the older formula.
+Each has alternatives at the other end of the term (this session
+coordinating, or To 0). The scorer, the rubric and the subject prompt are
+unchanged: both are scored on the existing measures, and the coordinator's
+class and To are unscored until the next required rerun (D11's rule). One
+gap follows: measure 3 recomputes under formula 2026-10-29 and reads no
+To (`eval/score.mjs`), so on a correct record it marks the coordinator's
+figures wrong (22: `cost_fresh` and `cost_split`; 23: `cost_fresh` and
+`t_star`). `scripts/eval-score.test.mjs` pins exactly that; the scorer
+must learn To and the scenario's formula before the next rerun.
 
 ## Where SKILL.md gave two answers: settled by F2, text in O3
 

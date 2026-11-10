@@ -30,3 +30,19 @@ test("the gate names a wrong figure, a guardrail outside the vocabulary and a ba
     assert.match(r.stdout, /3 finding\(s\)/);
   } finally { rm(tree); }
 });
+
+test("the gate names a wrong cost_coord figure in a scenario and in one of its alternatives (Stage O5)", () => {
+  const tree = tmpDir("gate-eval-coord");
+  try {
+    copyTree(tree);
+    edit(tree, "22-split-coordinator-class", (s) => {
+      s.expected.calculator.cost_coord.split = "4.64";
+      s.expected.alternatives[0].calculator.cost_coord_sonnet.step_b = "4.44";
+    });
+    const r = run(path.join(tree, "scripts", "check.mjs"), [], { cwd: tree });
+    assert.equal(r.status, 1, r.out);
+    assert.match(r.stdout, /22-split-coordinator-class\.json: expected\.calculator\.cost_coord is \{"fresh":"2\.11","split":"4\.64","step_b":"4\.54"\}, the calculator gives \{"fresh":"2\.11","split":"4\.54","step_b":"4\.54"\}/);
+    assert.match(r.stdout, /22-split-coordinator-class\.json: expected\.alternatives\[0\]\.calculator\.cost_coord_sonnet is/);
+    assert.match(r.stdout, /2 finding\(s\)/);
+  } finally { rm(tree); }
+});
