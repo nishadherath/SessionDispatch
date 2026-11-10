@@ -9,7 +9,7 @@ import path from "node:path";
 import test from "node:test";
 import {
   FORMULAS, FORMULA_IN_FORCE, COORD_F_DEFAULT, COORD_O_DEFAULT, validateInputs, findModel, modelForClass,
-  sessionTurns, freshSession, coordCost, freshSide, splitCost, stepA, breakEven, roundTo,
+  sessionTurns, freshSession, coordCost, continueSide, freshSide, splitCost, stepA, breakEven, roundTo,
   effectiveTtl, missingPrices, ratesAt, planCoord,
 } from "./dispatch-core.mjs";
 import { ROOT } from "./fixtures/helpers.mjs";
@@ -170,4 +170,19 @@ test("T* adds the fresh plan's cost_coord to its fixed cost", () => {
   const fixed = same.H * out + (same.B + same.R) * cw + a.fresh.coord.total;
   assert.ok(Math.abs(be.fixed - fixed) < 1e-9);
   assert.ok(Math.abs(be.turns - fixed / ((same.C0 - same.B - same.R) * r)) < 1e-9);
+});
+
+// F8-3 (2026-11-10): the compaction penalty is a write term too. Two seeded faults that priced
+// it at the 5-minute figure under 1h (one on each side) passed every test and the gate, so both
+// are pinned here by hand on the Sonnet row: R 20,000 x 4e-6 + H 2,500 x 10e-6 = 0.105 USD at
+// 1h, and 20,000 x 2.5e-6 + 0.025 = 0.075 at 5m.
+test("under 1h the compaction penalty is priced at the 1-hour write, for the continue side and for a coordinator (F8-3)", () => {
+  const inp = { ...stage0b, formula: FORMULA_IN_FORCE, C0: 900000, T: 30, To: 10 }; // 900,000 + 30 x 6,000 is past K 970,000
+  for (const [ttl, want] of [["1h", 0.105], ["5m", 0.075]]) {
+    const cont = continueSide({ ...inp, ttl }, sonnet1h);
+    assert.ok(Math.abs(cont.penaltyCompaction - want) < 1e-9, `continue side at ${ttl}: ${cont.penaltyCompaction}`);
+    const coord = coordCost({ ...inp, ttl }, sonnet1h, 2, true); // 902,500 + 20 turns x 6,000 is past K
+    assert.equal(coord.crosses, true);
+    assert.ok(Math.abs(coord.penaltyCompaction - want) < 1e-9, `coordinator at ${ttl}: ${coord.penaltyCompaction}`);
+  }
 });
