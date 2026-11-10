@@ -114,6 +114,14 @@ model; the gate checks them, and they are null for the older formula.
 Each has alternatives at the other end of the term (this session
 coordinating, or To 0).
 
+Scenario 24 (Stage O6, 2026-11-10) is the only one under formula
+2026-11-11, at `ttl` `1h` on the table of 2026-11-10. Its T of 13 lies
+between the break-even at the 5-minute write price (9.2 turns) and at the
+1-hour one (14.2), so the lifetime alone decides: continue by break-even
+at `1h`, fresh by cost at `5m` (its alternatives, the second also under
+formula 2026-11-10). A subject that keeps the 5-minute price there gets
+the verdict wrong.
+
 The scorer contract (Stage O6b, 2026-11-10). The result block's `inputs`
 carry five optional keys, `To`, `Fo`, `Oo`, `coordinator` and `ttl`, each
 absent meaning its default (rubric section 2, subject prompt). Measure 3
