@@ -7,7 +7,7 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-11-02, thirty-second update, by the Fable session (claude-fable-5-1, high) the operator opened with the Tsunami coordinating session's report on the coordinator's cost. `docs/assessment-2026-11-02.md` checks the report and proposes stages O5, S6 and F7; D12 waits on the operator. Nothing after the v1.0.0 tag changes the skill yet.
+Last updated: 2026-11-10, thirty-third update, by the Fable session (claude-fable-5-2, high; the operator moved it from claude-fable-5-1 with /model on 2026-11-10) after the operator decided D12 as A'. Stage O5 is ready: handoff `docs/handoffs/2026-11-10-stage-o5-coordinator-term.md`, proposed as a card for an Opus high session in its own worktree. D13 waits on the operator: the main checkout holds uncommitted pricing work from two other sessions.
 
 ## Done
 
@@ -38,11 +38,13 @@ Last updated: 2026-11-02, thirty-second update, by the Fable session (claude-fab
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| None. The R1 chores (tag, tag push, worktree and branch removal) run on this commit as a Haiku sub-agent at high; they edit nothing | | | | |
+| O5: the coordinator term, formula revision, worked example, scenarios 22 and 23 | not started; proposed as a card on 2026-11-10 | Opus, high | its own worktree, cut from `main` | 60 to 90 min; 10.06 to 16.34 USD |
 
 The four installed copies (claude, codex, zcode, opencode) and the Cline rule file were written with
 `node scripts/install.mjs --harness all` on 2026-10-30 in S3; `--check` reports 0
 files behind.
+
+On 2026-11-10 `node scripts/install.mjs --harness all --check` reports 14 files behind across the four copies: the uncommitted pricing work of D13 reached some copies and not others (the Claude Code and OpenCode copies hold `pricing/2026-11-10.json` and not `pricing/2026-11-04.json` or `scripts/check-pricing.mjs`). Stage F7 reinstalls all four.
 
 ## To do
 
@@ -53,7 +55,7 @@ wall clock is the model's, operator review separate.
 
 None. H4 (the Haiku calculator cell rerun) was closed by D11 option A on 2026-10-30; the harness fix it would have proven stays a maintenance item in F5 section 4.
 
-Proposed on 2026-11-02, waiting on D12 (`docs/assessment-2026-11-02.md` section 4): O5 (Opus high, the coordinator term, formula 2026-11-02, 9.45 to 15.5 USD, 60 to 90 min), S6 (Sonnet medium, the transcript pricer and the calibration ledger, 2.1 USD, 20 to 40 min), F7 (Fable xhigh, acceptance, install, tag v1.1.0, 7.5 USD, 20 to 30 min). About 19 to 25 USD and 2 to 2.5 h on the serial chain with the sessions operator-started; 55 to 69 USD if the Fable session coordinates.
+After O5, in series, each handoff written by the stage before it (D12 option A', decided 2026-11-10; `docs/dispatch/2026-11-10-o5.json` by the calculator on `pricing/2026-11-10.json`): S6 (Sonnet medium, the transcript pricer, the Measured column, the calibration ledger, sample sizes on the defaults; 2.16 USD, 20 to 40 min), then F7 (Fable xhigh, acceptance of O5 and S6, the install, the tag v1.1.0 with the operator's yes for the tag push; 6.28 USD, 20 to 30 min). The chain with O5: 18.68 to 24.96 USD and 100 to 160 min of wall clock, operator review about 45 min separately. No session coordinates: the operator starts each one, and the Fable session that wrote the O5 handoff ends.
 
 Not staged: C1 (variant C) and its acceptance F6, closed by D10 option A,
 confirmed by the operator on 2026-10-30; O4 declined (F4 section 2.3).
@@ -79,7 +81,8 @@ assessment; D8 and D9 are repeated below.
 - D9 H2's size: A (120 runs), decided by the operator on 2026-10-30; below.
 - D10 Variant C staged or closed (F4, 2026-10-30; reopened by H3; ruled by F5 on 2026-10-30): A, variant C closed, confirmed by the operator on 2026-10-30 ("Yes, A on both"); `docs/assessment-2026-10-30-f5.md` section 2; the D2 note in `docs/operator-preferences.json` records the closure. Nothing waits on it.
 - D11 Haiku cell rerun on the fixed harness, H4 (F5, 2026-10-30): A (decline), decided by the operator on 2026-10-30 ("Yes, A on both"); H4 is not run, and the floor's Haiku figure stays a hand figure taken partly under compaction, as the text says. Nothing waits on it.
-- D12 The coordinator's cost in the formula (2026-11-02, from the Tsunami report): waiting on the operator. Recommended A' (the term, the coordinator rule, the calibration loop; stages O5, S6, F7, operator-started). Five parts below and in `docs/assessment-2026-11-02.md` section 6.
+- D12 The coordinator's cost in the formula (2026-11-02, from the Tsunami report): A', decided by the operator on 2026-11-10 ("A' as recommended"). Stages O5, S6 and F7, operator-started. Five parts below and in `docs/assessment-2026-11-02.md` section 6.
+- D13 The uncommitted pricing work in the main checkout (found 2026-11-10): waiting on the operator. Recommended A, commit it as found in one commit of its own and put it in F7's acceptance. Five parts below.
 - F3-7 H2's runner (the coordinating session's, not the operator's): A, the `Agent` runner as H1 used it, decided 2026-10-30 so that H1 and H2 share one harness and F4 can attribute any change to the text; S4's CLI runner follows H2.
 - Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`: answered yes by the operator on 2026-10-30 (S3); the blocks were already there and stay.
 
@@ -131,4 +134,14 @@ Options:       A' the report's term, amended: To per plan at the coordinator's c
 Pros and cons: A' closes the largest projection error on record (56 against 5.3 USD), makes a Fable coordinator's price visible beside a Sonnet one in every record, gives the defaults a path to become measurements, and tells a subject the harness limit that decides who can coordinate; it costs 19 to 25 USD and about 2.5 hours, and its term is unscored on a subject until the next rerun. A costs about the same and leaves the turn count, the main error, as an unmeasured default with no way to improve it, and leaves the one-quarter figure at one tenth. B costs about 1 USD and 20 minutes; the gate cannot check what it adds, and the calculator can already give the number (its continue side with T = To), so B is a text pointer to arithmetic the skill does not own. C repeats the omission on the next dispatch; on this one it was the difference between 38.7 and 82 USD.
 Blast radius:  A' and A: this repository (v1.1.0), the installed copies on this machine (every Claude Code project, Tsunami included, plus codex and opencode), the record template; past records safe by formula date; the class floor's figures stay on the 2026-10-29 formula until the next rerun; Tsunami's repository unchanged. B: SKILL.md and the installed copies. C: nothing.
 Recommended:   A', with the three sessions started by the operator from cards so that this session does not become the stage's dearest piece; B is the fallback if 2.5 hours is too much now, and A' can follow it.
+Decided:       A', by the operator on 2026-11-10 ("A' as recommended"); the O5 handoff carries it.
+```
+
+```
+D13
+Decision:      What happens to the uncommitted work in the main checkout that two other sessions left: a Codex session on 2026-11-04 (OpenAI rows and classes in `pricing/2026-11-04.json`, `scripts/check-pricing.mjs` and its test, one line of `SKILL.md` step 1.4, `scripts/pricing-new.mjs`, two test files, a changelog line) and the price-table session on 2026-11-10 (`pricing/2026-11-10.json`: `claude-fable-5-2` in place of `claude-fable-5-1`, `max_age_days` 8).
+Options:       A commit it now on `main`, as found, in one commit that names both sessions and says it is unaccepted, and add it to F7's acceptance / B leave it for the sessions that wrote it; O5 and S6 work in worktrees and nothing is merged into `main` until it is committed / C commit the two tables only and hold the script and the `SKILL.md` line for a stage of their own
+Pros and cons: A makes `main` clean, so O5's branch can be merged and every session prices from the same table; the gate is green on it (109 files, 0 findings; 49 tests pass, 2026-11-10); it puts on `main` a change to `SKILL.md` and a second table validator that no session has accepted. B costs nothing now and keeps authorship with its sessions; `main` stays unmergeable, a fresh worktree prices from the table of 2026-10-29 (stale from 2026-11-13) and has no row for `claude-fable-5-2`, and six days have already passed without a commit. C gets the prices onto `main` and defers the unaccepted code; the working tree stays dirty in five files.
+Blast radius:  A and C: `main` and `origin` (the standing yes covers the push); the installed copies stay as they are until F7 reinstalls. B: none now; the merge of O5, S6 and the tag wait.
+Recommended:   A, because the work is green, the operator asked for it in those sessions, and an uncommitted table in force is the state the protocol's handoff rule exists to prevent. F7 then looks at three things in it: `max_age_days` is 8 in the table while `SKILL.md`, `AGENTS.md` rule 3, `pricing/README.md` and the protocol say 14 in prose; the `claude-fable-5-1` row is gone although the vendor still lists the model, so a session on it gets an input error and the table's note tells it to price from an older table, which step 1.4 does not allow; and `scripts/check-pricing.mjs` repeats the rules of `checkPricing` in `scripts/check.mjs` with small differences (https only, the unit, staleness per family), two owners for one rule.
 ```

@@ -1,0 +1,26 @@
+{
+  "_note": "Stage O5 (2026-11-10): the session dispatch decision of claude-fable-5-2 at high for the coordinator term, after the operator chose D12 option A' (docs/assessment-2026-11-02.md). Run: node scripts/dispatch.mjs --json docs/dispatch/2026-11-10-o5.json --today 2026-11-10 (and with --T 90 for the upper end). Table pricing/2026-11-10.json, in force by name in the main checkout and uncommitted on this day (D13). C0 235,789 and B 64,840 measured by get_usage self at 18:37 local (total less Messages 170,949). T 60 to 90, an estimate. R 82,000 for a fresh Opus session, characters divided by 4 (3.5 for code): the handoff 4,500, the assessment 4,950, SKILL.md 7,450, dispatch-core 3,330, dispatch.mjs 4,190, check.mjs 9,225, check.test.mjs 1,735, the record template 1,000, the worked example 2,690, eval/README.md 4,220, scenario 07 880, the protocol 8,100, the Opus persona 13,260 and its two language files 1,060, status 7,050, README 4,370, Tsunami's handoff 38 sections 10 and 13 and D-112 about 4,500. Ta 20 and Ra 60,000 are estimates for the split figure only. Pieces: S6 reads the Sonnet persona 12,630, the protocol, status, the handoff, the assessment, SKILL.md, the templates and Tsunami's session_cost.py: about 50,000; F7 reads the Fable persona, the protocol, status, the two handoffs, the assessment and the diffs: about 75,000.",
+  "formula": "2026-10-29",
+  "current": "claude-fable-5-2",
+  "target": "opus",
+  "W": 1000000,
+  "K": 970000,
+  "C0": 235789,
+  "compacted": false,
+  "T": 60,
+  "F": 3000,
+  "O": 3000,
+  "B": 64840,
+  "R": 82000,
+  "H": 4500,
+  "M": 0,
+  "L": 0,
+  "Ta": 20,
+  "Ra": 60000,
+  "pieces": [
+    { "name": "O5 the coordinator term, T 60", "model": "claude-opus-5-5", "effort": "high", "T": 60, "F": 3000, "O": 3000, "R": 82000 },
+    { "name": "O5 the coordinator term, T 90", "model": "claude-opus-5-5", "effort": "high", "T": 90, "F": 3000, "O": 3000, "R": 82000 },
+    { "name": "S6 pricer, ledger, sample sizes", "model": "claude-sonnet-5-5", "effort": "medium", "T": 40, "F": 3000, "O": 1500, "R": 50000 },
+    { "name": "F7 acceptance, install, tag", "model": "claude-fable-5-2", "effort": "xhigh", "T": 20, "F": 5000, "O": 3000, "R": 75000 }
+  ]
+}
