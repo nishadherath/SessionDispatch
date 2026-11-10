@@ -7,7 +7,7 @@ Price table: `pricing/<date>.json` (age N days).
 
 | Input | Value | Source (measured or estimated, and how) |
 |---|---|---|
-| Formula | 2026-10-29 | `SKILL.md` step 2 as of that date |
+| Formula | 2026-11-10 | `SKILL.md` step 2 as of that date |
 | Current model | | The harness's report of this session's model |
 | Target model | | Matrix row of step 3.1, then the table's model for that class; null with the reason when the table cannot give one (step 1.4.4) |
 | Window W | | |
@@ -25,6 +25,8 @@ Price table: `pricing/<date>.json` (age N days).
 | Rediscovery turns L | 0 when the unrecorded list is empty | |
 | Acceptance turns Ta | split only | |
 | Acceptance re-read Ra | split only | |
+| Coordinating turns To | per piece; 0 when the operator starts the sessions | Who starts, receives, verifies, merges and records (step 3.2 rule 7); the count or the step 1.2 default |
+| Coordinator | model id or class; this session when left out | Matrix row "Coordinating a dispatched chain"; a session started by another cannot start sessions |
 | Task type | row of the matrix | |
 | Design-heavy | yes or no | |
 | Irreversible or outward-facing steps | list or "none" | |
@@ -43,11 +45,17 @@ C_fresh = B + R + T * G / 2     =
 cost_continue = T*C_cont*p_cr + T*G*p_cw + T*O*p_out + M*C_cont*(p_cw - p_cr) + penalty_compaction
               =      USD
 cost_fresh    = H*p_out[current] + (B+R)*p_cw + T*C_fresh*p_cr + T*G*p_cw + T*O*p_out
-                + M*C_fresh*(p_cw - p_cr) + penalty_loss
+                + M*C_fresh*(p_cw - p_cr) + penalty_loss + cost_coord (To x 1 piece)
               =      USD
-T* = (H*p_out + (B+R)*p_cw) / ((C0 - B - R) * p_cr) = <n> turns, or n/a: the model changes
-cost_split    = H*p_out[current] + run at sonnet + acceptance at opus (Ta, Ra)
+T* = (H*p_out + (B+R)*p_cw + cost_coord) / ((C0 - B - R) * p_cr) = <n> turns, or n/a: the model changes
+cost_split    = H*p_out[current] + run at sonnet + acceptance at opus (Ta, Ra) + cost_coord (To x 2 pieces)
               =      USD, or not computed: the target is below opus
+
+cost_coord: To <n> per piece on <coordinator>, from C0 + H (this session) or B + H (a fresh session)
+  fresh, 1 piece, <To> turns      =      USD
+  split, 2 pieces, <2 To> turns   =      USD
+  Step B, <n> pieces, <n To> turns =     USD
+  on <sonnet model id>, a fresh session from B + H = <n>: fresh <>, split <>, Step B <> USD
 ```
 
 Prices used (per million): input, output, cache_read, cache_write for
@@ -61,6 +69,8 @@ break-even>, margin <amount and percent of the smaller>.
 | Piece | Class | Model id (from table) | Effort | Oracle | Serial or parallel | Cost |
 |---|---|---|---|---|---|---|
 | | | | | | | |
+
+Coordination: <the operator, or the session and its class>, To <n> per piece, cost_coord <> USD; the plan's total, pieces plus cost_coord: <> USD.
 
 Serial chain and its wall clock: <>. Operator review time: <>.
 

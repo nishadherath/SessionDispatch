@@ -12,21 +12,32 @@
 // only to the turns past its threshold. Turn t reads C_start + (t - 1/2) * G,
 // which makes the per-turn sum equal the closed form T * C_avg of step 1.3
 // whenever no tier applies; the gate checks the examples on that identity.
-// Two formulas are kept, selected by name: 2026-10-29 (in force) and
-// 2026-10-27 (as the records of that date applied it).
+// Three formulas are kept, selected by name, each adding to the one before:
+// 2026-10-27 (as the records of that date applied it); 2026-10-29 (growth
+// F + O, the miss term, the handoff at the current model); 2026-11-10, in
+// force (cost_coord, the session that coordinates a dispatched plan).
 
-export const FORMULA_IN_FORCE = "2026-10-29";
 export const FORMULA_OLD = "2026-10-27";
-export const FORMULAS = Object.freeze([FORMULA_OLD, FORMULA_IN_FORCE]);
+export const FORMULA_GROWTH = "2026-10-29";
+export const FORMULA_COORD = "2026-11-10";
+export const FORMULA_IN_FORCE = FORMULA_COORD;
+export const FORMULAS = Object.freeze([FORMULA_OLD, FORMULA_GROWTH, FORMULA_COORD]);
+/** Whether formula `f` carries the terms that formula `since` introduced. */
+export const formulaHas = (f, since) => FORMULAS.includes(f) && FORMULAS.indexOf(f) >= FORMULAS.indexOf(since);
+// SKILL.md step 1.2: the coordinator's turns are writing-heavy (briefs, notes,
+// records), 3,000 in and 3,000 out; the one measurement (Tsunami 2026-11-02,
+// 6,446 written and 2,825 output per call) supports both. Fo and Oo override.
+export const COORD_F_DEFAULT = 3000;
+export const COORD_O_DEFAULT = 3000;
 // SKILL.md step 2 verdict rule; retuned only on evaluation data (Stage F2).
 export const BAND_PERCENT = 10;
 export const CLASS_RANK = Object.freeze({ haiku: 1, sonnet: 2, opus: 3, fable: 4 });
 const PRICE_KEYS = ["input", "output", "cache_read", "cache_write"];
 const USD_PER_TOKEN_PER_TABLE_UNIT = 1e-6; // table figures are USD per million tokens
 
-/** Integer inputs every formula needs, in record order. M and L default to 0. */
+/** Integer inputs every formula needs, in record order. M, L and To default to 0. */
 export const REQUIRED_SYMBOLS = Object.freeze(["W", "K", "C0", "T", "F", "O", "B", "R", "H"]);
-export const OPTIONAL_SYMBOLS = Object.freeze(["M", "L", "Ta", "Ra"]);
+export const OPTIONAL_SYMBOLS = Object.freeze(["M", "L", "Ta", "Ra", "To", "Fo", "Oo"]);
 
 /**
  * Validates stated inputs. Returns a list of messages, each naming the input,
@@ -38,6 +49,7 @@ export function validateInputs(inp) {
   for (const k of REQUIRED_SYMBOLS) if (!nonNeg(k)) errors.push(`${k} must be a non-negative number, found ${JSON.stringify(inp[k])}`);
   for (const k of OPTIONAL_SYMBOLS) if (inp[k] !== undefined && !nonNeg(k)) errors.push(`${k} must be a non-negative number or left out, found ${JSON.stringify(inp[k])}`);
   for (const k of ["T", "Ta"]) if (inp[k] !== undefined && !(Number.isInteger(inp[k]) && inp[k] >= 1)) errors.push(`${k} must be a whole number of turns, 1 or more, found ${JSON.stringify(inp[k])}`);
+  if (nonNeg("To") && !Number.isInteger(inp.To)) errors.push(`To must be a whole number of turns, 0 or more, per piece, found ${JSON.stringify(inp.To)}`);
   if (typeof inp.compacted !== "boolean") errors.push(`compacted must be yes or no, found ${JSON.stringify(inp.compacted)}`);
   if (!FORMULAS.includes(inp.formula)) errors.push(`formula must be one of ${FORMULAS.join(", ")}, found ${JSON.stringify(inp.formula)}`);
   return errors;
@@ -124,8 +136,43 @@ export function freshSession(model, { B, R, T, G, O, M = 0, L = 0 }) {
 
 /** Growth per turn and the miss count under a formula. */
 function formulaTerms(inp) {
-  const isNew = inp.formula === FORMULA_IN_FORCE;
+  const isNew = formulaHas(inp.formula, FORMULA_GROWTH);
   return { G: isNew ? inp.F + inp.O : inp.F, M: isNew ? (inp.M ?? 0) : 0, isNew };
+}
+
+/**
+ * cost_coord (formula 2026-11-10): To turns per piece, times `pieces`, of the
+ * session that coordinates a plan after its briefs are written (start, note,
+ * verify, merge, record). `continues` true: this session stays, so its turns
+ * run from C0 + H on its own model (the continue side's arithmetic); false: a
+ * fresh session of `model` that first reads B + H. Growth Fo + Oo, output Oo,
+ * no misses; the continue side's compaction penalty when the coordinator would
+ * cross K. No turns, no session: 0.
+ */
+export function coordCost(inp, model, pieces, continues) {
+  if (!(Number.isInteger(pieces) && pieces >= 1)) throw new Error(`coordCost: pieces must be a whole number, 1 or more, found ${JSON.stringify(pieces)}`);
+  const turns = (inp.To ?? 0) * pieces;
+  const Oo = inp.Oo ?? COORD_O_DEFAULT;
+  const G = (inp.Fo ?? COORD_F_DEFAULT) + Oo;
+  const cStart = continues ? inp.C0 + inp.H : inp.B + inp.H;
+  const base = { model: model.id, continues, pieces, turns, G, O: Oo, cStart, crosses: false };
+  if (turns === 0) return { ...base, first: 0, reads: 0, writes: 0, output: 0, misses: 0, tierTurns: 0, penaltyCompaction: 0, total: 0 };
+  const first = continues ? 0 : cStart * ratesAt(model, cStart).cw;
+  const s = sessionTurns(model, { cStart, T: turns, G, O: Oo, M: 0 });
+  const crosses = cStart + turns * G > inp.K;
+  const cb = ratesAt(model, 0);
+  const penaltyCompaction = crosses ? inp.R * cb.cw + inp.H * cb.out : 0;
+  return { ...base, crosses, first, ...s, penaltyCompaction, total: first + s.reads + s.writes + s.output + penaltyCompaction };
+}
+
+/**
+ * The plan's cost_coord at the coordinator (default: this session); To counts
+ * as 0 before formula 2026-11-10, so the older formulas reproduce their records.
+ */
+export function planCoord(inp, current, coordinator, pieces) {
+  const c = coordinator ?? current;
+  const x = formulaHas(inp.formula, FORMULA_COORD) ? inp : { ...inp, To: 0 };
+  return coordCost(x, c, pieces, c.id === current.id);
 }
 
 /** Step 1.3: growth and the three context figures, before any price. */
@@ -149,27 +196,29 @@ export function continueSide(inp, current) {
 /**
  * Step A, `fresh`: the handoff H written by this session at the current
  * model's output rate (formula 2026-10-27: at the target's, as the records of
- * that date did), then a fresh session on the target model.
+ * that date did), then a fresh session on the target model, then (formula
+ * 2026-11-10) cost_coord for one piece at the coordinator, default this session.
  */
-export function freshSide(inp, current, target) {
+export function freshSide(inp, current, target, coordinator) {
   const g = growth(inp);
-  const isNew = inp.formula === FORMULA_IN_FORCE;
+  const isNew = formulaHas(inp.formula, FORMULA_GROWTH);
   const handoff = inp.H * (isNew ? ratesAt(current, inp.C0).out : ratesAt(target, 0).out);
   const fs = freshSession(target, { B: inp.B, R: inp.R, T: inp.T, G: g.G, O: inp.O, M: g.M, L: g.L });
-  return { model: target.id, handoff, ...fs, total: handoff + fs.total };
+  const coord = planCoord(inp, current, coordinator, 1);
+  return { model: target.id, handoff, ...fs, coord, total: handoff + fs.total + coord.total };
 }
 
 /** Step A in full: both sides and the draft verdict. */
-export function stepA(inp, current, target) {
+export function stepA(inp, current, target, coordinator) {
   const g = growth(inp);
   const cont = continueSide(inp, current);
-  const fresh = freshSide(inp, current, target);
+  const fresh = freshSide(inp, current, target, coordinator);
   const classUp = CLASS_RANK[target.class] > CLASS_RANK[current.class];
   return { formula: inp.formula, ...g, cont, fresh, classUp, verdict: draftVerdict(cont.total, fresh.total, { compacted: inp.compacted, crosses: g.crosses, classUp }) };
 }
 
 /**
- * Break-even turns T* = (H*p_out + (B+R)*p_cw) / ((C0 - B - R) * p_cr'), with
+ * Break-even turns T* = (H*p_out + (B+R)*p_cw + cost_coord) / ((C0 - B - R) * p_cr'), with
  * p_cr' = p_cr + (M/T)(p_cw - p_cr). Growth cancels: C_cont - C_fresh = C0 - B - R.
  * `settles` lists why it cannot stand in for the full step; empty means T < T*
  * settles step A as continue.
@@ -177,7 +226,8 @@ export function stepA(inp, current, target) {
 export function breakEven(inp, current, target, a) {
   if (current.id !== target.id) return { turns: null, settles: ["the model changes; compare the totals"] };
   const r = ratesAt(current, 0);
-  const fixed = inp.H * r.out + (inp.B + inp.R) * r.cw;
+  // cost_coord is a fixed cost of the fresh plan: To does not grow with T.
+  const fixed = inp.H * r.out + (inp.B + inp.R) * r.cw + (a.fresh.coord?.total ?? 0);
   const gap = inp.C0 - inp.B - inp.R;
   const perTurn = gap * (r.cr + (a.M / inp.T) * (r.cw - r.cr));
   const turns = gap > 0 ? fixed / perTurn : Infinity;
@@ -193,15 +243,17 @@ export function breakEven(inp, current, target, a) {
 /**
  * The split: this session writes the brief (size H), a fresh sonnet-class
  * session runs the stage, a fresh opus-class session accepts it over Ta turns
- * reading Ra. Null when Ta or Ra is not stated.
+ * reading Ra, and (formula 2026-11-10) cost_coord for its two pieces at the
+ * coordinator, default this session. Null when Ta or Ra is not stated.
  */
-export function splitCost(inp, current, runner, acceptor) {
+export function splitCost(inp, current, runner, acceptor, coordinator) {
   if (inp.Ta === undefined || inp.Ra === undefined) return null;
   const { G, M } = formulaTerms(inp);
   const brief = inp.H * ratesAt(current, inp.C0).out;
   const run = freshSession(runner, { B: inp.B, R: inp.R, T: inp.T, G, O: inp.O, M, L: inp.L ?? 0 });
   const accept = freshSession(acceptor, { B: inp.B, R: inp.Ra, T: inp.Ta, G, O: inp.O });
-  return { brief, run, accept, runner: runner.id, acceptor: acceptor.id, total: brief + run.total + accept.total };
+  const coord = planCoord(inp, current, coordinator, 2);
+  return { brief, run, accept, coord, runner: runner.id, acceptor: acceptor.id, total: brief + run.total + accept.total + coord.total };
 }
 
 /** Step 3.3: one piece priced as a fresh session or sub-agent (no handoff). */
