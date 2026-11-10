@@ -18,8 +18,11 @@ Files this skill uses, relative to its own folder:
 - `templates/decision-record.md`: the section you fill in and paste
   into the handoff.
 - `templates/handoff.md`: the handoff shape, if the project has none.
+- `examples/2026-11-02-tsunami-rebalancing-dashboard.md`: a filled
+  record under the formula in force, with a coordinator, four pieces and
+  the measured costs beside the formula's.
 - `examples/2026-10-29-sessiondispatch-stage-0b.md`: a filled record
-  under the formula in force, with a class change and the split.
+  under the formula of 2026-10-29, with a class change and the split.
 - `examples/2026-10-27-fork-graft-stage-26.md`: a filled record under
   the formula of 2026-10-27.
 - `scripts/dispatch.mjs`, where the copy you run has `scripts/`: the
@@ -30,7 +33,7 @@ Prose rules for everything you write under this skill: Australian
 English, no em-dashes, no AI-telltale vocabulary (the engineering
 persona's section 14.1 lists it), numbers with their units and sources.
 
-**Class floor (measured 2026-10-30).** This procedure is written for the Sonnet class and above. On the twenty-scenario evaluation in the SessionDispatch repository (`eval/results-2026-10-31.md`), a Sonnet-class subject reached the expected verdict in 40 of 40 runs with the calculator and 40 of 40 by hand. A Haiku-class subject reached it in 17 of 20 with the calculator and 19 of 20 by hand on the scorer's count; the two further calculator misses were records whose verdict was right and whose machine-readable result block (the evaluation's output contract) was malformed. On the rerun through the command-line harness (`eval/results-2026-11-01.md`, 21 scenarios, one run each, calculator arm), Sonnet reached the expected verdict in 21 of 21 and Haiku in 13 of 21 on the scorer's count: every one of Haiku's 20 written records was right on the verdict, model and effort, 7 of them broke the result block's field types, and one run wrote no record. In that harness the shell refused every Haiku attempt to run the calculator and three Haiku runs report their own session summarised mid-run, so the Haiku figure there is a hand figure taken partly under compaction (Stage F5's reading, `docs/assessment-2026-10-30-f5.md`). A Haiku-class model therefore follows the procedure but is not relied on for the machine-readable record: where one runs it, keep the calculator on and have a parser check the handoff's front matter and the record's figures before anything acts on them.
+**Class floor (measured 2026-10-30).** This procedure is written for the Sonnet class and above. On the twenty-scenario evaluation in the SessionDispatch repository (`eval/results-2026-10-31.md`), a Sonnet-class subject reached the expected verdict in 40 of 40 runs with the calculator and 40 of 40 by hand. A Haiku-class subject reached it in 17 of 20 with the calculator and 19 of 20 by hand on the scorer's count; the two further calculator misses were records whose verdict was right and whose machine-readable result block (the evaluation's output contract) was malformed. On the rerun through the command-line harness (`eval/results-2026-11-01.md`, 21 scenarios, one run each, calculator arm), Sonnet reached the expected verdict in 21 of 21 and Haiku in 13 of 21 on the scorer's count: every one of Haiku's 20 written records was right on the verdict, model and effort, 7 of them broke the result block's field types, and one run wrote no record. In that harness the shell refused every Haiku attempt to run the calculator and three Haiku runs report their own session summarised mid-run, so the Haiku figure there is a hand figure taken partly under compaction (Stage F5's reading, `docs/assessment-2026-10-30-f5.md`). A Haiku-class model therefore follows the procedure but is not relied on for the machine-readable record: where one runs it, keep the calculator on and have a parser check the handoff's front matter and the record's figures before anything acts on them. These figures were measured under the formula of 2026-10-29, before the coordinator term To of 2026-11-10 (step 2); no subject has been scored on that term yet, and it stays unscored until the next required rerun.
 
 ## 0. Should this skill run at all
 
@@ -90,6 +93,8 @@ say so. Never present an estimate as a measurement.
 | Cache misses over the stage | M | Turns whose prompt is no longer in cache and is written again in full. Pauses longer than the cache lifetime cause them (operator review, a long tool run), and so does any change early in the prompt. Unmeasured so far: default 0, say so, and in step 5 count one miss per review pause you expect. |
 | Rediscovery turns | L | Turns a fresh session would spend finding again the unrecorded context you choose not to write down. 0 when that list is empty. |
 | Acceptance turns and re-read | Ta, Ra | For the split of step 2.1 only: the turns an acceptance session takes and what it reads (the brief, the diff, the files named). |
+| Coordinating turns per piece | To | Turns the coordinating session spends after the briefs are written: starting each session, receiving its note, running the oracle on its result, merging, re-exporting, recording the outcome and talking to the operator. Count per piece: start 1, note 1, verification 3 to 10, merge 2 to 5, record 1 to 3; the floor by count is 8. Default 30 per piece, range 20 to 40 (n = 1, Tsunami 2026-11-02, an upper bound that included other work); test 40 in step 5. 0 when the operator starts the sessions and this session ends; say which. The fresh plan has 1 piece, the split 2 (run and acceptance), a step 3.3 plan as many as it lists. |
+| Coordinator and its turn sizes | Fo, Oo | The session that coordinates: this session unless the plan names another (step 3.2, rule 7). Its turns are writing-heavy: Fo 3,000 and Oo 3,000 unless measured (n = 1, the same stage: 6,446 tokens written and 2,825 output per call). |
 | Task type | one of the rows in step 3.1 | Decides the model class. If the stage mixes types, split it into pieces and dispatch each piece. |
 | Design-heavy | yes or no | Yes when the stage involves choosing between designs, cross-module changes, evaluation design, or an assessment. Guardrail 2 depends on this. |
 | Irreversible or outward-facing steps | list | Pushes, deletions, releases, messages, purchases, anything that leaves the machine. Guardrail 3 depends on this. |
@@ -163,7 +168,8 @@ Then price each side at the model that would run it:
   model does the work.
 - `fresh` at the target class's model from the table. The handoff H is
   written by this session, so it is priced at the current model's
-  output rate.
+  output rate, and the coordinator's turns (`cost_coord`, To for one
+  piece) at the coordinator's model.
 
 If the target class is above the current one, continuing would run the
 work below its class: the verdict is fresh, by class. Compute both
@@ -176,13 +182,13 @@ a JSON file (keys as the symbols; `--help` lists them) or as flags:
 
 ```
 node scripts/dispatch.mjs --json inputs.json
-node scripts/dispatch.mjs --current <model id> --target <class> --W .. --K .. --C0 .. --T .. --F .. --O .. --B .. --R .. --H .. --compacted no
+node scripts/dispatch.mjs --current <model id> --target <class> --W .. --K .. --C0 .. --T .. --F .. --O .. --B .. --R .. --H .. --To .. --coordinator <id or class> --compacted no
 ```
 
 It reads the table in force, refuses a stale table or a null price as
 step 1.4 says (exit 2 and 3), and prints the block below filled in,
-with T*, the split and the cost per piece. Paste its block into the
-record. Without it, compute by hand:
+with T*, the split, `cost_coord` per plan and the cost per piece. Paste
+its block into the record. Without it, compute by hand:
 
 ```
 G             = F + O
@@ -200,10 +206,29 @@ cost_fresh    = H * p_output[current]              (writing the handoff, in this
               + T * O       * p_output
               + M * C_fresh * (p_cache_write - p_cache_read)
               + penalty_loss
-              at the target model's prices, except H
+              + cost_coord for 1 piece
+              at the target model's prices, except H and cost_coord
+
+cost_coord    = To * pieces turns at the coordinator's model, Go = Fo + Oo:
+                this session:  from C0 + H, the continue side's terms
+                               (reads, Go * p_cache_write, Oo * p_output),
+                               no misses, penalty_compaction if
+                               C0 + H + To * pieces * Go > K
+                another model: (B + H) * p_cache_write, then the same
+                               terms from B + H
 ```
 
 Prices are per token here (the table's figure divided by one million).
+
+`cost_coord` prices the session that stays alive after the briefs are
+written to start the sessions, receive their notes, verify, merge and
+record. It belongs to every plan that has a coordinator (fresh 1 piece,
+the split 2, step 3.3 every piece) and never to the continue side,
+where T already counts every turn. It is 0 when To is 0. Its largest
+part is output at the coordinator's rate, so the coordinator's class
+moves it more than its context does: the calculator prints the same
+turns on the sonnet-class model as a fresh session beside it, which is
+what step 3.2's rule 7 would save.
 
 Every token that grows the context is written to cache once, the turn
 after it appears, so the write term is T * G: the output is written as
@@ -235,10 +260,11 @@ compacted and L is 0, the growth terms cancel (C_cont - C_fresh = C0 -
 B - R) and fresh pays off on cost only after
 
 ```
-T* = (H * p_output + (B + R) * p_cache_write) / ((C0 - B - R) * p_cache_read)
+T* = (H * p_output + (B + R) * p_cache_write + cost_coord) / ((C0 - B - R) * p_cache_read)
 ```
 
-turns. With misses, replace p_cache_read in the divisor by p_cache_read
+turns (`cost_coord` for the fresh plan's one piece; it does not grow
+with T). With misses, replace p_cache_read in the divisor by p_cache_read
 + (M / T) * (p_cache_write - p_cache_read). If C0 is not above B + R,
 fresh never pays off on cost. If T is under T*, write "Draft verdict:
 continue, by break-even, T <n> under T* <n>" and go to step 3; Step A
@@ -248,7 +274,7 @@ Verdict rule:
 
 1. If the target class is above the current one, fresh wins, by class.
 2. If one cost is lower by more than 10 percent of the smaller, that
-   side wins on cost.
+   side wins on cost. `cost_fresh` includes its `cost_coord`.
 3. If the costs are within 10 percent, the quality terms decide: a
    session that has compacted once, or will cross K, loses; otherwise
    continue, because a handoff is work and a fresh session starts
@@ -257,9 +283,12 @@ Verdict rule:
    cost | quality | break-even>, margin <amount and percent of the
    smaller>."
 
-Records dated before 2026-10-29 used the formula of 2026-10-27: growth
-F, no miss term, and every fresh-side price, H included, at the target
-model. `node scripts/dispatch.mjs --formula 2026-10-27` reproduces them.
+Records dated before 2026-11-10 used the formula of 2026-10-29:
+everything above without `cost_coord` (To counts as 0). `node
+scripts/dispatch.mjs --formula 2026-10-29` reproduces them. Records
+dated before 2026-10-29 used the formula of 2026-10-27: growth F, no
+miss term, and every fresh-side price, H included, at the target model.
+`node scripts/dispatch.mjs --formula 2026-10-27` reproduces them.
 
 ### 2.1 The split comparison
 
@@ -272,10 +301,13 @@ the author, matrix row 4).
 cost_split = H * p_output[current]                     (the brief)
            + the fresh side's terms at the sonnet model, without H
            + (B + Ra) * p_cache_write + Ta turns from B + Ra at the opus model
+           + cost_coord for 2 pieces                   (step 2, at the coordinator)
 ```
 
 The acceptance session is priced without cache misses: M applies to the
-run, not to the Ta turns. If the run includes an irreversible or
+run, not to the Ta turns. The split has two sessions to start, receive
+and verify, so it pays the coordinator twice what fresh does: a split
+that saves less than the extra To turns cost is not cheaper. If the run includes an irreversible or
 outward-facing step, the brief carries guardrail 3's approval line.
 
 The split is an option only when the brief can carry a contract, the
@@ -305,6 +337,7 @@ model in the needed class, use the next class up, never down.
 | Cross-module merges, evaluation design, specification of ambiguous work, diagnosis of intermittent failures, writing briefs a lower class executes | Opus | high | Long-horizon coherence and self-critique are the job. |
 | Adversarial acceptance of another agent's work | one class above the author; Fable when the author is Opus; the top class when the author is the top class | high; xhigh when the author is the top class (the acceptor shares the class, so effort is the only lever left) or when the accepted change is a release or a merge | A reviewer at the author's class shares the author's blind spots. This row is the one effort rule for acceptance; guardrail 6 points here. |
 | Whole-project assessments, roadmaps, cost models, the tiering decision itself | Fable (the top class available) | high | Mistakes here are copied into every later stage. |
+| Coordinating a dispatched chain whose briefs name their oracles: start, receive, verify, merge, record | Sonnet | medium | The oracle is the intelligence; a session that only reads an exit code and merges a branch pays for class it does not use. Escalate on a failed verification the oracle cannot explain. |
 
 Raise effort one step when any of these holds: the stage contains an
 irreversible or outward-facing step; the change touches security,
@@ -341,6 +374,14 @@ measured failure or an escalation trigger (the persona's section 3.3).
    their model and effort set; a fresh session needs the operator to
    pick the model, so the handoff states the model id and the effort
    on its first lines.
+7. The session that writes the briefs starts or proposes every session
+   of the chain in its last turns and then ends; it does not stay alive
+   to coordinate when its class is above the coordinator row of step
+   3.1. In the Claude Code desktop app a session started by another
+   session cannot start sessions (verified 2026-10-29), and a session
+   starts only models at or below its own class, so the coordinator is
+   either the operator or a session the operator starts. The plan names
+   the coordinator, its class and To, and prices To at that class.
 
 ### 3.3 Write the plan
 
@@ -349,7 +390,9 @@ oracle, serial or parallel, and its cost as a fresh session by the step
 2 formula (first read of B + R, then T turns) with that piece's T, F, O
 and R. A sub-agent's B is its own baseline, usually smaller than a
 session's; state it. The calculator prices pieces given as `pieces` in
-its JSON input. Sum the pieces for the stage cost. Add the
+its JSON input. Name the coordinator (step 3.2, rule 7). The stage cost
+is the sum of the pieces plus `cost_coord` for To times the number of
+pieces at the coordinator's model; with To 0, the pieces alone. Add the
 time projection: the serial chain's wall clock plus the operator's
 review time, stated separately.
 

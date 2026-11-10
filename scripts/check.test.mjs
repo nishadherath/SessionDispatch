@@ -115,6 +115,31 @@ test("a term line, a product line and a Step B cost that disagree with the input
   });
 });
 
+// Stage O5: the coordinator term in the example of formula 2026-11-10, in all three places it is stated.
+test("a wrong cost_coord figure in the Tsunami example exits 1, in the term line, the plan line and the sonnet line", () => {
+  withTree("gate-coord", (tree) => {
+    const ex = "2026-11-02-tsunami-rebalancing-dashboard.md";
+    mutateExample(tree, ex, "  cost_coord                      = 8.562", "  cost_coord                      = 8.662");
+    mutateExample(tree, ex, "  Step B, 4 pieces, 120 turns     = 42.35 USD", "  Step B, 4 pieces, 120 turns     = 42.45 USD");
+    mutateExample(tree, ex, "fresh 2.14, split 4.58, Step B 11.09 USD", "fresh 2.14, split 4.58, Step B 11.19 USD");
+    const r = runGate(tree);
+    assert.equal(r.status, 1, r.out);
+    assert.match(r.stdout, /Step A: cost_fresh term 8 \(cost_coord\) states 8\.662, the inputs give 8\.5621/);
+    assert.match(r.stdout, /Step A: cost_coord Step B is 42\.45 USD, the inputs give 42\.3485 on claude-fable-5-1/);
+    assert.match(r.stdout, /Step A: cost_coord Step B on claude-sonnet-5-5 is 11\.19 USD, the inputs give 11\.0929/);
+    assert.match(r.stdout, /3 finding\(s\)/);
+  });
+});
+
+test("an example under formula 2026-11-10 without its To row exits 1", () => {
+  withTree("gate-coord-row", (tree) => {
+    mutateExample(tree, "2026-11-02-tsunami-rebalancing-dashboard.md", "| Coordinating turns To | 30 per piece |", "| Coordinating turns | 30 per piece |");
+    const r = runGate(tree);
+    assert.equal(r.status, 1, r.out);
+    assert.match(r.stdout, /"Coordinating turns To" must be stated under formula 2026-11-10/);
+  });
+});
+
 test("a term line count that disagrees with the formula exits 1", () => {
   withTree("gate-term-count", (tree) => {
     mutateExample(tree, "2026-10-29-sessiondispatch-stage-0b.md", "  M*C_cont*(p_cw - p_cr)          = 0.000   (cache misses, M 0)\n", "");
