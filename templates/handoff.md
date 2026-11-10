@@ -33,6 +33,12 @@ The first command or edit the new session performs. One item.
 ## Cost projection
 Model, assumed turns and context, the arithmetic, the number. API list price.
 
+| Piece | Projected USD | T projected | Calls measured | Measured USD | Source |
+|---|---|---|---|---|---|
+| (name) | (from the calculator) | (T) | pending | pending | `node scripts/session-cost.mjs <transcript>` |
+
+The Measured columns say `pending` until the stage closes. The session that closes it prices its own transcript, fills the row, and appends it to `docs/dispatch/calibration.md`.
+
 ## Time projection
 Wall clock for the stage, and the operator review time separately.
 

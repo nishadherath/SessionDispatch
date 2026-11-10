@@ -133,7 +133,20 @@ function checkHeadings(file, headings, label) {
   return text;
 }
 
+// The calibration ledger and the Measured column (Stage S6): the header row is the contract
+// scripts/session-cost.mjs and the closing session fill; a drifted header fails here.
+const LEDGER_HEADER = "| Stage | Piece | Class | Effort | T projected | Calls measured | Cache write per call | Output per call | Projected USD | Measured USD | Source |";
+function checkLedger() {
+  const ledger = path.join(ROOT, "docs", "dispatch", "calibration.md");
+  if (!fs.existsSync(ledger)) return fail(ledger, "missing; it is the calibration ledger (Stage S6)");
+  if (!fs.readFileSync(ledger, "utf8").split("\n").map((l) => l.trimEnd()).includes(LEDGER_HEADER)) fail(ledger, `the ledger header row is not exactly: ${LEDGER_HEADER}`);
+  for (const f of [path.join(ROOT, "templates", "handoff.md"), path.join(ROOT, "docs", "handoffs", "README.md")]) {
+    if (!fs.readFileSync(f, "utf8").includes("| Calls measured | Measured USD |")) fail(f, "the cost projection lacks the Measured columns (Calls measured, Measured USD)");
+  }
+}
+
 function checkTemplates() {
+  checkLedger();
   checkHeadings(path.join(ROOT, "templates", "handoff.md"), HANDOFF_HEADINGS, "handoff");
   const tfile = path.join(ROOT, "templates", "decision-record.md");
   const record = checkHeadings(tfile, RECORD_HEADINGS, "decision-record");
