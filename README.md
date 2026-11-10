@@ -136,6 +136,20 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-11-10: Stage O5, the coordinator term (D12 option A'). Formula
+  2026-11-10 adds `cost_coord`: To coordinating turns per piece, priced at
+  the coordinator's model (this session from C0 + H, or a fresh session
+  from B + H), on the fresh side (1 piece), the split (2) and the Step B
+  plan (every piece); T* adds it to the fresh plan's fixed cost. `SKILL.md`
+  steps 1.2, 2, 2.1, 3.1 (a Sonnet row for coordinating a chain), 3.2
+  (rule 7: the briefing session proposes the chain and ends) and 3.3, and
+  the class floor's sentence that the term is unscored. The calculator
+  takes `--To`, `--coordinator`, `--Fo` and `--Oo` and prints the term
+  per plan beside the same turns on the sonnet model; the gate recomputes
+  it in examples and scenarios. New example from the Tsunami dispatch of
+  2026-11-02 (a Fable coordinator at To 30 prices 42.35 USD, about 56
+  measured); scenarios 22 and 23. Formulas 2026-10-29 and 2026-10-27 kept;
+  scenarios 01 to 21 unchanged.
 - 2026-11-02: assessment of the Tsunami coordinating session's report on the
   cost of coordinating a dispatched chain, `docs/assessment-2026-11-02.md`.
   The measured figures checked (orchestration about 56 USD against 5.3
