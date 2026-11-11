@@ -31,6 +31,8 @@ Files this skill uses, relative to its own folder:
 - `scripts/dispatch.mjs`, where the copy you run has `scripts/`: the
   calculator for steps 2 and 3.3. It multiplies; you still gather the
   inputs, apply the guardrails and argue the adversarial pass.
+- `models/<model id>.md`: a model note, where one exists. Step 1.4.6 says
+  when to read it.
 
 Prose rules for everything you write under this skill: Australian
 English, no em-dashes, no AI-telltale vocabulary (the engineering
@@ -165,6 +167,12 @@ unmeasured, use 25,000 and say so.
    average context cannot do this: price turn by turn, with turn t
    reading C_start + (t - 1/2) * G. The calculator does; by hand, split
    the stage at the turn where the context passes the threshold.
+6. Look for `models/<model id>.md` for the model you are on, for each
+   piece's model and for the coordinator's model. Where the file exists,
+   read it now and apply it: for that model only, it replaces the effort
+   cell of step 3.1 and can restate inputs of step 1.2, and where it
+   differs from this text it is in force. No file, no change. Name each
+   note you applied in the record.
 
 Never pick a model by name from memory. Pick a class from step 3, then
 the model the table lists for that class in the family the harness

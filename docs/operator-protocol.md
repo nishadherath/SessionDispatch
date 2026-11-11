@@ -196,7 +196,7 @@ long agent session mostly pays for.
 | Fable | Assessments of this project, acceptance of Opus-class changes to `SKILL.md`, and any change to the tiering rules themselves |
 
 Effort defaults: Haiku `medium`, Sonnet `medium`, Opus `high`, Fable
-`high` (`xhigh` only where `SKILL.md` matrix row 4 says). Lower effort
+`high` (`xhigh` only where `SKILL.md` matrix row 4 says, and on `claude-fable-5-2` only where its model note permits). Lower effort
 first; raise on measured failure, never pre-emptively.
 
 In the desktop app the 86,450-token baseline puts a Haiku stage past its
