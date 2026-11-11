@@ -7,7 +7,7 @@ except the skill folder it names.
 
 | Placeholder | Filled with |
 |---|---|
-| `{{SKILL_DIR}}` | The run's sandbox copy of the skill: `SKILL.md`, `templates/`, `examples/`, `pricing/` holding only the run's table, and `scripts/` (only `dispatch.mjs` and `dispatch-core.mjs`) in the calculator arm |
+| `{{SKILL_DIR}}` | The run's sandbox copy of the skill: `SKILL.md`, `templates/`, `examples/`, `models/`, `pricing/` holding only the run's table, and `scripts/` (only `dispatch.mjs` and `dispatch-core.mjs`) in the calculator arm |
 | `{{RECORD_PATH}}` | `record.md` in the run's sandbox, outside the skill folder |
 | `{{TODAY}}` | The run day, `YYYY-MM-DD`, local calendar |
 | `{{BRIEF}}` | The scenario's `brief` lines joined by a blank line, with `{{TODAY}}` filled |

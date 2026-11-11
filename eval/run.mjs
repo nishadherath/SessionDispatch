@@ -38,7 +38,7 @@ const ARMS = ["calculator", "hand"];
 // dispatch.mjs and every script it imports: a file missing here stops the sandbox's calculator at
 // its first line (F8-1; scripts/eval-score.test.mjs runs the sandbox's own copy).
 const CALCULATOR_FILES = ["dispatch.mjs", "dispatch-core.mjs", "price-table.mjs"];
-const SKILL_ENTRIES = ["SKILL.md", "templates", "examples"];
+const SKILL_ENTRIES = ["SKILL.md", "templates", "examples", "models"];
 const DAY_MS = 86400000;
 
 const die = (msg) => { console.error(`run: ${msg}`); process.exit(1); };

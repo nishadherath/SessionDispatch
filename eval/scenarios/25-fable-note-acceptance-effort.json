@@ -1,0 +1,93 @@
+{
+  "id": "25-fable-note-acceptance-effort",
+  "title": "Acceptance of the top class's own work on claude-fable-5-2: the model note stops effort at high where matrix row 4 says xhigh",
+  "covers": [
+    "matrix row 4",
+    "model note models/claude-fable-5-2.md (step 1.4.6)",
+    "continue by break-even",
+    "guardrail 6 overrides the draft",
+    "effort high, not xhigh",
+    "formula 2026-11-11",
+    "To 0 stated in the record"
+  ],
+  "brief": [
+    "Today is {{TODAY}}. Harness: Claude Code desktop app. The harness reports this session's model as claude-fable-5-2 at effort high.",
+    "The session usage tool reports tokensUsed 150,000, contextWindow 1,000,000 and autoCompactsAtPercent 97. This session has not been compacted.",
+    "A fresh session in this harness and project starts at 86,450 tokens (measured: the usage tool's total less its Messages category).",
+    "Next stage: adversarial acceptance of the cost model this session wrote earlier today: re-derive it by hand, recompute every figure, argue against each assumption. Fable is the top class this harness offers. Plan estimate: 12 turns. Expected fresh input 5,000 tokens per turn and output 3,000 per turn (estimates).",
+    "A fresh session would read 30,000 tokens: the cost model, its inputs and the handoff.",
+    "A handoff for this stage would be about 80 lines. If a further acceptance session were used, it would take about 12 turns and read about 30,000 tokens.",
+    "Everything this session knows that the next stage needs is already written in files on disk.",
+    "No cache-miss measurement exists, and no review pauses are expected during the stage.",
+    "If the plan includes a fresh session, the operator starts it from a card this session proposes and receives its note, verifies it and merges it; this session ends after writing the handoff.",
+    "The usage report shows every cache write in this session as a 1-hour write.",
+    "The stage writes files and commits locally; nothing leaves the machine."
+  ],
+  "table": "pricing/2026-11-10.json",
+  "today": "2026-11-11",
+  "formula": "2026-11-11",
+  "current": "claude-fable-5-2",
+  "target": "claude-fable-5-2",
+  "W": 1000000,
+  "K": 970000,
+  "B": 86450,
+  "H": 2500,
+  "M": 0,
+  "L": 0,
+  "C0": 150000,
+  "compacted": false,
+  "T": 12,
+  "F": 5000,
+  "O": 3000,
+  "R": 30000,
+  "Ta": 12,
+  "Ra": 30000,
+  "To": 0,
+  "ttl": "1h",
+  "current_effort": "high",
+  "task_row": 4,
+  "design_heavy": false,
+  "outward": [],
+  "expected": {
+    "calculator": {
+      "exit": 0,
+      "draft": {
+        "side": "continue",
+        "by": "break-even"
+      },
+      "percent": "54.6",
+      "cost_continue": "3.45",
+      "cost_fresh": "5.33",
+      "cost_split": "4.32",
+      "t_star": "292.6",
+      "crosses": false,
+      "cost_coord": {
+        "fresh": "0.00",
+        "split": "0.00",
+        "step_b": "0.00"
+      },
+      "cost_coord_sonnet": {
+        "fresh": "0.00",
+        "split": "0.00",
+        "step_b": "0.00"
+      }
+    },
+    "skill_runs": true,
+    "draft_required": true,
+    "final": {
+      "outcome": "fresh",
+      "model": "claude-fable-5-2",
+      "effort": "high",
+      "approval_step": false
+    },
+    "guardrails": [
+      6
+    ]
+  },
+  "notes": [
+    "Added in Stage S7 (2026-11-12) with the model note models/claude-fable-5-2.md. It is scenario 09 on claude-fable-5-2, under formula 2026-11-11 and table pricing/2026-11-10.json, with To 0 and the 1-hour cache lifetime stated. Figures captured from the calculator (node scripts/dispatch.mjs --json) on 2026-11-12; T* = 1.963 / (33,550 x 0.2e-6) = 292.6 turns.",
+    "T* is far above 12, so the draft is continue by break-even, as in scenario 09. Guardrail 6 then makes the verdict fresh: the author is the top class, so acceptance runs on claude-fable-5-2 in a fresh session.",
+    "The effort is what this scenario tests. Matrix row 4 says xhigh when the author is the top class. The model note (step 1.4.6) replaces that effort cell on claude-fable-5-2: start at high and go above it only on a measurement on the same task type. A subject that reads the note states high; a subject that does not states xhigh. The sandbox carries models/ for this reason (eval/run.mjs SKILL_ENTRIES).",
+    "To 0: the operator starts the next session from a card and this session ends. No coordinator. The block must state To 0, no coordinator and ttl 1h (rubric section 2). The other 24 scenarios name no claude-fable-5-2, so the note does not apply to them and their expectations do not change."
+  ]
+}
