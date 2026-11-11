@@ -32,6 +32,16 @@ test("cliArgs isolates the subject from the user's skills and settings and grant
   assert.throws(() => cliArgs({ model: "m", arm: "both" }), /arm/);
 });
 
+test("prepare puts the model notes in each sandbox, so a subject on a model with a note can read it (scenario 25)", () => {
+  const work = tmpDir("eval-models");
+  try {
+    const { out } = setup(work, { only: ["25"] });
+    assert.equal(out.runs.length, 1);
+    const note = path.join(out.runs[0].sandbox, "skill", "models", "claude-fable-5-2.md");
+    assert.equal(fs.readFileSync(note, "utf8"), fs.readFileSync(path.join(ROOT, "models", "claude-fable-5-2.md"), "utf8"));
+  } finally { rm(work); }
+});
+
 test("usageFromCli sums the measured tokens and prices them from the table, not from the CLI's own cost", () => {
   const result = { num_turns: 4, duration_ms: 2500, total_cost_usd: 9, is_error: false, terminal_reason: "completed", usage: { input_tokens: 10, cache_creation_input_tokens: 1000, cache_read_input_tokens: 20000, output_tokens: 500 }, modelUsage: { "claude-haiku-5-5": { costBasis: "unknown" } } };
   const u = usageFromCli(result, pricing);
