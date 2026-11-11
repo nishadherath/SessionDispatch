@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Installs the skill folder (SKILL.md, pricing/, templates/, examples/ and
-// the scripts an installed copy can run) where each harness looks for
+// Installs the skill folder (SKILL.md, pricing/, templates/, examples/,
+// models/ and the scripts an installed copy can run) where each harness looks for
 // skills, and prints the pointer block to paste into that harness's
 // instruction file. Never edits an instruction file and never creates
 // links: copies only, so moving this repository breaks nothing. Standard
@@ -29,7 +29,7 @@ import { fileURLToPath } from "node:url";
 const SELF = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(SELF), "..");
 const NAME = "session-dispatch";
-const PAYLOAD_ITEMS = ["SKILL.md", "pricing", "templates", "examples", "scripts"];
+const PAYLOAD_ITEMS = ["SKILL.md", "pricing", "templates", "examples", "models", "scripts"];
 // The gate and this installer need the whole repository around them, and
 // tests are development only, so none of them ships in the skill folder.
 // Everything else in scripts/ (the price refresh, the calculator and its
@@ -152,7 +152,7 @@ function writeAtomic(dest, data) {
 
 function copyPayload(target) {
   const files = payloadFiles();
-  console.log(`${dryRun ? "would copy" : "copy"} ${files.length} file(s) (SKILL.md, pricing/, templates/, examples/, scripts/) -> ${target}`);
+  console.log(`${dryRun ? "would copy" : "copy"} ${files.length} file(s) (SKILL.md, pricing/, templates/, examples/, models/, scripts/) -> ${target}`);
   if (dryRun) return;
   for (const rel of files) writeAtomic(abs(target, rel), fs.readFileSync(abs(ROOT, rel)));
 }
@@ -185,7 +185,7 @@ function checkCopy(label, target, fixHint, mustExist) {
   }
   const known = new Set(files);
   const extra = [];
-  for (const sub of ["pricing", "templates", "examples", "scripts"]) {
+  for (const sub of ["pricing", "templates", "examples", "models", "scripts"]) {
     const dir = path.join(target, sub);
     if (fs.existsSync(dir)) for (const rel of walk(dir, `${sub}/`, [])) if (!known.has(rel)) extra.push(rel);
   }

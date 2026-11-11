@@ -55,6 +55,18 @@ test("the payload carries the runnable scripts and not the gate, the installer o
   });
 });
 
+test("the payload carries models/ and --check names a missing model note", () => {
+  withDirs("models", (home) => {
+    assert.equal(install(home, []).status, 0);
+    const note = path.join(SKILL_DIR(home), "models", "claude-fable-5-2.md");
+    assert.equal(fs.readFileSync(note, "utf8"), fs.readFileSync(path.join(ROOT, "models", "claude-fable-5-2.md"), "utf8"));
+    fs.rmSync(note);
+    const r = install(home, ["--check"]);
+    assert.equal(r.status, 1, r.out);
+    assert.match(r.stdout, /missing models\/claude-fable-5-2\.md/);
+  });
+});
+
 test("--user is the explicit form of the default", () => {
   withDirs("user", (home) => {
     const a = install(home, ["--user", "--dry-run"]);
