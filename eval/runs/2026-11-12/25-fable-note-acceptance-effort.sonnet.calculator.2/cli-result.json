@@ -1,0 +1,151 @@
+{
+  "duration_api_ms": 70977,
+  "stop_reason": "end_turn",
+  "session_id": "fde23a85-bd4f-43af-aab9-59c75c158640",
+  "total_cost_usd": 0.9963335,
+  "usage": {
+    "input_tokens": 12,
+    "cache_creation_input_tokens": 207237,
+    "cache_read_input_tokens": 794515,
+    "output_tokens": 8791,
+    "output_tokens_details": {
+      "thinking_tokens": 3034
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 207237,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 3,
+        "cache_read_input_tokens": 201142,
+        "cache_creation_input_tokens": 6106,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 6106
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "claude-sonnet-5-5": {
+      "inputTokens": 12,
+      "outputTokens": 8791,
+      "cacheReadInputTokens": 794515,
+      "cacheCreationInputTokens": 207237,
+      "webSearchRequests": 0,
+      "costUSD": 0.9963335,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "thinkingTokens": 3034,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationEphemeral1hInputTokens": 207237,
+      "canonicalModel": "claude-sonnet-5-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01XW8dRLEQjcApvK5kZZBxp2",
+      "tool_input": {
+        "command": "cd \"C:\\Users\\Bob\\AppData\\Local\\Temp\\sd-eval\\2026-11-12\\25-fable-note-acceptance-effort.sonnet.calculator.2\\skill\"; b=\"--current claude-fable-5-2 --target fable --W 1000000 --K 970000 --B 86450 --R 30000 --H 2500 --To 0 --coordinator this --ttl 1h --compacted no --M 0 --L 0 --Ta 12 --Ra 30000 --today 2026-11-12\"\necho A; node scripts/dispatch.mjs $b --C0 150000 --T 24 --F 5000 --O 1750 | grep -E \"^  = |T\\* =|Draft|cost_split|= 4|Split against\"\necho B; node scripts/dispatch.mjs $b --C0 150000 --T 12 --F 5000 --O 1500 | grep -E \"^  = |T\\* =|Draft\"\necho C; node scripts/dispatch.mjs $b --C0 195000 --T 24 --F 8000 --O 3000 --M 2| grep -E \"^  = |T\\* =|Draft\"\necho D; node scripts/dispatch.mjs $b --C0 105000 --T 12 --F 5000 --O 3000 | grep -E \"^  = |T\\* =|Draft\""
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 7,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "done",
+  "ttft_ms": 2196,
+  "type": "result",
+  "duration_ms": 160264,
+  "uuid": "45debfe7-cafd-42dd-83c6-78ee98e08ccb",
+  "ttft_stream_ms": 1534,
+  "time_to_request_ms": 768,
+  "time_to_request_phases_ms": {
+    "other": 26,
+    "system_prompt": 239,
+    "resume_other": 1,
+    "process_user_input": 9,
+    "input_attachments": 53,
+    "input_hooks": 9,
+    "conversation_append": 1,
+    "tool_pool_refresh": 9,
+    "init_message": 232,
+    "init_frame_send": 10,
+    "engine_pickup": 5,
+    "loop_entry": 25,
+    "message_prep": 3,
+    "model_config_wait": 8,
+    "autocompact": 8,
+    "request_announcements": 32,
+    "query_setup": 9,
+    "model_gates": 1,
+    "tool_schema_build": 28,
+    "message_normalization": 9,
+    "client_creation": 27,
+    "request_build": 24
+  },
+  "turn_start_resume_kind": "none",
+  "process_turn_index": 0,
+  "time_to_request_loop_lag_ms": 433,
+  "time_to_request_cpu_ms": 594,
+  "time_to_request_major_faults": 3889,
+  "input_attachments_detail": {
+    "slowest_producer": "deferred_tools_delta",
+    "slowest_producer_ms": 3,
+    "cpu_ms": 47,
+    "major_faults": 404,
+    "setup_ms": 19,
+    "prompt_producers_ms": 1,
+    "ambient_start_ms": 19,
+    "ambient_wait_ms": 5,
+    "render_ms": 6,
+    "producers": 43,
+    "token_counts": 0
+  },
+  "first_content_frame_ms": 1535,
+  "queued_turn_count": 0,
+  "result_index": 0
+}

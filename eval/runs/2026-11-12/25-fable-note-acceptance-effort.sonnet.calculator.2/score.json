@@ -1,0 +1,59 @@
+{
+  "scenario": "25-fable-note-acceptance-effort",
+  "subject": "sonnet",
+  "arm": "calculator",
+  "outcome_expected": "fresh",
+  "prose": {
+    "em_dashes": 0,
+    "banned": []
+  },
+  "unscorable": false,
+  "reason": null,
+  "outcome_got": "fresh",
+  "final_ok": true,
+  "draft_ok": true,
+  "guardrails_ok": true,
+  "bound": [
+    6
+  ],
+  "bound_failed": [],
+  "g4_ok": true,
+  "false_alarms": [],
+  "arithmetic": {
+    "scored": true,
+    "reason": null,
+    "stated": 4,
+    "correct": 4,
+    "missing": 0,
+    "max_error_usd": 0.0039,
+    "rule_ok": true,
+    "errors": []
+  },
+  "inputs": {
+    "scored": 19,
+    "matched": 19,
+    "misses": []
+  },
+  "contract": {
+    "to_ok": true,
+    "coordinator_ok": true,
+    "ttl_ok": true
+  },
+  "decide": {
+    "reported_tokens": 30000,
+    "reported_minutes": 10,
+    "measured_tokens": 1010555,
+    "measured_minutes": 2.6710666666666665,
+    "record_tokens": 2472,
+    "usd_to_decide": 0.1125,
+    "usd_measured": 0.606,
+    "over_cap": false,
+    "report_ratio": 0.03
+  },
+  "consistency": {
+    "draft_line_ok": true,
+    "skill_ran_ok": true
+  },
+  "overrun_default_not_taken": false,
+  "note": ""
+}

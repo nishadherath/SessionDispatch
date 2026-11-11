@@ -1,0 +1,14 @@
+{
+  "date": "2026-11-12",
+  "commit": "de347fc",
+  "table_in_force": "2026-11-10.json",
+  "skill_source": "repository",
+  "skill_sha256": "fda9ca0de5c7de60b0e5ea362d33db83fcbcaf4828bcbf99884a907c7ac55bfe",
+  "prompt_sha256": "fa28ace023dc5b32b69d0953312b52e914023f176703d94a90935301e9ca658d",
+  "runs": [
+    {"run":"25-fable-note-acceptance-effort.sonnet.calculator","scenario":"25-fable-note-acceptance-effort","subject":"sonnet","arm":"calculator","sandbox":"C:\\Users\\Bob\\AppData\\Local\\Temp\\sd-eval\\2026-11-12\\25-fable-note-acceptance-effort.sonnet.calculator","record":"C:\\Users\\Bob\\AppData\\Local\\Temp\\sd-eval\\2026-11-12\\25-fable-note-acceptance-effort.sonnet.calculator\\record.md","prompt":"D:\\Code\\Claude\\SessionDispatch\\.claude\\worktrees\\kind-curie-d09472\\eval\\runs\\2026-11-12\\25-fable-note-acceptance-effort.sonnet.calculator\\prompt.txt"},
+    {"run":"25-fable-note-acceptance-effort.sonnet.calculator.2","scenario":"25-fable-note-acceptance-effort","subject":"sonnet","arm":"calculator","sandbox":"C:\\Users\\Bob\\AppData\\Local\\Temp\\sd-eval\\2026-11-12\\25-fable-note-acceptance-effort.sonnet.calculator.2","record":"C:\\Users\\Bob\\AppData\\Local\\Temp\\sd-eval\\2026-11-12\\25-fable-note-acceptance-effort.sonnet.calculator.2\\record.md","prompt":"D:\\Code\\Claude\\SessionDispatch\\.claude\\worktrees\\kind-curie-d09472\\eval\\runs\\2026-11-12\\25-fable-note-acceptance-effort.sonnet.calculator.2\\prompt.txt"},
+    {"run":"02-fable-to-opus-design.sonnet.calculator","scenario":"02-fable-to-opus-design","subject":"sonnet","arm":"calculator","sandbox":"C:\\Users\\Bob\\AppData\\Local\\Temp\\sd-eval\\2026-11-12\\02-fable-to-opus-design.sonnet.calculator","record":"C:\\Users\\Bob\\AppData\\Local\\Temp\\sd-eval\\2026-11-12\\02-fable-to-opus-design.sonnet.calculator\\record.md","prompt":"D:\\Code\\Claude\\SessionDispatch\\.claude\\worktrees\\kind-curie-d09472\\eval\\runs\\2026-11-12\\02-fable-to-opus-design.sonnet.calculator\\prompt.txt"},
+    {"run":"09-accept-fable-work.sonnet.calculator","scenario":"09-accept-fable-work","subject":"sonnet","arm":"calculator","sandbox":"C:\\Users\\Bob\\AppData\\Local\\Temp\\sd-eval\\2026-11-12\\09-accept-fable-work.sonnet.calculator","record":"C:\\Users\\Bob\\AppData\\Local\\Temp\\sd-eval\\2026-11-12\\09-accept-fable-work.sonnet.calculator\\record.md","prompt":"D:\\Code\\Claude\\SessionDispatch\\.claude\\worktrees\\kind-curie-d09472\\eval\\runs\\2026-11-12\\09-accept-fable-work.sonnet.calculator\\prompt.txt"}
+  ]
+}
