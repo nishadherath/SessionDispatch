@@ -193,3 +193,45 @@ test("a term line count that disagrees with the formula exits 1", () => {
     assert.match(r.stdout, /Step A: cost_continue states 4 term line\(s\), the formula gives 5/);
   });
 });
+
+// Stage S7: the model notes (models/<model id>.md), each seeded fault in a temporary copy of the tree.
+function mutateNote(tree, from, to) {
+  const file = path.join(tree, "models", "claude-fable-5-2.md");
+  const text = fs.readFileSync(file, "utf8");
+  assert.ok(text.includes(from), `fixture text not found: ${from}`);
+  fs.writeFileSync(file, text.replace(from, to));
+}
+
+test("a model note for a model id that the price table does not list exits 1 and names the id", () => {
+  withTree("gate-note-model", (tree) => {
+    mutateNote(tree, "model: claude-fable-5-2", "model: claude-fable-9-9");
+    const r = runGate(tree);
+    assert.equal(r.status, 1, r.out);
+    assert.match(r.stdout, /claude-fable-5-2\.md: model claude-fable-9-9 is not in pricing\/\d{4}-\d{2}-\d{2}\.json/);
+    assert.match(r.stdout, /the file name must be the front matter's model plus \.md, found model claude-fable-9-9/);
+  });
+});
+
+test("a model note with effort_start ultra exits 1 and names the accepted values", () => {
+  withTree("gate-note-effort", (tree) => {
+    mutateNote(tree, "effort_start: high", "effort_start: ultra");
+    const r = runGate(tree);
+    assert.equal(r.status, 1, r.out);
+    assert.match(r.stdout, /claude-fable-5-2\.md: effort_start must be one of low, medium, high, xhigh, max, found "ultra"/);
+    assert.match(r.stdout, /1 finding\(s\)/);
+  });
+});
+
+test("a model note of more than 5,000 characters exits 1 and says how many to cut", () => {
+  withTree("gate-note-size", (tree) => {
+    const file = path.join(tree, "models", "claude-fable-5-2.md");
+    const text = fs.readFileSync(file, "utf8").replace(/\r\n/g, "\n");
+    const pad = "A filler line of ordinary prose that adds weight to the note.\n".repeat(Math.ceil((5001 - text.length) / 62) + 1);
+    fs.writeFileSync(file, text + "\n" + pad);
+    const total = fs.readFileSync(file, "utf8").length;
+    assert.ok(total > 5000, "the fixture must exceed the limit");
+    const r = runGate(tree);
+    assert.equal(r.status, 1, r.out);
+    assert.match(r.stdout, new RegExp(`claude-fable-5-2\.md: ${total} characters, over the limit of 5000; cut ${total - 5000} characters`));
+  });
+});
