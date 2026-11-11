@@ -178,6 +178,18 @@ for those calls would not have paid. So: set the effort when a session or sub-ag
 One probe measures the real behaviour of the app (section 8, step 1). If the app keeps the cache,
 the note's field `effort_switch` becomes `kept` and the change is free.
 
+Result of the probe (2026-11-12, after the operator's yes; transcript `e932f360`, 4 calls,
+1.31 USD): the app kept the cache. The call before the change read 124,950 tokens from the cache
+and wrote 267. The call after the change from `high` to `low` read 125,223 and wrote 263. So
+`effort_switch` is `kept` for the Claude Code desktop app, with n = 1 and one direction. The note
+now permits a lower effort for a coordinator in that app (note section 4). In another harness the
+miss price above stays until someone measures it.
+
+A second fact from the same transcript: the first call of the fresh session read 48,935 tokens
+from the cache and wrote 41,117. Another session on the same model had the common prefix in the
+cache. The formula prices all of B + R at the write price, so it reads high for such a start.
+This is one observation. It moves nothing; it is in the ledger's notes.
+
 ### 5.5 Brief rules for this model (note section 3)
 
 Six rules, each from an item of section 3: state the goal and leave the method open; no line that
@@ -202,8 +214,9 @@ reasoning; a model and an effort on every sub-agent.
 
 1. **Fable 5.2 at `low` in place of Opus 5.5 at `high`.** Item 5 of section 3: 0.39 USD against
    0.30 for each solved task, at 94.6 against 95.5 percent. No gain. The class matrix stays.
-2. **A lower effort for a live coordinator.** Section 5.4: 73 turns to break even against 30
-   measured.
+2. **A lower effort for a live coordinator, where the change is a cache miss.** Section 5.4: 73
+   turns to break even against 30 measured. The probe shows that the desktop app keeps the
+   cache, so the note permits the change there.
 3. **An `--effort` flag in the calculator.** T and O are inputs now. A formula stage needs an Opus
    stage, a new worked example and a Fable acceptance, about 30 USD by the estimate in D16. The
    ledger has 2 rows. Add the flag when the rows show stable factors.
@@ -248,7 +261,8 @@ their figures come from the same run with `--ttl 5m`.
 | 3b. The mini-evaluation: 4 `claude -p` runs | Sonnet subjects | the CLI's default | n/a | 1.88 (4 times the measured mean of 0.47) | inside step 3 |
 
 Total with the paired check: 2.2 + 2.4 + 4.91 + 0.12 + 12.55 + 4.97 + 5.52 + 1.88 = 34.55 USD.
-Without it: 24.06 USD. Operator time: about 10 minutes for D17 and 15 minutes for F10's report.
+Without it: 24.06 USD. The probe session then cost 1.31 USD measured, not 2.2, so the totals are
+33.66 and 23.17 USD. Operator time: about 10 minutes for D17 and 15 minutes for F10's report.
 
 S7 runs at `high` because it changes `SKILL.md` and the installed payload, which are public
 interfaces (matrix row 2). F10 runs at `xhigh` because matrix row 4 is in force until the note is
@@ -264,6 +278,8 @@ lowers the effort with the session tool, and sends one more. Then
 `node scripts/session-cost.mjs <transcript>` shows the cache write of the call after the change.
 A write near the whole context means a miss. A small write means the app kept the cache. The
 result goes into the S7 handoff as the value of `effort_switch`.
+
+Done on 2026-11-12: `kept`. Section 5.4 has the figures.
 
 ### 8.2 Stage F10, the fixed design
 
@@ -320,7 +336,7 @@ Recommended:   C, because the cap changes the effort of the project's own qualit
 
 ## Appendix A: the note, `models/claude-fable-5-2.md`
 
-S7 copies this text. It replaces `effort_switch` with the probe's result.
+S7 copies this text as it is. It holds the probe's result.
 
 ````markdown
 ---
@@ -331,7 +347,7 @@ sources:
   - https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-2.md
   - https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence.md
 effort_start: high
-effort_switch: unmeasured
+effort_switch: kept
 ---
 
 # Model note: claude-fable-5-2
@@ -352,8 +368,10 @@ changes the effort cell of step 3.1 and three inputs of step 1.2 for that model 
    task, work through ordinary errors, and stop only for a deliberate blocker. Run the piece at
    the low level first and run the failures again at `high`. This pays while the failure rate is
    under 1 - cost_low / cost_high.
-4. Set the effort when the session or sub-agent starts. Price an effort change in a live session
-   as one cache miss (M + 1), unless `effort_switch` above is `kept`. The change pays after
+4. Set the effort when the session or sub-agent starts. `effort_switch` above is the result for
+   the Claude Code desktop app: one change from `high` to `low` on 2026-11-12 kept the cache
+   (n = 1). There an effort change costs nothing. In another harness, price the change as one
+   cache miss (M + 1) until you measure it. The change then pays after
    C * (p_cache_write - p_cache_read) / (dO * (p_output + p_cache_write)) turns. dO is the output
    that the change saves in each turn.
 
@@ -385,8 +403,10 @@ chose and at one level below it.
 
 A session on this model sometimes must stay as the coordinator: the chain has a piece of its
 class, and a child session cannot start sessions. Price To at the Oo of section 2. Give the cost
-of the other plan beside it: the operator starts each piece from a card (To 0). Lower the
-coordinator's effort during the chain only when rule 1.4 pays.
+of the other plan beside it: the operator starts each piece from a card (To 0). Where
+`effort_switch` is `kept`, ask the operator to set the coordinator's effort to `medium` after the
+last brief is written. Coordination has oracles (rule 1.3), and a session cannot change its own
+effort. In another harness, lower it only when rule 1.4 pays.
 ````
 
 Under option B of D17, the last two sentences of rule 1.2 become: "The raise rule of step 3.1 and

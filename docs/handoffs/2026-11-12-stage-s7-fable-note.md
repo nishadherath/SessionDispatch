@@ -40,16 +40,16 @@ Not in this stage: a push, a merge into `main`, an install into user folders, a 
 - `docs/dispatch/calibration.md`: the ledger. The F9, F7 and F8 rows are the sources of the note's table.
 
 ## Verified facts
-- Gate on `main` before this stage: `check: 130 files read, 0 finding(s)`, exit 0 (2026-11-12).
+- Gate on `main` at the F9 commits: `check: 132 files read, 0 finding(s)`, exit 0; `npm test`: 120 tests, 120 pass (2026-11-12).
 - `grep -l "fable-5-2" eval/scenarios/*` gives 0 files (2026-11-12).
 - The table in force has `claude-fable-5-2`: output 40, cache_write_1h 16, cache_read 0.20 USD per million (`pricing/2026-11-10.json`).
-- The probe (assessment section 8.1): pending. The F9 session writes the result on this line before it starts you. If this line still says pending, keep `effort_switch: unmeasured`.
+- The probe (assessment sections 5.4 and 8.1): `kept`. Transcript `e932f360`, 2026-11-12: the call after the change from `high` to `low` read 125,223 tokens from the cache and wrote 263. Appendix A already holds `effort_switch: kept`.
+- D17: C, decided by the operator on 2026-11-12 ("Go with C"). Copy appendix A as it is.
 
 ## Work completed
 - `docs/assessment-2026-11-12.md`, `docs/dispatch/2026-11-12-fable-note.json`, this handoff, the F9 ledger row and the status update: the F9 commit on `main`.
 
 ## Unresolved questions
-- D17: the operator. It changes one sentence of the note.
 - The tag for the release: the operator, after F10.
 
 ## Exact next action

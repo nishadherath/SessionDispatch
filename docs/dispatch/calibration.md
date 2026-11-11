@@ -62,6 +62,14 @@ with: a session on a model the newest table no longer lists needs the older one.
   project's folders: 0 of 11,964,150 write tokens are 1-hour; 24 session transcripts: 7,889,957 of 7,889,957
   are). So a sub-agent piece is compared with its projection at the 5-minute figure and a session piece at
   the 1-hour one. The calculator prices every piece at the record's one ttl (`SKILL.md` step 3.3).
+- **An effort change kept the cache (Stage F9 probe, 2026-11-12, n = 1).** A fresh session on
+  claude-fable-5-2 at high (transcript e932f360, 4 calls, 1.31 USD) read two files and answered twice.
+  Its parent then set its effort to low with the app's session tool. The call before the change read
+  124,950 tokens from the cache and wrote 267; the call after it read 125,223 and wrote 263. One
+  direction, one model, the Claude Code desktop app.
+- **A fresh session can read its common prefix from the cache (the same probe, n = 1).** Its first call
+  read 48,935 tokens and wrote 41,117: another session on the same model had written the prefix inside
+  the hour. The formula prices all of B + R as a write, so it reads high by that part for such a start.
 - **Transcript ids are not the app's session ids.** The pricer finds `<transcript id>.jsonl`
   under `~/.claude/projects/<folder>/`; a handoff that names the app's id (`local_...`) does not
   locate it. The Source cells give the transcript id first.
