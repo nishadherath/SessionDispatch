@@ -24,7 +24,7 @@ the model's confidence.
 | `examples/` | Filled records. The first is the fork_graft decision of 2026-10-27 that this skill generalises. |
 | `models/` | One model note per model that needs one, `<model id>.md`, read on demand by step 1.4.6. The gate checks its shape. Today: `claude-fable-5-2.md`. |
 | `scripts/` | `check.mjs` (the gate), `install.mjs` (installs the skill, checks installed copies, seeds a new project), `pricing-new.mjs` (starts a refresh), `dispatch.mjs` (the step 2 and 3.3 calculator) with `dispatch-core.mjs` (its arithmetic, shared with the gate), `*.test.mjs` with `fixtures/` (tests for the three). |
-| `eval/` | The skill's evaluation: 20 scenarios the calculator scores, each with the brief a subject sees and the expected verdict and guardrails; the rubric; the subject prompt. See `eval/README.md`. |
+| `eval/` | The skill's evaluation: 25 scenarios the calculator scores, each with the brief a subject sees and the expected verdict and guardrails; the rubric; the subject prompt. See `eval/README.md`. |
 | `docs/` | `operator-protocol.md` (the operator's standing instructions), `handoffs/`, `status.md` (the live status), `operator-preferences.json` (the two questions asked once) and the dated assessments. |
 | `ENGINEERING_PERSONA.*.md`, `ENGINEERING_PERSONA_LANGUAGES/` | The engineering persona, one edition per model class, copied from the operator's Orchestrator repository. |
 
