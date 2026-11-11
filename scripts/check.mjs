@@ -2,7 +2,7 @@
 // The gate for this repository: validates the price table in force, the
 // templates, the worked examples (headings, cost rows, and their Step A
 // figures recomputed from their own Inputs table by dispatch-core.mjs), the
-// skill's front matter, the adapters, the session-start hook, the operator
+// skill's front matter, the model notes (models/), the adapters, the session-start hook, the operator
 // preferences and live status files, the evaluation's scenarios (each run
 // through the calculator, its printed figures compared with the scenario's
 // stated expectation), and the prose rules. Standard library only, Node 20
@@ -17,7 +17,7 @@ import {
   FORMULAS, FORMULA_GROWTH, FORMULA_COORD, FORMULA_TTL, TTLS, REQUIRED_SYMBOLS, OPTIONAL_SYMBOLS, formulaHas, validateInputs, findModel, resolveModel,
   missingPrices, effectiveTtl, stepA, splitCost, breakEven, pieceCost, planCoord, coordCost, modelForClass, CLASS_RANK,
 } from "./dispatch-core.mjs";
-import { localToday, newestTableFile, validateTable } from "./price-table.mjs";
+import { localToday, newestTableFile, validDate, validateTable } from "./price-table.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -382,6 +382,47 @@ function checkSkill() {
   if (!text.includes("max_age_days")) fail(file, "step 1.4 must name max_age_days");
 }
 
+// The model notes (models/<model id>.md, SKILL.md step 1.4.6). A note holds vendor facts that
+// SKILL.md must not, so the gate checks what makes one safe to read on demand: it names the
+// model it is for, that model is in the table in force, its facts carry a source and a date,
+// its two required sections are there and it stays small (it loads on every session that runs
+// on that model). It does not judge the facts.
+const MODEL_NOTE_HEADINGS = ["## 1. Effort", "## 2. Inputs for step 1.2"];
+const MODEL_NOTE_MAX_CHARS = 5000;
+const EFFORT_SWITCHES = new Set(["miss", "kept", "unmeasured"]);
+function checkModels() {
+  const dir = path.join(ROOT, "models");
+  if (!fs.existsSync(dir)) return; // no note, no change (step 1.4.6)
+  const names = fs.readdirSync(dir).filter((n) => n.endsWith(".md")).sort();
+  const tableFile = newestTableFile(path.join(ROOT, "pricing"));
+  let table = null;
+  try { table = tableFile === null ? null : JSON.parse(fs.readFileSync(tableFile, "utf8")); } catch { /* checkPricing reports it */ }
+  for (const n of names) {
+    const file = path.join(dir, n);
+    const text = read(file).replace(/\r\n/g, "\n");
+    const m = text.match(/^---\n([\s\S]*?)\n---/);
+    if (!m) { fail(file, "missing YAML front matter (--- model / fetched / sources / effort_start / effort_switch ---)"); continue; }
+    const field = (k) => m[1].match(new RegExp(`^${k}:[ \\t]*(\\S.*?)[ \\t]*$`, "m"))?.[1];
+    const model = field("model");
+    if (!model) fail(file, "front matter needs model: <model id>");
+    else {
+      if (n !== `${model}.md`) fail(file, `the file name must be the front matter's model plus .md, found model ${model}; rename the file to ${model}.md or fix model`);
+      if (table && !findModel(table, model)) fail(file, `model ${model} is not in pricing/${path.basename(tableFile)}; use an id the table lists`);
+    }
+    const fetched = field("fetched");
+    if (!validDate(fetched)) fail(file, `fetched must be a valid YYYY-MM-DD date, found ${JSON.stringify(fetched ?? null)}; set it to the day the vendor pages were read`);
+    else if (fetched > todayIso()) fail(file, `fetched ${fetched} is in the future (today is ${todayIso()}); set it to the day the pages were read`);
+    const sources = [...m[1].matchAll(/^[ \t]+-[ \t]+(\S+)[ \t]*$/gm)].map((x) => x[1]);
+    if (sources.length === 0 || !sources.every((s) => /^https:\/\//.test(s))) fail(file, `sources must list one or more https:// addresses, found ${JSON.stringify(sources)}; name the vendor pages the facts came from`);
+    const start = field("effort_start");
+    if (!EFFORTS.has(start)) fail(file, `effort_start must be one of ${[...EFFORTS].join(", ")}, found ${JSON.stringify(start ?? null)}`);
+    const sw = field("effort_switch");
+    if (!EFFORT_SWITCHES.has(sw)) fail(file, `effort_switch must be one of ${[...EFFORT_SWITCHES].join(", ")}, found ${JSON.stringify(sw ?? null)}; unmeasured when no probe was run`);
+    for (const h of MODEL_NOTE_HEADINGS) if (!hasLine(text, h)) fail(file, `missing required heading "${h}"`);
+    if (text.length > MODEL_NOTE_MAX_CHARS) fail(file, `${text.length} characters, over the limit of ${MODEL_NOTE_MAX_CHARS}; cut ${text.length - MODEL_NOTE_MAX_CHARS} characters, because a note loads on every session that runs on its model`);
+  }
+}
+
 function checkAdapters() {
   const dir = path.join(ROOT, "adapters");
   const names = fs.readdirSync(dir).filter((n) => n.endsWith(".md"));
@@ -548,7 +589,7 @@ async function checkEval() {
   await Promise.all(pending);
 }
 
-for (const step of [checkPricing, checkTemplates, checkExamples, checkSkill, checkAdapters, checkHook, checkPreferences, checkEval, checkProse]) {
+for (const step of [checkPricing, checkTemplates, checkExamples, checkSkill, checkModels, checkAdapters, checkHook, checkPreferences, checkEval, checkProse]) {
   try { await step(); } catch (e) { fail(step.name, `threw ${e.message}`); }
 }
 
