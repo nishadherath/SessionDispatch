@@ -7,7 +7,15 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-11-12, forty-third update, by the Stage F9 session (claude-fable-5-2, high).
+Last updated: 2026-11-12, forty-fourth update, by the Stage S7 session (claude-sonnet-5-5, high).
+Stage S7 is complete on the branch `claude/stage-s7-fable-note-45951a`. It holds four feature commits and the handoff commit.
+The note `models/claude-fable-5-2.md` is appendix A of the plan, unchanged. `SKILL.md` has the two insertions of appendix B and no other change.
+The gate has a `checkModels` check with three seeded-fault tests. The installer ships `models/`. The evaluation sandbox carries `models/`. Scenario 25 is in.
+Gate: `node scripts/check.mjs` exits 0, 136 files read, 0 findings. Tests: `npm test` 125 tests, 125 pass, 0 fail (396 s).
+S7 pushed nothing, merged nothing, made no tag and installed nothing in a user folder.
+Stage F10 waits for the operator to start it from the card. It runs `claude-fable-5-2` at `xhigh`. Its handoff is `docs/handoffs/2026-11-12-then-stage-f10-acceptance.md`.
+No decision waits for the operator.
+The forty-third update, by the Stage F9 session (claude-fable-5-2, high), follows.
 The operator asked for a plan: an update to the skill that applies only on Claude Fable 5.2.
 Stage F9 wrote the plan. It is `docs/assessment-2026-11-12.md`. No file of the skill changed.
 The plan adds one model note, `models/claude-fable-5-2.md`, and two sentences to `SKILL.md`. The formula does not change.
@@ -43,6 +51,7 @@ The operator asked for status updates in ASD-STE100. This update and later updat
 - `docs/dispatch/calibration.md`: the cost ledger. It shows the projected cost and the measured cost of each stage.
 - `docs/handoffs/`: one file for each stage. The file of the active stage has the status `ready` or `in-progress`.
 - `docs/assessment-2026-11-12.md`: the plan for the Fable 5.2 model note, its stages and decision D17.
+- `models/claude-fable-5-2.md`: the model note. The skill reads it only when a session, a piece or a coordinator runs on `claude-fable-5-2`.
 - `docs/acceptance-2026-11-10-f8.md`: the F8 acceptance of Stage O6, its findings, and the rerun against its thresholds.
 - `docs/acceptance-2026-11-10-f7.md`: the F7 acceptance, its findings, and decisions D14 and D15.
 - `eval/results-<date>.md`: the evaluation results. The newest file is `eval/results-2026-11-10.md`.
@@ -77,12 +86,13 @@ The operator asked for status updates in ASD-STE100. This update and later updat
 | Stage O6: the write price by cache lifetime, one owner for the table rules, the scorer contract | 2026-11-10 | Formula 2026-11-11 prices every cache write at the lifetime ttl (5m or 1h). A named coordinator is another session. One module, `scripts/price-table.mjs`, owns the table rules. Staleness counts from each family's `fetched` date. The table of 2026-11-10 has `cache_write_1h` and the Fable 5.1 row. The pricer prices 1-hour writes. The scorer recomputes with To, the coordinator and ttl. Scenario 24 and a new worked example. Findings F7-3 to F7-10 and F7-12 closed. Two Sonnet sub-agents did the table rules (O6a) and the scorer contract (O6b) at the same time. Branch `claude/stage-o6-write-price-003ba0`, pushed. Gate 128 files, 0 findings; 117 tests pass. Measured so far: 14.23 USD (this session 11.10 on 99 calls, O6a 1.23, O6b 1.89), against 20.17 projected. About 2 hours. |
 | Stage F8: acceptance of O6, the 24-scenario rerun, the release | 2026-11-10 | `docs/acceptance-2026-11-10-f8.md`: 23 claims accepted, none rejected. Formula 2026-11-11 was derived by hand for the new example and for scenario 24 before the calculator was read; every figure reproduces. 72 seeded faults: 65 caught as O6 left the tree, 4 more after four new assertions, 3 handed on. One defect fixed before the rerun (F8-1: a calculator-arm sandbox did not carry `price-table.mjs`). `eval/results-2026-11-10.md`: 24 Sonnet runs, calculator arm, final agreement 24 of 24 (86.2 to 100.0 percent); thresholds T1, T2 and T3 met. The class floor's last sentence states the measured figures. Gate 130 files read, 0 findings; tests 120 tests, 120 pass, 0 fail, 127 s. Measured at the 1-hour write: F8 21.21 USD on 103 calls, the 24 subjects 11.29 USD. |
 | Stage F9: the plan for the Fable 5.2 model note | 2026-11-12 | `docs/assessment-2026-11-12.md`. The session read the vendor's pages on effort, on prompting Fable 5.2 and on cost. The plan: one model note that the skill reads only on `claude-fable-5-2`, two sentences in `SKILL.md`, no formula change. The S7 handoff has the dispatch record: fresh by cost, 5.03 against 16.47 USD. Decision D17 waits for the operator. No file of the skill changed. Gate 132 files read, 0 findings. Measured: 23 calls, 11.03 USD, priced just before the commit. |
+| Stage S7: the model note, the gate check, the installer, scenario 25 | 2026-11-12 | Branch `claude/stage-s7-fable-note-45951a` (`e996819`, `bc61ce4`, `9e84f65`, `b93a809`, then the handoff commit). `models/claude-fable-5-2.md` is appendix A. `SKILL.md` gained the two insertions of appendix B. The template and protocol section 2 gained the changes of appendix C. `checkModels` checks eight rules for each note; three tests seed faults in a temporary copy. `install.mjs` ships `models/` (19 files). Scenario 25 is scenario 09 on `claude-fable-5-2`: effort `high`, T* 292.6 turns. Gate: `node scripts/check.mjs` exits 0, 136 files read, 0 findings. Tests: `npm test` 125 tests, 125 pass, 0 fail (396 s). Measured: 48 calls, 2.48 USD at the 1-hour write against 4.91 projected, priced just before the closing commit. Not pushed, not merged. |
 
 ## In progress
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| Stage S7: the model note, the gate check, the installer, scenario 25 | started by the F9 session on 2026-11-12, after D17 and the probe | sonnet, high | a new worktree; handoff `docs/handoffs/2026-11-12-stage-s7-fable-note.md` | 45 to 60 minutes; 4.91 USD projected |
+| Stage F10: acceptance of S7, the paired check, the mini-evaluation, the release steps | waits for the operator to start it from S7's card | fable, xhigh | the S7 branch; handoff `docs/handoffs/2026-11-12-then-stage-f10-acceptance.md` | 60 to 90 minutes; 12.55 USD projected |
 
 The four installed copies (claude, codex, zcode, opencode) and the Cline rule file were written with
 `node scripts/install.mjs --harness all` on 2026-11-10 in F8, from `main` at `6ab7d33`;
@@ -104,7 +114,7 @@ The Fable 5.2 note chain, from `docs/assessment-2026-11-12.md` section 8. Costs 
 | Step | Class, effort | Estimate |
 |---|---|---|
 | The probe: does an effort change start the cache again | the F9 session, fable, high | done on 2026-11-12: the cache was kept; 1.31 USD for the probe session |
-| Stage S7 | sonnet, high | 45 to 60 minutes; 4.91 USD |
+| Stage S7 | sonnet, high | done on 2026-11-12; 2.48 USD measured on 48 calls |
 | Stage F10: acceptance, the mini-evaluation, the release steps | fable, xhigh; the operator starts it from S7's card | 60 to 90 minutes; 12.55 USD, plus 1.88 for 4 subjects (estimate) |
 | The paired check inside F10 (D17 option C) | two sub-agents, fable, high and xhigh | inside F10; 4.97 and 5.52 USD |
 

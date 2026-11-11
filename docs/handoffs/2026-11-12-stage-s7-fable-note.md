@@ -2,7 +2,7 @@
 stage: "Stage S7: the model note for claude-fable-5-2, the two sentences in SKILL.md, the gate check, the installer, scenario 25"
 model: claude-sonnet-5-5
 effort: high
-status: ready
+status: done
 created: 2026-11-12
 from: "Stage F9 session local_49ddae15 (claude-fable-5-2, high), the planning session of docs/assessment-2026-11-12.md"
 ---
@@ -47,6 +47,7 @@ Not in this stage: a push, a merge into `main`, an install into user folders, a 
 - D17: C, decided by the operator on 2026-11-12 ("Go with C"). Copy appendix A as it is.
 
 ## Work completed
+- Stage S7 done on 2026-11-12 by the S7 session: `node scripts/check.mjs` exits 0, 136 files read, 0 findings; `npm test` 125 tests, 125 pass, 0 fail (396 s). Commits `e996819`, `bc61ce4`, `9e84f65`, `b93a809`, then the closing commit. Measured: 48 calls, 2.48 USD (ledger row S7). Next: `docs/handoffs/2026-11-12-then-stage-f10-acceptance.md`.
 - `docs/assessment-2026-11-12.md`, `docs/dispatch/2026-11-12-fable-note.json`, this handoff, the F9 ledger row and the status update: the F9 commit on `main`.
 
 ## Unresolved questions
