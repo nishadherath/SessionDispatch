@@ -1,0 +1,26 @@
+{
+  "_note": "Dispatch of the Fable 5.2 model note chain (2026-11-12) by the planning session, claude-fable-5-2 at high, under formula 2026-11-11. Run: node scripts/dispatch.mjs --json docs/dispatch/2026-11-12-fable-note.json --today 2026-11-12. Table pricing/2026-11-10.json. C0 349,474 measured by node scripts/session-cost.mjs on transcript 928b13c6 at its call 12. B 65,242 measured by get_usage self at the session's start (224,284 total less 159,042 Messages). ttl 1h measured: 300,537 of 300,537 write tokens of this session. Step A prices Stage S7 (sonnet) against this session continuing. S7 T 80 (range 60 to 100). T, F and O per piece are estimates from the ledger: S6 72 calls and 623 output a call, O6a 41 and 970, O6b 48 and 1,138 (Sonnet); F7 49 calls, 5,896 written and 1,909 output a call, F8 103, 4,123 and 1,591 (Fable 5.2 at xhigh). R by characters divided by 4. The two acceptance arms are sub-agents of F10 with a baseline of 62,000 (measured: the first call of O6a wrote 62,081 tokens and of O6b 62,163); they write 5-minute entries, so the plan total at 1h reads high for them (the 5m figures are in the assessment). To 0: this session starts S7 and ends; the operator starts F10 from a card; F10 verifies S7.",
+  "formula": "2026-11-11",
+  "current": "claude-fable-5-2",
+  "target": "sonnet",
+  "W": 1000000,
+  "K": 970000,
+  "C0": 349474,
+  "compacted": false,
+  "ttl": "1h",
+  "T": 80,
+  "F": 3000,
+  "O": 1000,
+  "B": 65242,
+  "R": 64000,
+  "H": 3000,
+  "M": 0,
+  "L": 0,
+  "To": 0,
+  "pieces": [
+    { "name": "S7 note, gate check, installer, template", "model": "claude-sonnet-5-5", "effort": "high", "T": 80, "F": 3000, "O": 1000, "R": 64000 },
+    { "name": "F10 acceptance, mini-evaluation, release", "model": "claude-fable-5-2", "effort": "xhigh", "T": 50, "F": 3250, "O": 1750, "R": 81000 },
+    { "name": "F10 arm at xhigh (sub-agent)", "model": "claude-fable-5-2", "effort": "xhigh", "T": 30, "F": 3250, "O": 1750, "R": 30000, "B": 62000 },
+    { "name": "F10 arm at high (sub-agent)", "model": "claude-fable-5-2", "effort": "high", "T": 30, "F": 3250, "O": 1400, "R": 30000, "B": 62000 }
+  ]
+}
