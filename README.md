@@ -22,6 +22,7 @@ the model's confidence.
 | `pricing/` | Dated price tables, `YYYY-MM-DD.json`. The newest is in force; stale or null means refuse, never guess. |
 | `templates/` | `decision-record.md` (the section pasted into a handoff) and `handoff.md`. |
 | `examples/` | Filled records. The first is the fork_graft decision of 2026-10-27 that this skill generalises. |
+| `models/` | One model note per model that needs one, `<model id>.md`, read on demand by step 1.4.6. The gate checks its shape. Today: `claude-fable-5-2.md`. |
 | `scripts/` | `check.mjs` (the gate), `install.mjs` (installs the skill, checks installed copies, seeds a new project), `pricing-new.mjs` (starts a refresh), `dispatch.mjs` (the step 2 and 3.3 calculator) with `dispatch-core.mjs` (its arithmetic, shared with the gate), `*.test.mjs` with `fixtures/` (tests for the three). |
 | `eval/` | The skill's evaluation: 20 scenarios the calculator scores, each with the brief a subject sees and the expected verdict and guardrails; the rubric; the subject prompt. See `eval/README.md`. |
 | `docs/` | `operator-protocol.md` (the operator's standing instructions), `handoffs/`, `status.md` (the live status), `operator-preferences.json` (the two questions asked once) and the dated assessments. |
@@ -46,7 +47,7 @@ The first command previews every harness. The second installs for
 Claude Code. Then paste the pointer block it prints into your
 instruction file, and run `node scripts/install.mjs --check`.
 
-That copies `SKILL.md`, `pricing/`, `templates/`, `examples/` and the
+That copies `SKILL.md`, `pricing/`, `templates/`, `examples/`, `models/` and the
 scripts an installed copy can run (`pricing-new.mjs` and, when present,
 the calculator; not the gate, the installer or the tests) to
 `~/.claude/skills/session-dispatch/`, where every Claude Code session on

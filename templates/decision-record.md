@@ -29,6 +29,7 @@ Price table: `pricing/<date>.json` (age N days).
 | Coordinating turns To | per piece; 0 when nobody coordinates: the operator starts the next session, or this session starts it and ends | Who starts, receives, verifies, merges and records (step 3.2 rule 7); the count or the step 1.2 default |
 | Coordinator | "this session", or the model id or class of another session (the current model included) | Matrix row "Coordinating a dispatched chain"; a session started by another cannot start sessions |
 | Task type | row of the matrix | |
+| Model note | `models/<model id>.md` applied, or "none" | Step 1.4.6 |
 | Design-heavy | yes or no | |
 | Irreversible or outward-facing steps | list or "none" | |
 
@@ -76,7 +77,7 @@ Coordination: <the operator, or the session and its class>, To <n> per piece, co
 
 Serial chain and its wall clock: <>. Operator review time: <>.
 
-Effort raised or lowered because: <rule from step 3.1, or "no change">.
+Effort raised or lowered because: <rule from step 3.1, a model note's rule (name the note), or "no change">.
 
 Split (step 2.1): <an option or not, and why>.
 

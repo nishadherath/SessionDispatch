@@ -18,8 +18,8 @@ library.
 
 The installer copies the skill folder to the place where each harness
 looks for skills. The skill folder holds `SKILL.md`, `pricing/`,
-`templates/`, `examples/` and the scripts that can run from an installed
-copy.
+`templates/`, `examples/`, `models/` (the model notes) and the scripts
+that can run from an installed copy.
 
 The installer does not change your instruction files. It prints a
 pointer block for each harness. You paste that block into the harness
