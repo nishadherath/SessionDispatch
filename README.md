@@ -138,6 +138,21 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-11-12: Stage S7, the model note for `claude-fable-5-2` (D17 option C;
+  plan `docs/assessment-2026-11-12.md`). `models/claude-fable-5-2.md` holds
+  this model's facts: effort starts at `high` and goes above it only on a
+  measurement, the output and turn inputs by effort from the ledger, the
+  price of an effort change (`effort_switch: kept` in the desktop app) and
+  six rules for a brief. `SKILL.md` gains two sentences: a line in the file
+  list and step 1.4 item 6, which tells a reader to look for a note for the
+  current, piece and coordinator models. No note, no change. The template
+  gains a Model note row; protocol section 2 gains one clause. The gate
+  checks each note (`checkModels`: name, model in the table, date, https
+  sources, effort values, two headings, 5,000 characters), the installer
+  ships `models/`, the evaluation sandbox carries it, and scenario 25
+  tests that a subject on this model states `high` where matrix row 4
+  says `xhigh`. The formula, the calculator and the other 24 scenarios do
+  not change. Stage F10 accepts the work and runs the paired check.
 - 2026-11-10: Stage F8, the acceptance of Stage O6 and of formula
   2026-11-11 (`docs/acceptance-2026-11-10-f8.md`): 23 claims accepted,
   none rejected. The 24-scenario rerun on the Sonnet subject
