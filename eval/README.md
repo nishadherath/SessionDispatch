@@ -114,13 +114,24 @@ model; the gate checks them, and they are null for the older formula.
 Each has alternatives at the other end of the term (this session
 coordinating, or To 0).
 
-Scenario 24 (Stage O6, 2026-11-10) is the only one under formula
+Scenario 24 (Stage O6, 2026-11-10) is the first under formula
 2026-11-11, at `ttl` `1h` on the table of 2026-11-10. Its T of 13 lies
 between the break-even at the 5-minute write price (9.2 turns) and at the
 1-hour one (14.2), so the lifetime alone decides: continue by break-even
 at `1h`, fresh by cost at `5m` (its alternatives, the second also under
 formula 2026-11-10). A subject that keeps the 5-minute price there gets
 the verdict wrong.
+
+Scenario 25 (Stage S7, 2026-11-12) is scenario 09 on `claude-fable-5-2`,
+under formula 2026-11-11 at `ttl` `1h` with To 0. It is the only one
+whose model has a model note (`models/claude-fable-5-2.md`, `SKILL.md`
+step 1.4.6). The draft is continue by break-even (T 12 under T* 292.6),
+guardrail 6 makes the verdict fresh, and the note stops matrix row 4's
+effort at `high`: a subject that does not read the note states `xhigh`.
+`prepare` copies `models/` into every sandbox for it. Scenarios 01 to 24
+name no model that has a note, so their expectations did not move
+(measured in Stage F10: 09 and 02 with the note in the sandbox, 2 of 2
+as expected, `eval/results-2026-11-12.md`).
 
 The scorer contract (Stage O6b, 2026-11-10). The result block's `inputs`
 carry five optional keys, `To`, `Fo`, `Oo`, `coordinator` and `ttl`, each
