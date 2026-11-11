@@ -12,8 +12,10 @@ The operator asked for a plan: an update to the skill that applies only on Claud
 Stage F9 wrote the plan. It is `docs/assessment-2026-11-12.md`. No file of the skill changed.
 The plan adds one model note, `models/claude-fable-5-2.md`, and two sentences to `SKILL.md`. The formula does not change.
 The plan has two stages: S7 (Sonnet, high) and F10 (Fable, xhigh). The projected cost is 34.55 USD with the paired check and 24.06 USD without it.
-One decision waits for the operator: D17 (below). After the answer, the F9 session runs a short probe and starts S7.
-The gate reads 130 files with 0 findings before the F9 commit.
+The operator decided D17: C. The note caps effort at `high`, and Stage F10 runs the paired check.
+The F9 session ran the probe. An effort change from `high` to `low` kept the cache (n = 1; 1.31 USD). The note says `effort_switch: kept`.
+The F9 session starts Stage S7 after the commit that holds this update. Its report gives the session.
+No decision waits for the operator.
 The forty-second update, by the release session (claude-sonnet-5-5), follows.
 The operator decided D16: A, no change. The operator also said yes to the tag v1.1.0, the push, the clean-up and the install on every harness.
 This session tags v1.1.0 on the commit that holds this update, pushes `main` and the tag, deletes the merged worktrees and branches, and runs `node scripts/install.mjs --harness all`. The report names each result.
@@ -80,7 +82,7 @@ The operator asked for status updates in ASD-STE100. This update and later updat
 
 | Stage | Session | Class, effort | Where | Estimate |
 |---|---|---|---|---|
-| Stage S7: the model note, the gate check, the installer, scenario 25 | not started; the F9 session starts it after D17 and the probe | sonnet, high | a new worktree; handoff `docs/handoffs/2026-11-12-stage-s7-fable-note.md` | 45 to 60 minutes; 4.91 USD projected |
+| Stage S7: the model note, the gate check, the installer, scenario 25 | started by the F9 session on 2026-11-12, after D17 and the probe | sonnet, high | a new worktree; handoff `docs/handoffs/2026-11-12-stage-s7-fable-note.md` | 45 to 60 minutes; 4.91 USD projected |
 
 The four installed copies (claude, codex, zcode, opencode) and the Cline rule file were written with
 `node scripts/install.mjs --harness all` on 2026-11-10 in F8, from `main` at `6ab7d33`;
@@ -101,7 +103,7 @@ The Fable 5.2 note chain, from `docs/assessment-2026-11-12.md` section 8. Costs 
 
 | Step | Class, effort | Estimate |
 |---|---|---|
-| The probe: does an effort change start the cache again | the F9 session, fable, high | 10 minutes; about 4.6 USD (estimate) |
+| The probe: does an effort change start the cache again | the F9 session, fable, high | done on 2026-11-12: the cache was kept; 1.31 USD for the probe session |
 | Stage S7 | sonnet, high | 45 to 60 minutes; 4.91 USD |
 | Stage F10: acceptance, the mini-evaluation, the release steps | fable, xhigh; the operator starts it from S7's card | 60 to 90 minutes; 12.55 USD, plus 1.88 for 4 subjects (estimate) |
 | The paired check inside F10 (D17 option C) | two sub-agents, fable, high and xhigh | inside F10; 4.97 and 5.52 USD |
@@ -142,7 +144,7 @@ assessment; D8 and D9 are repeated below.
 - D15 A follow-up stage for the pricing and text findings of F7 (2026-11-10): A, decided by the operator on 2026-11-10 ("D-15 (A)"). Stage O6 does the work. Stage F8 accepts it. Five parts: the same note, section 8.
 - The tag v1.1.0: the operator said "Not yet" on 2026-11-10 and said yes on 2026-11-11 (D16-A message). No tag is on `82d9386`. Stage F8 is done and made no tag. The F7 session asks the operator now. A tag push needs the operator's yes (it is outside `approvals.push_origin`).
 - D16 A cache lifetime for each piece (F8, 2026-11-10): A, decided by the operator on 2026-11-11 ("Decision D16-A"). No formula change. Five parts below.
-- D17 The effort cap for `claude-fable-5-2` and its first measurement (F9, 2026-11-12): waits for the operator. Recommended: C. Five parts below and in `docs/assessment-2026-11-12.md` section 10. S7's work is the same under A and C.
+- D17 The effort cap for `claude-fable-5-2` and its first measurement (F9, 2026-11-12): C, decided by the operator on 2026-11-12 ("Go with C"). The note caps effort at `high`. Stage F10 runs the paired check with threshold P1. Five parts below and in `docs/assessment-2026-11-12.md` section 10.
 - F3-7 H2's runner (the coordinating session's, not the operator's): A, the `Agent` runner as H1 used it, decided 2026-10-30 so that H1 and H2 share one harness and F4 can attribute any change to the text; S4's CLI runner follows H2.
 - Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`: answered yes by the operator on 2026-10-30 (S3); the blocks were already there and stay.
 
@@ -153,6 +155,7 @@ Options:       A cap at high now, no paired check / B no cap: the note gives the
 Pros and cons: A costs 24.06 USD and follows the protocol's rule and the vendor's page; no test shows what an acceptance at high misses, and the note's inputs at high stay at n = 0 until a later stage. B has the lowest quality risk and the smallest saving: the three xhigh pieces in the ledger cost 39.04 USD and the rule that put them there stays. C costs 10.49 USD more than A; it tests the cap once with a known answer and gives the first measured cost ratio of the two levels; one pair is weak evidence and the report must say so.
 Blast radius:  A and C: every later acceptance and release stage on this model in every project that has the skill runs at high; a defect that only xhigh finds reaches the installed copies. One sentence in the note reverses it. B: none beyond the note. In all three, other models and past records are unchanged.
 Recommended:   C, because the cap changes the effort of the project's own quality gate, and such a change needs one direct test. The 10.49 USD is less than the saving estimated for two or three acceptance stages. S7's work is the same under A and C. Under B, one sentence of the note changes.
+Decided:       C, by the operator on 2026-11-12 ("Go with C").
 ```
 
 ```
