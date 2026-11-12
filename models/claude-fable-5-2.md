@@ -41,6 +41,8 @@ changes the effort cell of step 3.1 and three inputs of step 1.2 for that model 
 | `high`, any task | 1,500 (the default) | as planned | 0 | no row on this model |
 | `high`, assessment or plan | 4,000 | as planned | 1 | ledger row F9: 4,066 output a call |
 | `xhigh`, acceptance | 1,750 | 2 times the plan estimate | 2 | ledger rows F7 and F8: 1,909 and 1,591 output a call; calls 2.45 and 1.72 times T |
+| `high`, acceptance, sub-agent | 1,600 | 1.2 times the plan estimate | 1 | ledger row F10, arm at `high`: 1,613 output a call, 36 calls, 5.37 USD, 6 of 6 seeded faults |
+| `xhigh`, acceptance, sub-agent | 2,250 | 1.6 times the plan estimate | 1 | ledger row F10, arm at `xhigh`: 2,234 output a call, 48 calls, 8.77 USD, 6 of 6 seeded faults |
 | `xhigh`, coordinator (Oo) | 2,750 | To as counted | 1 | ledger row F7, coordinator: 2,763 |
 
 These rows are estimates of the spread, not findings. In Step B, give the cost at the level you
