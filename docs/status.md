@@ -7,7 +7,11 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-11-12, forty-fifth update, by the Stage F10 session (claude-fable-5-2, xhigh).
+Last updated: 2026-11-12, forty-sixth update, by the Stage F10 session (claude-fable-5-2, xhigh).
+The operator decided D18: A ("Tag v1.2.0", in the F10 session). The tag v1.2.0 is an annotated tag on the commit that holds this update. `main` and the tag are pushed to `origin`.
+The installed copies stay current: this commit changes documents only.
+No decision waits for the operator. No stage is in progress or left to do.
+The forty-fifth update, by the same session, follows.
 Stage F10 accepted Stage S7. It checked eleven claims and rejected none. The note is `docs/acceptance-2026-11-12-f10.md`.
 The paired check ran on two identical copies that held six seeded faults. The arm at `high` found six of six. The arm at `xhigh` found six of six.
 Threshold P1 is met. The cap at `high` in `models/claude-fable-5-2.md` stays. Rule 1.2 of the note did not change.
@@ -174,7 +178,7 @@ assessment; D8 and D9 are repeated below.
 - The tag v1.1.0: the operator said "Not yet" on 2026-11-10 and said yes on 2026-11-11 (D16-A message). No tag is on `82d9386`. Stage F8 is done and made no tag. The F7 session asks the operator now. A tag push needs the operator's yes (it is outside `approvals.push_origin`).
 - D16 A cache lifetime for each piece (F8, 2026-11-10): A, decided by the operator on 2026-11-11 ("Decision D16-A"). No formula change. Five parts below.
 - D17 The effort cap for `claude-fable-5-2` and its first measurement (F9, 2026-11-12): C, decided by the operator on 2026-11-12 ("Go with C"). The note caps effort at `high`. Stage F10 ran the paired check with threshold P1 on 2026-11-12: each arm found six of six, so the cap stays. Five parts below and in `docs/assessment-2026-11-12.md` section 10.
-- D18 The tag for the release that holds the Fable 5.2 model note (F10, 2026-11-12): waits for the operator. A tag push needs the operator's yes (it is outside `approvals.push_origin`). Five parts below.
+- D18 The tag for the release that holds the Fable 5.2 model note (F10, 2026-11-12): A, decided by the operator on 2026-11-12 ("Tag v1.2.0"). The F10 session made the tag v1.2.0 and pushed it. Five parts below.
 - F3-7 H2's runner (the coordinating session's, not the operator's): A, the `Agent` runner as H1 used it, decided 2026-10-30 so that H1 and H2 share one harness and F4 can attribute any change to the text; S4's CLI runner follows H2.
 - Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`: answered yes by the operator on 2026-10-30 (S3); the blocks were already there and stay.
 
@@ -185,6 +189,7 @@ Options:       A tag v1.2.0 on main as F10 leaves it, and push the tag / B no ta
 Pros and cons: A names the first tree that ships models/; the installed copies already hold that tree; the tag push needs this yes. B gives one tag for the note and its follow-up fixes; the three findings are low and none is in the rules of SKILL.md or of the note, so the wait buys little; the stage costs about 2 to 3 USD (an estimate). C costs nothing; a later reader has no name for the first release with a model note.
 Blast radius:  A and B: one tag on the private remote; a wrong tag is deleted with one command before anything depends on it. C: none. No option changes a file of the skill or an installed copy.
 Recommended:   A, because the payload changed for every harness (a new folder and two sentences in SKILL.md), which is what a minor version names, and the handed-on findings do not touch the payload's rules.
+Decided:       A, by the operator on 2026-11-12 ("Tag v1.2.0").
 ```
 
 ```

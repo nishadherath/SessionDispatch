@@ -150,7 +150,8 @@ writing into the working tree.
   effort `high` in 2 of 2 runs, and scenarios 09 and 02 keep their
   expected model and effort with the note in the sandbox. Two new tests
   hold the note's size rule at its boundary and an installed-only note in
-  `--check`. `eval/README.md` now describes scenario 25.
+  `--check`. `eval/README.md` now describes scenario 25. Released as
+  v1.2.0 (D18, the operator's yes of 2026-11-12).
 - 2026-11-12: Stage S7, the model note for `claude-fable-5-2` (D17 option C;
   plan `docs/assessment-2026-11-12.md`). `models/claude-fable-5-2.md` holds
   this model's facts: effort starts at `high` and goes above it only on a
