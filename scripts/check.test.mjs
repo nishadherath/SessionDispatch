@@ -235,3 +235,21 @@ test("a model note of more than 5,000 characters exits 1 and says how many to cu
     assert.match(r.stdout, new RegExp(`claude-fable-5-2\.md: ${total} characters, over the limit of 5000; cut ${total - 5000} characters`));
   });
 });
+
+// Stage F10: the size rule at its boundary. The paired check seeded >= in place of > and no test failed.
+test("a model note of exactly 5,000 characters passes and one of 5,001 exits 1", () => {
+  withTree("gate-note-boundary", (tree) => {
+    const file = path.join(tree, "models", "claude-fable-5-2.md");
+    const text = fs.readFileSync(file, "utf8").replace(/\r\n/g, "\n");
+    assert.ok(text.length < 5000, "the fixture needs room to pad the note to the limit");
+    const padTo = (chars) => fs.writeFileSync(file, `${text}${"x".repeat(chars - text.length - 1)}\n`);
+    padTo(5000);
+    const atLimit = runGate(tree);
+    // Not the exit code: a stale table would make it 2 on a later day. No finding may name the note.
+    assert.doesNotMatch(atLimit.stdout, /claude-fable-5-2\.md/, atLimit.out);
+    padTo(5001);
+    const over = runGate(tree);
+    assert.equal(over.status, 1, over.out);
+    assert.match(over.stdout, /claude-fable-5-2\.md: 5001 characters, over the limit of 5000; cut 1 characters/);
+  });
+});

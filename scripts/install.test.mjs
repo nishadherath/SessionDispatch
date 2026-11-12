@@ -55,15 +55,19 @@ test("the payload carries the runnable scripts and not the gate, the installer o
   });
 });
 
-test("the payload carries models/ and --check names a missing model note", () => {
+test("the payload carries models/, and --check names a missing model note and lists an installed-only one", () => {
   withDirs("models", (home) => {
     assert.equal(install(home, []).status, 0);
     const note = path.join(SKILL_DIR(home), "models", "claude-fable-5-2.md");
     assert.equal(fs.readFileSync(note, "utf8"), fs.readFileSync(path.join(ROOT, "models", "claude-fable-5-2.md"), "utf8"));
     fs.rmSync(note);
+    // A note that only the installed copy holds stays in force for its model (SKILL.md step 1.4.6),
+    // so --check must show it (Stage F10: the paired check seeded this omission and no test failed).
+    fs.writeFileSync(path.join(SKILL_DIR(home), "models", "claude-fable-9-9.md"), "a note the repository does not hold\n");
     const r = install(home, ["--check"]);
     assert.equal(r.status, 1, r.out);
     assert.match(r.stdout, /missing models\/claude-fable-5-2\.md/);
+    assert.match(r.stdout, /extra {3}models\/claude-fable-9-9\.md/);
   });
 });
 
