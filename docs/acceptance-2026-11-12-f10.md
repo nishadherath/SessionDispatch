@@ -286,10 +286,18 @@ handoff names. F10-5 lists what they do not cover.
 - No change to `SKILL.md`, the formula, the calculator, a scenario, a
   price table or an adapter.
 
-The release steps follow the closing commit and are recorded in
-`docs/status.md`: `main` fast-forwarded and pushed, the install for every
-harness, `--check`. No tag: the operator decides (D18 in the status
-document).
+The release steps, done after the closing commit `db2a105` (the note's
+rows are `dfa1e7d`): `main` fast-forwarded from `3cf34ce` to `db2a105`,
+the gate run on `main` (138 files read, 0 findings), `git push origin
+main` under `approvals.push_origin` (`3cf34ce..db2a105`), then
+`node scripts/install.mjs --harness all` from `main`: four copies of 19
+files and the Cline rule file, which points at the Claude copy. `node
+scripts/install.mjs --check`: 4 installed copies, 0 files behind. The
+commit that records these steps changes documents only. No tag: the
+operator decides (D18 in the status document).
+
+The message of `38a0525` calls its finding F10-3; in this note it is
+F10-1.
 
 Next stage: none, the chain is complete. Session dispatch not run: no
 stage follows, no trigger of step 0 holds.

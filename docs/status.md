@@ -17,6 +17,9 @@ The mini-evaluation met P3 and P4, 2 of 2 each. The results are `eval/results-20
 F10 fixed three findings and added two tests. Three low findings are maintenance items: F10-4, F10-5 and F10-7.
 Gate: `node scripts/check.mjs` exits 0, 138 files read, 0 findings. Tests: `npm test` 126 tests, 126 pass, 0 fail (627 s).
 Measured: F10 14.58 USD on 74 calls, the two arms 14.14, the four subjects 3.13. The total is 31.85 USD against 24.92 projected.
+The release steps are done. `main` was fast-forwarded to `db2a105` and pushed to `origin` (`3cf34ce..db2a105`) under `approvals.push_origin`.
+`node scripts/install.mjs --harness all` ran from `main` at `db2a105`. It wrote the four copies (19 files each) and the Cline rule file. `--check` reports 4 copies, 0 files behind.
+The commit that holds this update follows `db2a105`. It changes documents only, and it is pushed too.
 F10 made no tag. One decision waits for the operator: D18, the tag.
 The forty-fourth update, by the Stage S7 session (claude-sonnet-5-5, high), follows.
 Stage S7 is complete on the branch `claude/stage-s7-fable-note-45951a`. It holds four feature commits and the handoff commit.
@@ -107,7 +110,7 @@ The operator asked for status updates in ASD-STE100. This update and later updat
 | No stage is in progress | | | | |
 
 The four installed copies (claude, codex, zcode, opencode) and the Cline rule file were written with
-`node scripts/install.mjs --harness all` on 2026-11-10 in F8, from `main` at `6ab7d33`;
+`node scripts/install.mjs --harness all` on 2026-11-12 in F10, from `main` at `db2a105`;
 `--check` reports 4 copies, 0 files behind. The Codex copy holds three files the installer does not own
 (`pricing/2026-11-04.before-openai-expansion.json.bak`, `scripts/check.mjs`,
 `scripts/pricing-new.mjs.before-graft-dispatch-20261104`), left by the Codex session of 2026-11-04; `--check`
