@@ -2,7 +2,7 @@
 stage: "Stage F10: acceptance of Stage S7, the paired check at high and xhigh, the mini-evaluation, the release steps"
 model: claude-fable-5-2
 effort: xhigh
-status: ready
+status: done
 created: 2026-11-12
 from: "Stage S7 session local_3db2e510 (claude-sonnet-5-5, high), branch claude/stage-s7-fable-note-45951a"
 ---
@@ -43,6 +43,8 @@ Done when all of these hold:
 
 ## Work completed
 S7 is complete on its branch: the four commits above, this handoff, the S7 ledger row, the status update and the changelog line.
+
+Stage F10 done on 2026-11-12 by session `local_17f1e88d` (`claude-fable-5-2`, xhigh): `docs/acceptance-2026-11-12-f10.md`. Eleven claims accepted, none rejected. P1 met (each arm 6 of 6, the cap stays), P2 done, P3 and P4 met (2 of 2 each). Commits `38a0525`, `7971337`, `bc4c186`, then the closing commit. Gate 138 files read, 0 findings; `npm test` 126 tests, 126 pass. The release steps and the tag question are in `docs/status.md`. The acceptance note's finding F10-6 lists two faults of this brief's own text.
 
 ## The claims of S7, each with its check
 1. **The note is appendix A as it stands.** Extract the text between the two fences of appendix A in the assessment and compare it with `models/claude-fable-5-2.md` byte for byte.
@@ -85,10 +87,10 @@ Read your own configuration with the session tool (`self`). Stop if the model is
 
 | Piece | Projected USD | T projected | Calls measured | Measured USD | Source |
 |---|---|---|---|---|---|
-| F10 acceptance | 12.55 | 50 | pending | pending | `node scripts/session-cost.mjs <transcript>` |
-| F10 arm at `xhigh` (sub-agent) | 5.52 at the 5-minute write (6.97 at 1 hour) | 30 | pending | pending | the same |
-| F10 arm at `high` (sub-agent) | 4.97 at the 5-minute write (6.35 at 1 hour) | 30 | pending | pending | the same |
-| 4 evaluation subjects | 1.88 (estimate: 4 times the measured mean of 0.47) | n/a | pending | pending | each run's `usage.json` |
+| F10 acceptance | 12.55 | 50 | 74 | 14.58 | transcript `310e166e`, table 2026-11-10, priced before the last test run, the closing commit and the release steps |
+| F10 arm at `xhigh` (sub-agent) | 5.52 at the 5-minute write (6.97 at 1 hour) | 30 | 48 | 8.77 | sub-agent `a1c221e7` of the same transcript, 5-minute writes |
+| F10 arm at `high` (sub-agent) | 4.97 at the 5-minute write (6.35 at 1 hour) | 30 | 36 | 5.37 | sub-agent `a395859c`, 5-minute writes |
+| 4 evaluation subjects | 1.88 (estimate: 4 times the measured mean of 0.47) | n/a | 25 turns | 3.13 | each run's `cli-result.json`, 1-hour writes |
 
 Total about 24.9 USD at the 5-minute figure for the arms, plus the subjects. Assumption: T 50 is 25 turns times the factor 2 of the note's table.
 
