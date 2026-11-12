@@ -70,7 +70,7 @@ If you are blocked, write the five lines of the persona's section 3.4 and stop.
 
 | Piece | Projected USD | T projected | Calls measured | Measured USD | Source |
 |---|---|---|---|---|---|
-| S7 (this stage) | 4.91 (3.8 to 6.0 at T 60 to 100) | 80 | pending | pending | `node scripts/session-cost.mjs <transcript>` |
+| S7 (this stage) | 4.91 (3.8 to 6.0 at T 60 to 100) | 80 | 48 | 2.48 | transcript `6577132b`, table 2026-11-10, priced by S7 just before its closing commit (filled by F10 from the ledger row; the same transcript held 61 calls and 3.00 USD when F10 priced it) |
 | F10 acceptance | 12.55 | 50 | pending | pending | the same |
 | F10 arm at `xhigh` (sub-agent) | 5.52 at the 5-minute write | 30 | pending | pending | the same |
 | F10 arm at `high` (sub-agent) | 4.97 at the 5-minute write | 30 | pending | pending | the same |

@@ -138,6 +138,19 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-11-12: Stage F10, the acceptance of Stage S7 and the paired check
+  (`docs/acceptance-2026-11-12-f10.md`): eleven claims accepted, none
+  rejected. Two sub-agents on `claude-fable-5-2`, one at `high` and one at
+  `xhigh`, accepted S7 on identical copies with six seeded faults: each
+  found six of six, so the note's cap at `high` stays (threshold P1). The
+  arm at `xhigh` cost 1.63 times the arm at `high` (8.77 against 5.37 USD)
+  and found four low defects in code that the other did not; one pair is
+  weak evidence. The note's table and the ledger hold a row for each arm.
+  The mini-evaluation (`eval/results-2026-11-12.md`): scenario 25 states
+  effort `high` in 2 of 2 runs, and scenarios 09 and 02 keep their
+  expected model and effort with the note in the sandbox. Two new tests
+  hold the note's size rule at its boundary and an installed-only note in
+  `--check`. `eval/README.md` now describes scenario 25.
 - 2026-11-12: Stage S7, the model note for `claude-fable-5-2` (D17 option C;
   plan `docs/assessment-2026-11-12.md`). `models/claude-fable-5-2.md` holds
   this model's facts: effort starts at `high` and goes above it only on a
