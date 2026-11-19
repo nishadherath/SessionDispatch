@@ -1,0 +1,360 @@
+{
+  "table_date": "2026-11-20",
+  "currency": "USD",
+  "unit": "per million tokens",
+  "max_age_days": 14,
+  "notes": [
+    "The newest file by name in this folder is the table in force. Refresh with node scripts/pricing-new.mjs, then fill the figures from each family's source page and set fetched to the day you read it.",
+    "class maps a model to the skill's capability tier (haiku, sonnet, opus, fable) across providers. null means the operator has not placed it yet; the skill treats a null class like a null price.",
+    "cache_write for the Anthropic rows is derived as 1.25 times input, the rule the fork_graft operator protocol section 6 uses; the other figures were read from the live pricing page on the fetched date.",
+    "A long_context block gives the prices that apply to a whole request once its prompt exceeds threshold_tokens.",
+    "OpenAI Sol prices checked 2026-11-04; other families retain their individual fetched dates and were not reassessed.",
+    "OpenAI capability classes confirmed by operator 2026-11-04. When multiple models share a class the calculator selects the first listed.",
+    "Staleness counts from each family's fetched date: a family's figures are stale when today is more than max_age_days (14) days after it. table_date only names the file (it must equal the filename and not be after today). OpenAI's 2026-11-04 figures therefore go stale on 2026-11-19.",
+    "2026-11-10: this file holds both claude-fable-5-2 and claude-fable-5-1, because the live pricing page lists both. The class fable resolves to the first row listed, claude-fable-5-2; claude-fable-5-1 is listed after it so a session on Fable 5.1 is priced here. cache_write_1h is the page's 1-hour cache-write figure (2 times input); a row with none offers none (the OpenAI rows write for 30 minutes).",
+    "2026-11-20: Google Standard Paid Tier rates read live from https://ai.google.dev/gemini-api/docs/pricing, https://ai.google.dev/gemini-api/docs/choosing-a-model and https://ai.google.dev/gemini-api/docs/caching. Google implicit context caching has no write surcharge, so cache_write equals input (1.0x) and cache_write_1h is omitted. Capability classes follow Google's Choosing a Model tiers (first listed per class is selected by the calculator: fable gemini-4-carbon, opus gemini-4-neon, sonnet gemini-4-hydrogen, haiku gemini-3.5-flash-lite). Introductory prices for gemini-4-carbon and gemini-4-argon double on 2026-12-01 ($4/$20/$0.20), and gemini-3.8-flash and gemini-3.6-flash double on 2027-01-01 ($1.50/$7.50/$0.15); refresh on 2026-12-01.",
+    "2026-11-20: OpenAI Standard API rates read live from https://developers.openai.com/api/docs/pricing.md, https://developers.openai.com/api/docs/models/gpt-6.2-astra.md and https://developers.openai.com/api/docs/models/gpt-6.2-sol.md. Added gpt-6.2-astra (fable) and gpt-6.2-sol (opus) ahead of gpt-6-astra and gpt-6.1-sol; all five earlier GPT-6 rows are unchanged. cache_write is the 30-minute write figure (1.25 times input; 12-hour write is 2.5 times input; no 1-hour write tier). Long-context rates apply above 272,000 input tokens."
+  ],
+  "families": {
+    "anthropic": {
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing.md",
+      "fetched": "2026-11-10",
+      "fetched_by": "live read 2026-11-10 by two sub-agent reads of the page's Model pricing table, then a second read the same day for the 1-hour cache-write figures (the page states no update date); Haiku 5.5, Sonnet 5.5 and Opus 5.5 unchanged from 2026-10-29 apart from cache_write_1h; Fable 5.2 and Fable 5.1 listed; cache_write is the page's 5-minute figure (1.25 times input), cache_write_1h its 1-hour figure (2 times input)",
+      "models": {
+        "claude-haiku-5-5": {
+          "class": "haiku",
+          "input": 0.1,
+          "output": 0.5,
+          "cache_read": 0.01,
+          "cache_write": 0.125,
+          "cache_write_1h": 0.2,
+          "long_context": {
+            "threshold_tokens": 100000,
+            "input": 0.5,
+            "output": 2.5,
+            "cache_read": 0.05,
+            "cache_write": 0.625,
+            "cache_write_1h": 1
+          }
+        },
+        "claude-sonnet-5-5": {
+          "class": "sonnet",
+          "input": 2,
+          "output": 10,
+          "cache_read": 0.1,
+          "cache_write": 2.5,
+          "cache_write_1h": 4
+        },
+        "claude-opus-5-5": {
+          "class": "opus",
+          "input": 4,
+          "output": 20,
+          "cache_read": 0.2,
+          "cache_write": 5,
+          "cache_write_1h": 8
+        },
+        "claude-fable-5-2": {
+          "class": "fable",
+          "input": 8,
+          "output": 40,
+          "cache_read": 0.2,
+          "cache_write": 10,
+          "cache_write_1h": 16
+        },
+        "claude-fable-5-1": {
+          "class": "fable",
+          "input": 10,
+          "output": 50,
+          "cache_read": 0.25,
+          "cache_write": 12.5,
+          "cache_write_1h": 20
+        }
+      }
+    },
+    "openai": {
+      "source": "https://developers.openai.com/api/docs/pricing",
+      "fetched": "2026-11-20",
+      "fetched_by": "live read 2026-11-20 of https://developers.openai.com/api/docs/pricing.md, https://developers.openai.com/api/docs/models/gpt-6.2-astra.md and https://developers.openai.com/api/docs/models/gpt-6.2-sol.md; Standard API rates, 30-minute cache write (1.25 times input), long-context threshold 272,000 input tokens; gpt-6.2-astra and gpt-6.2-sol added ahead of gpt-6-astra and gpt-6.1-sol",
+      "models": {
+        "gpt-6.2-astra": {
+          "class": "fable",
+          "input": 8,
+          "output": 40,
+          "cache_read": 0.4,
+          "cache_write": 10,
+          "long_context": {
+            "threshold_tokens": 272000,
+            "input": 16,
+            "output": 60,
+            "cache_read": 0.8,
+            "cache_write": 20
+          },
+          "note": "Standard API rates, 30-minute cache write (12-hour write is 20 short / 40 long); verified against live pricing page 2026-11-20."
+        },
+        "gpt-6.2-sol": {
+          "class": "opus",
+          "input": 2,
+          "output": 10,
+          "cache_read": 0.1,
+          "cache_write": 2.5,
+          "long_context": {
+            "threshold_tokens": 272000,
+            "input": 4,
+            "output": 15,
+            "cache_read": 0.2,
+            "cache_write": 5
+          },
+          "note": "Standard API rates, 30-minute cache write (12-hour write is 5 short / 10 long); verified against live pricing page 2026-11-20."
+        },
+        "gpt-6.1-sol": {
+          "class": "opus",
+          "input": 2,
+          "output": 10,
+          "cache_read": 0.1,
+          "cache_write": 2.5,
+          "note": "Opus class assigned by operator on 2026-11-04. Standard API pricing, 30-minute cache writes; verified unchanged on 2026-11-20.",
+          "long_context": {
+            "threshold_tokens": 272000,
+            "input": 4,
+            "output": 15,
+            "cache_read": 0.2,
+            "cache_write": 5
+          }
+        },
+        "gpt-6-astra": {
+          "class": "fable",
+          "input": 10,
+          "output": 50,
+          "cache_read": 1,
+          "cache_write": 12.5,
+          "long_context": {
+            "threshold_tokens": 272000,
+            "input": 20,
+            "output": 75,
+            "cache_read": 2,
+            "cache_write": 25
+          },
+          "note": "Standard API rates, 30-minute cache write; verified unchanged on 2026-11-20."
+        },
+        "gpt-6.1-terra": {
+          "class": "sonnet",
+          "input": 1,
+          "output": 5,
+          "cache_read": 0.05,
+          "cache_write": 1.25,
+          "long_context": {
+            "threshold_tokens": 272000,
+            "input": 2,
+            "output": 7.5,
+            "cache_read": 0.1,
+            "cache_write": 2.5
+          },
+          "note": "Standard API rates, 30-minute cache write; verified unchanged on 2026-11-20."
+        },
+        "gpt-6-sol": {
+          "class": "sonnet",
+          "input": 2,
+          "output": 10,
+          "cache_read": 0.2,
+          "cache_write": 2.5,
+          "long_context": {
+            "threshold_tokens": 272000,
+            "input": 4,
+            "output": 15,
+            "cache_read": 0.4,
+            "cache_write": 5
+          },
+          "note": "Standard API rates, 30-minute cache write; verified unchanged on 2026-11-20."
+        },
+        "gpt-6-luna": {
+          "class": "haiku",
+          "input": 0.1,
+          "output": 0.5,
+          "cache_read": 0.01,
+          "cache_write": 0.125,
+          "long_context": {
+            "threshold_tokens": 272000,
+            "input": 0.2,
+            "output": 0.75,
+            "cache_read": 0.02,
+            "cache_write": 0.25
+          },
+          "note": "Standard API rates, 30-minute cache write; verified unchanged on 2026-11-20."
+        }
+      }
+    },
+    "google": {
+      "source": "https://ai.google.dev/gemini-api/docs/pricing",
+      "fetched": "2026-11-20",
+      "fetched_by": "live read 2026-11-20 of https://ai.google.dev/gemini-api/docs/pricing, https://ai.google.dev/gemini-api/docs/choosing-a-model and https://ai.google.dev/gemini-api/docs/caching; Standard Paid Tier rates in effect on 2026-11-20; implicit caching charges no write surcharge (cache_write equals input) and offers no 1-hour write tier",
+      "models": {
+        "gemini-4-carbon": {
+          "class": "fable",
+          "input": 2,
+          "output": 10,
+          "cache_read": 0.1,
+          "cache_write": 2,
+          "note": "Standard Paid Tier introductory rates through 2026-11-30; rises to input 4, output 20, cache_read 0.2, cache_write 4 on 2026-12-01. Unified 1M context window, implicit caching only."
+        },
+        "gemini-4-neon": {
+          "class": "opus",
+          "input": 3,
+          "output": 15,
+          "cache_read": 0.15,
+          "cache_write": 3,
+          "note": "Standard Paid Tier rates (no introductory pricing). Unified 1M context window, implicit caching only."
+        },
+        "gemini-4-argon": {
+          "class": "opus",
+          "input": 2,
+          "output": 10,
+          "cache_read": 0.1,
+          "cache_write": 2,
+          "note": "Standard Paid Tier introductory rates through 2026-11-30; rises to input 4, output 20, cache_read 0.2, cache_write 4 on 2026-12-01. Unified 1M context window, implicit caching only."
+        },
+        "gemini-4-hydrogen": {
+          "class": "sonnet",
+          "input": 1.5,
+          "output": 7.5,
+          "cache_read": 0.075,
+          "cache_write": 1.5,
+          "note": "Standard Paid Tier rates; default general-purpose and Antigravity model. Unified 1M context window, implicit caching only."
+        },
+        "gemini-3.8-flash": {
+          "class": "sonnet",
+          "input": 0.75,
+          "output": 3.75,
+          "cache_read": 0.075,
+          "cache_write": 0.75,
+          "note": "Standard Paid Tier introductory rates through 2026-12-31; rises to input 1.5, output 7.5, cache_read 0.15, cache_write 1.5 on 2027-01-01. Implicit caching cache_write equals input; explicit storage is 0.50 USD per million tokens per hour through 2026-12-31."
+        },
+        "gemini-3.6-flash": {
+          "class": "sonnet",
+          "input": 0.75,
+          "output": 3.75,
+          "cache_read": 0.075,
+          "cache_write": 0.75,
+          "note": "Standard Paid Tier introductory rates through 2026-12-31; rises to input 1.5, output 7.5, cache_read 0.15, cache_write 1.5 on 2027-01-01."
+        },
+        "gemini-3-flash-preview": {
+          "class": "sonnet",
+          "input": 0.5,
+          "output": 3,
+          "cache_read": 0.05,
+          "cache_write": 0.5,
+          "note": "Standard Paid Tier text/image/video rates."
+        },
+        "gemini-3.5-flash-lite": {
+          "class": "haiku",
+          "input": 0.3,
+          "output": 2.5,
+          "cache_read": 0.03,
+          "cache_write": 0.3,
+          "note": "Standard Paid Tier rates; lowest-cost general Gemini 3.5 model for high-volume mechanical tasks."
+        },
+        "gemini-3.1-flash-lite": {
+          "class": "haiku",
+          "input": 0.25,
+          "output": 1.5,
+          "cache_read": 0.025,
+          "cache_write": 0.25,
+          "note": "Standard Paid Tier text/image/video rates."
+        },
+        "gemini-3.1-pro-preview": {
+          "class": "opus",
+          "input": 2,
+          "output": 12,
+          "cache_read": 0.2,
+          "cache_write": 2,
+          "long_context": {
+            "threshold_tokens": 200000,
+            "input": 4,
+            "output": 18,
+            "cache_read": 0.4,
+            "cache_write": 4
+          },
+          "note": "Standard Paid Tier rates; long-context tier applies above 200,000 prompt tokens."
+        },
+        "gemini-2.5-pro": {
+          "class": "opus",
+          "input": 1.25,
+          "output": 10,
+          "cache_read": 0.125,
+          "cache_write": 1.25,
+          "long_context": {
+            "threshold_tokens": 200000,
+            "input": 2.5,
+            "output": 15,
+            "cache_read": 0.25,
+            "cache_write": 2.5
+          },
+          "note": "Standard Paid Tier rates; long-context tier applies above 200,000 prompt tokens."
+        },
+        "gemini-2.5-flash": {
+          "class": "haiku",
+          "input": 0.3,
+          "output": 2.5,
+          "cache_read": 0.03,
+          "cache_write": 0.3,
+          "note": "Standard Paid Tier text/image/video rates."
+        },
+        "gemini-2.5-flash-lite": {
+          "class": "haiku",
+          "input": 0.1,
+          "output": 0.4,
+          "cache_read": 0.01,
+          "cache_write": 0.1,
+          "note": "Standard Paid Tier text/image/video rates."
+        }
+      }
+    },
+    "deepseek": {
+      "source": "https://api-docs.deepseek.com/quick_start/pricing",
+      "fetched": null,
+      "models": {}
+    },
+    "kimi": {
+      "source": "https://platform.moonshot.ai/docs/pricing",
+      "fetched": null,
+      "models": {
+        "kimi-k3": {
+          "class": null,
+          "input": null,
+          "output": null,
+          "cache_read": null,
+          "cache_write": null,
+          "note": "Named in the operator's ~/.config/opencode/opencode.jsonc on 2026-10-27."
+        },
+        "kimi-k2.7-code": {
+          "class": null,
+          "input": null,
+          "output": null,
+          "cache_read": null,
+          "cache_write": null,
+          "note": "Named in the operator's ~/.config/opencode/opencode.jsonc on 2026-10-27."
+        },
+        "kimi-k2.7-code-highspeed": {
+          "class": null,
+          "input": null,
+          "output": null,
+          "cache_read": null,
+          "cache_write": null,
+          "note": "Named in the operator's ~/.config/opencode/opencode.jsonc on 2026-10-27."
+        },
+        "kimi-k2.6": {
+          "class": null,
+          "input": null,
+          "output": null,
+          "cache_read": null,
+          "cache_write": null,
+          "note": "Named in the operator's ~/.config/opencode/opencode.jsonc on 2026-10-27."
+        }
+      }
+    },
+    "glm": {
+      "source": "https://docs.z.ai/guides/overview/pricing",
+      "fetched": null,
+      "models": {}
+    }
+  }
+}

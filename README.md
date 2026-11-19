@@ -138,6 +138,18 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-11-20: Price table refresh (`pricing/2026-11-20.json`) and release
+  v1.2.1. Added 13 Google Gemini models from the live Gemini Developer API
+  pricing page (`fetched: 2026-11-20`; implicit caching, so `cache_write`
+  equals `input` and `cache_write_1h` is omitted; primary picks `fable`
+  `gemini-4-carbon`, `opus` `gemini-4-neon`, `sonnet` `gemini-4-hydrogen`,
+  `haiku` `gemini-3.5-flash-lite`; introductory rates for Carbon and Argon
+  expire 2026-11-30). Refreshed `families.openai` (`fetched: 2026-11-20`),
+  verifying all five earlier GPT-6 rows unchanged and adding `gpt-6.2-astra`
+  (`fable`) and `gpt-6.2-sol` (`opus`). Updated
+  `adapters/gemini-cli-antigravity.md`, pinned historical 2026-11-10 tests
+  in `scripts/dispatch.test.mjs` and `scripts/price-table.test.mjs`, and
+  synced all four installed harness copies.
 - 2026-11-12: Stage F10, the acceptance of Stage S7 and the paired check
   (`docs/acceptance-2026-11-12-f10.md`): eleven claims accepted, none
   rejected. Two sub-agents on `claude-fable-5-2`, one at `high` and one at

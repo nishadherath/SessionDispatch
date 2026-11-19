@@ -7,8 +7,16 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-11-12, forty-sixth update, by the Stage F10 session (claude-fable-5-2, xhigh).
-The operator decided D18: A ("Tag v1.2.0", in the F10 session). The tag v1.2.0 is an annotated tag on the commit that holds this update. `main` and the tag are pushed to `origin`.
+Last updated: 2026-11-20, forty-seventh update, by the pricing refresh session (Antigravity Orchestrator Neon).
+The operator requested an OpenAI pricing refresh, a commit, a merge to `main`, a tag and a push after the Google pricing refresh.
+`pricing/2026-11-20.json` holds 13 Google Gemini models and 7 OpenAI models (including `gpt-6.2-astra` and `gpt-6.2-sol`), both fetched 2026-11-20.
+`adapters/gemini-cli-antigravity.md` names the new table and base model ids.
+`scripts/dispatch.test.mjs` and `scripts/price-table.test.mjs` pin historical 2026-11-10 assertions and cover `pricing/2026-11-20.json`.
+Gate: `node scripts/check.mjs` exits 0 with 0 findings. All four installed copies and the Cline rule file match `main` (0 files behind).
+Release `v1.2.1` is tagged on `main` and pushed to `origin`.
+No decision waits for the operator. No stage is in progress or left to do.
+The forty-sixth update, by the Stage F10 session (claude-fable-5-2, xhigh), follows.
+On 2026-11-12, the operator decided D18: A ("Tag v1.2.0", in the F10 session). The tag v1.2.0 is an annotated tag on the commit that holds this update. `main` and the tag are pushed to `origin`.
 The installed copies stay current: this commit changes documents only.
 No decision waits for the operator. No stage is in progress or left to do.
 The forty-fifth update, by the same session, follows.
@@ -106,6 +114,7 @@ The operator asked for status updates in ASD-STE100. This update and later updat
 | Stage F9: the plan for the Fable 5.2 model note | 2026-11-12 | `docs/assessment-2026-11-12.md`. The session read the vendor's pages on effort, on prompting Fable 5.2 and on cost. The plan: one model note that the skill reads only on `claude-fable-5-2`, two sentences in `SKILL.md`, no formula change. The S7 handoff has the dispatch record: fresh by cost, 5.03 against 16.47 USD. Decision D17 waits for the operator. No file of the skill changed. Gate 132 files read, 0 findings. Measured: 23 calls, 11.03 USD, priced just before the commit. |
 | Stage S7: the model note, the gate check, the installer, scenario 25 | 2026-11-12 | Branch `claude/stage-s7-fable-note-45951a` (`537e16e`, `35d6d9e`, `51efeea`, `865d2dc`, then the handoff commit). `models/claude-fable-5-2.md` is appendix A. `SKILL.md` gained the two insertions of appendix B. The template and protocol section 2 gained the changes of appendix C. `checkModels` checks eight rules for each note; three tests seed faults in a temporary copy. `install.mjs` ships `models/` (19 files). Scenario 25 is scenario 09 on `claude-fable-5-2`: effort `high`, T* 292.6 turns. Gate: `node scripts/check.mjs` exits 0, 136 files read, 0 findings. Tests: `npm test` 125 tests, 125 pass, 0 fail (396 s). Measured: 48 calls, 2.48 USD at the 1-hour write against 4.91 projected, priced just before the closing commit. Not pushed, not merged. |
 | Stage F10: acceptance of S7, the paired check, the mini-evaluation, the release steps | 2026-11-12 | `docs/acceptance-2026-11-12-f10.md`: eleven claims accepted, none rejected. The note equals appendix A byte for byte; `SKILL.md`, the template and the protocol equal the base plus appendices B and C. 23 single-fault cases for `checkModels`, 0 unexpected. Scenario 25 derived by hand. The paired check: two sub-agents on `claude-fable-5-2` at `high` and `xhigh`, six seeded faults that the gate and the tests do not find, each arm 6 of 6; P1 met, the cap stays; cost 5.37 and 8.77 USD (1.63 times). The mini-evaluation: scenario 25 at effort `high` in 2 of 2 runs (P3), scenarios 09 and 02 as expected (P4). Nine findings: three fixed (`973b088`, `e0ab536`, the S7 cost row), three handed on as low, three recorded. The note's table and the ledger hold a row for each arm. Gate 138 files read, 0 findings; 126 tests pass. Measured: 14.58 USD on 74 calls against 12.55, priced before the closing commit; 31.85 USD with the arms and the subjects against 24.92. |
+| Pricing refresh: Google + OpenAI (v1.2.1) | 2026-11-20 | `pricing/2026-11-20.json`: added 13 Google Gemini models (`fetched` 2026-11-20) and refreshed OpenAI (`fetched` 2026-11-20; added `gpt-6.2-astra` and `gpt-6.2-sol`, five earlier GPT-6 rows unchanged). Updated `adapters/gemini-cli-antigravity.md`, `scripts/dispatch.test.mjs`, `scripts/price-table.test.mjs`, `README.md` and `docs/status.md`. Installed across all four harnesses (`0` behind). Gate 138 files read, 0 findings. Tagged `v1.2.1` on `main` and pushed to `origin`. |
 
 ## In progress
 

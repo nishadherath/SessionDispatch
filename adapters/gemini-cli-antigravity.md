@@ -38,5 +38,10 @@ Paste its decision record into the handoff.
 
 ## Numbers
 
-`/stats` in Gemini CLI shows tokens used. Google's prices are null in
-the table until filled from the source page.
+`/stats` in Gemini CLI and `/context` or `--output-format json` in
+Antigravity CLI report tokens used. Google's Standard Paid Tier prices
+are in `pricing/2026-11-20.json` (implicit caching: `cache_write`
+equals `input`, no `cache_write_1h`, so use `--ttl 5m`). When
+Antigravity lists an effort-suffixed slug such as
+`gemini-4-neon-high`, pass its base model id (`gemini-4-neon`) to
+`scripts/dispatch.mjs` and state the effort separately.

@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
-import { ROOT, run } from "./fixtures/helpers.mjs";
+import { copyTree, rm, ROOT, run, tmpDir } from "./fixtures/helpers.mjs";
 import { modelForClass } from "./dispatch-core.mjs";
 import {
   PRICE_KEYS, familyAgeDays, localToday, modelStaleness, newestTableFile, staleFamilies, validateTable,
@@ -135,16 +135,41 @@ test("dated sweep 2026-11-10 to 2026-11-30: module and check-pricing agree (0 to
     const r = check(real, today);
     const expected = n >= 19 ? 2 : 0;
     const moduleCode = r.errors.length ? 1 : r.stale.length ? 2 : 0;
-    const cmd = run(path.join(ROOT, "scripts", "check-pricing.mjs"), ["--today", today]);
+    const cmd = run(path.join(ROOT, "scripts", "check-pricing.mjs"), ["--table", path.join(ROOT, "pricing", TABLE_FILE), "--today", today]);
     assert.equal(moduleCode, expected, `module on ${today}`);
     assert.equal(cmd.status, expected, `check-pricing on ${today}: ${cmd.out}`);
   }
 });
 
 test("the gate agrees on 2026-11-18 (0), 2026-11-19 (2) and 2026-11-30 (2)", () => {
-  for (const [today, expected] of [["2026-11-18", 0], ["2026-11-19", 2], ["2026-11-30", 2]]) {
-    const r = run(path.join(ROOT, "scripts", "check.mjs"), ["--today", today]);
-    assert.equal(r.status, expected, `gate on ${today}: ${r.out}`);
-    if (expected === 2) assert.match(r.stdout, /1 finding\(s\) \(one is the stale table\)/);
-  }
+  const tree = tmpDir("price-table-gate");
+  try {
+    copyTree(tree);
+    const pdir = path.join(tree, "pricing");
+    for (const n of fs.readdirSync(pdir)) if (/^\d{4}-\d{2}-\d{2}\.json$/.test(n) && n > TABLE_FILE) fs.unlinkSync(path.join(pdir, n));
+    for (const [today, expected] of [["2026-11-18", 0], ["2026-11-19", 2], ["2026-11-30", 2]]) {
+      const r = run(path.join(tree, "scripts", "check.mjs"), ["--today", today], { cwd: tree });
+      assert.equal(r.status, expected, `gate on ${today}: ${r.out}`);
+      if (expected === 2) assert.match(r.stdout, /1 finding\(s\) \(one is the stale table\)/);
+    }
+  } finally { rm(tree); }
+});
+
+test("2026-11-20.json prices Google and OpenAI models, resolves capability classes and ages from 2026-11-20", () => {
+  const t20 = JSON.parse(fs.readFileSync(path.join(ROOT, "pricing", "2026-11-20.json"), "utf8"));
+  const checked = validateTable(t20, { fileName: "2026-11-20.json", today: "2026-11-20" });
+  assert.deepEqual(checked.errors, []);
+  assert.deepEqual(checked.stale, []);
+  assert.equal(familyAgeDays(t20, "google", "2026-11-20"), 0);
+  assert.equal(familyAgeDays(t20, "openai", "2026-11-20"), 0);
+  assert.deepEqual(modelStaleness(t20, "gemini-4-carbon", "2026-12-05"), { stale: true, family: "google", fetched: "2026-11-20", ageDays: 15 });
+  assert.deepEqual(modelStaleness(t20, "gpt-6.2-astra", "2026-12-05"), { stale: true, family: "openai", fetched: "2026-11-20", ageDays: 15 });
+  assert.equal(modelForClass(t20, "google", "fable").id, "gemini-4-carbon");
+  assert.equal(modelForClass(t20, "google", "opus").id, "gemini-4-neon");
+  assert.equal(modelForClass(t20, "google", "sonnet").id, "gemini-4-hydrogen");
+  assert.equal(modelForClass(t20, "google", "haiku").id, "gemini-3.5-flash-lite");
+  assert.equal(modelForClass(t20, "openai", "fable").id, "gpt-6.2-astra");
+  assert.equal(modelForClass(t20, "openai", "opus").id, "gpt-6.2-sol");
+  assert.equal(modelForClass(t20, "openai", "sonnet").id, "gpt-6.1-terra");
+  assert.equal(modelForClass(t20, "openai", "haiku").id, "gpt-6-luna");
 });
