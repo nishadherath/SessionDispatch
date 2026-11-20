@@ -44,7 +44,7 @@ All by the operator on 2026-11-21, one question each. Do not reopen these.
 
 ## Unresolved questions
 - D19, the standing push approval: its scope names a private remote and the remote is public. Operator.
-- D20, commit dates: commits made on this machine carry the local offset again unless the session sets `TZ=UTC`. Operator.
+- D20, commit dates: decided A by the operator on 2026-11-21 ("Yes, add rule"). `AGENTS.md` non-negotiable 9 holds the rule. Closed.
 - One `cli-result.json` (run `15-null-price.haiku.calculator`, 2026-11-01) says four connectors need authorisation and names none. It was outside item 2 and is unchanged. Operator.
 - GitHub can serve the old commits by their full id until its own clean-up runs. Only GitHub Support can force that. Operator.
 - The installed copies are 12 files behind. `node scripts/install.mjs --harness all` fixes it. Operator, or the next session.

@@ -58,6 +58,12 @@ records the decision and the token cost of making it in the handoff.
    change; a new adapter only after its harness's folder layout is
    checked on a machine; a new worked example for any change to the
    step 2 formula.
+9. **Commit and tag dates are UTC.** Every `git commit`, `git merge`
+   and `git tag` here runs with `TZ=UTC` in its environment (`TZ=UTC git
+   commit ...` in a POSIX shell, `$env:TZ = 'UTC'` first in PowerShell),
+   so the public history does not carry the machine's time zone. Check
+   with `git log -1 --format=%ad --date=raw`: the offset is `+0000`.
+   Decision D20, 2026-11-21, after the history rewrite of that day.
 
 ## Operator protocol (always on)
 

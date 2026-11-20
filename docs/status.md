@@ -7,7 +7,11 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-11-21, forty-eighth update, by the public repository scrub session (claude-fable-5-2, high).
+Last updated: 2026-11-21, forty-ninth update, by the public repository scrub session (claude-fable-5-2, high).
+The operator decided D20: A ("Yes, add rule"). `AGENTS.md` non-negotiable 9 says that commit and tag dates are UTC.
+The session tested `TZ=UTC` in Git Bash and in PowerShell. Git writes the offset `+0000` in both.
+One decision waits for the operator: D19. The commit that holds this update is not pushed. The push waits for D19 or for a yes.
+The forty-eighth update, by the same session, follows.
 The repository is public. The operator asked for a scan for information that must not be there.
 The scan found no credential, key, token or email address in the files or in the history.
 The operator decided nine items one at a time. Four are removed: the Windows account name in paths, the connector names, the local projects folder in paths, and the time zone, version and credential store details.
@@ -203,7 +207,7 @@ assessment; D8 and D9 are repeated below.
 - D17 The effort cap for `claude-fable-5-2` and its first measurement (F9, 2026-11-12): C, decided by the operator on 2026-11-12 ("Go with C"). The note caps effort at `high`. Stage F10 ran the paired check with threshold P1 on 2026-11-12: each arm found six of six, so the cap stays. Five parts below and in `docs/assessment-2026-11-12.md` section 10.
 - D18 The tag for the release that holds the Fable 5.2 model note (F10, 2026-11-12): A, decided by the operator on 2026-11-12 ("Tag v1.2.0"). The F10 session made the tag v1.2.0 and pushed it. Five parts below.
 - D19 The standing push approval on a public remote (scrub, 2026-11-21): waiting; below.
-- D20 Commit dates in UTC from now on (scrub, 2026-11-21): waiting; below.
+- D20 Commit dates in UTC from now on (scrub, 2026-11-21): A, decided by the operator on 2026-11-21 ("Yes, add rule"). `AGENTS.md` non-negotiable 9 holds the rule; below.
 - F3-7 H2's runner (the coordinating session's, not the operator's): A, the `Agent` runner as H1 used it, decided 2026-10-30 so that H1 and H2 share one harness and F4 can attribute any change to the text; S4's CLI runner follows H2.
 - Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`: answered yes by the operator on 2026-10-30 (S3); the blocks were already there and stay.
 
@@ -314,4 +318,5 @@ Options:       A yes: a rule in AGENTS.md that every commit and tag command runs
 Pros and cons: A keeps the time zone out of the history, as item 6 of the scrub asked, and costs one line and a habit. B needs nothing, and the next commit shows the offset that the rewrite removed.
 Blast radius:  A: AGENTS.md and the habits of every harness that commits here. B: the offset is public again from the next commit made without TZ=UTC.
 Recommended:   A, because B undoes part of a removal the operator approved. The scrub session made its own commit with TZ=UTC.
+Decided:       A, by the operator on 2026-11-21 ("Yes, add rule"); AGENTS.md non-negotiable 9.
 ```
