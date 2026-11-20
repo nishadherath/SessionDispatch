@@ -46,7 +46,7 @@ All by the operator on 2026-11-21, one question each. Do not reopen these.
 - D19, the standing push approval: its scope names a private remote and the remote is public. Operator.
 - D20, commit dates: decided A by the operator on 2026-11-21 ("Yes, add rule"). `AGENTS.md` non-negotiable 9 holds the rule. Closed.
 - One `cli-result.json` (run `15-null-price.haiku.calculator`, 2026-11-01) says four connectors need authorisation and names none. It was outside item 2 and is unchanged. Operator.
-- GitHub can serve the old commits by their full id until its own clean-up runs. Only GitHub Support can force that. Operator.
+- The old commits on GitHub: closed on 2026-11-21. The operator renamed the first repository and made it private, and a new public repository of the same name holds only the rewritten history (`docs/status.md`, fiftieth update).
 - The installed copies are 12 files behind. `node scripts/install.mjs --harness all` fixes it. Operator, or the next session.
 - Residual inference: handoff file names use the local date and the text says so, so a reader can still tell that local time is ahead of UTC. The offset itself is gone.
 

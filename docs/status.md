@@ -7,7 +7,15 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-11-21, forty-ninth update, by the public repository scrub session (claude-fable-5-2, high).
+Last updated: 2026-11-21, fiftieth update, by the public repository scrub session (claude-fable-5-2, high).
+The operator renamed the first GitHub repository and made it private. That repository still holds the commits from before the rewrite. The public cannot read it.
+The operator asked for a new repository with the same settings and the rewritten history. The session created it through the REST API on the operator's instruction.
+`origin` is the new public repository `nishadherath/SessionDispatch`. The URL is the same as before. It holds `main` and the tags `v1.0.0` to `v1.2.1`, and no commit from before the rewrite.
+The settings match the first repository: 25 of 26 compared settings are equal, and the ten labels are equal. One differs: secret scanning and push protection are on, which is the GitHub default for a new public repository. The session left them on.
+A new clone has 0 matches for the removed text. Gate on the clone: `node scripts/check.mjs` exits 0, 139 files read, 0 findings.
+The operator said yes to the push of the commit of the forty-ninth update. That commit is on the remote.
+One decision waits for the operator: D19. Until D19 is decided, each push to the public remote needs the operator's yes.
+The forty-ninth update, by the same session, follows.
 The operator decided D20: A ("Yes, add rule"). `AGENTS.md` non-negotiable 9 says that commit and tag dates are UTC.
 The session tested `TZ=UTC` in Git Bash and in PowerShell. Git writes the offset `+0000` in both.
 One decision waits for the operator: D19. The commit that holds this update is not pushed. The push waits for D19 or for a yes.
