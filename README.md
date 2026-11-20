@@ -138,6 +138,15 @@ writing into the working tree.
 
 ## Changelog
 
+- 2026-11-21: History rewritten after the repository became public. A
+  scan found no credential or email address. Four kinds of local detail
+  were removed from every commit and tag at the operator's decision: the
+  account name in paths (now `<user>`), the local projects folder (now
+  `<projects>`), connector names in seven run results, and time zone,
+  version and credential store details. Commit and tag dates are in UTC.
+  Every commit id changed; a clone made before this date must be made
+  again. No change to `SKILL.md`, the templates or the price tables.
+
 - 2026-11-20: Price table refresh (`pricing/2026-11-20.json`) and release
   v1.2.1. Added 13 Google Gemini models from the live Gemini Developer API
   pricing page (`fetched: 2026-11-20`; implicit caching, so `cache_write`

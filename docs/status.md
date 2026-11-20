@@ -7,7 +7,19 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-11-20, forty-seventh update, by the pricing refresh session (Antigravity Orchestrator Neon).
+Last updated: 2026-11-21, forty-eighth update, by the public repository scrub session (claude-fable-5-2, high).
+The repository is public. The operator asked for a scan for information that must not be there.
+The scan found no credential, key, token or email address in the files or in the history.
+The operator decided nine items one at a time. Four are removed: the Windows account name in paths, the connector names, the local projects folder in paths, and the time zone, version and credential store details.
+Five are kept: the session identifiers, the verbatim standing instructions, the cost figures, the operator's name, and the persona files.
+The operator chose a history rewrite. All 117 commits and the four tags are rebuilt without the removed text. Their dates are the same instants in UTC.
+Every commit id is new. The ids that the documents cite are mapped to the new ids.
+Gate: `node scripts/check.mjs` exits 0, 138 files read, 0 findings.
+`main` and the four tags are force-pushed to `origin` on the operator's answer to the history question. The standing approval does not cover a force push.
+The old history is in `.git/pre-rewrite-2026-11-21.bundle` and under `refs/pre-rewrite/`. It is local. Do not push it. Do not push the local branch `claude/kind-curie-d09472`.
+The installed copies are 12 files behind (three in each of four copies). `node scripts/install.mjs --harness all` corrects this.
+Two decisions wait for the operator: D19 and D20. The handoff is `docs/handoffs/2026-11-21-public-repo-scrub.md`.
+The forty-seventh update, by the pricing refresh session (Antigravity Orchestrator Neon), follows.
 The operator requested an OpenAI pricing refresh, a commit, a merge to `main`, a tag and a push after the Google pricing refresh.
 `pricing/2026-11-20.json` holds 13 Google Gemini models and 7 OpenAI models (including `gpt-6.2-astra` and `gpt-6.2-sol`), both fetched 2026-11-20.
 `adapters/gemini-cli-antigravity.md` names the new table and base model ids.
@@ -115,6 +127,7 @@ The operator asked for status updates in ASD-STE100. This update and later updat
 | Stage S7: the model note, the gate check, the installer, scenario 25 | 2026-11-12 | Branch `claude/stage-s7-fable-note-45951a` (`537e16e`, `35d6d9e`, `51efeea`, `865d2dc`, then the handoff commit). `models/claude-fable-5-2.md` is appendix A. `SKILL.md` gained the two insertions of appendix B. The template and protocol section 2 gained the changes of appendix C. `checkModels` checks eight rules for each note; three tests seed faults in a temporary copy. `install.mjs` ships `models/` (19 files). Scenario 25 is scenario 09 on `claude-fable-5-2`: effort `high`, T* 292.6 turns. Gate: `node scripts/check.mjs` exits 0, 136 files read, 0 findings. Tests: `npm test` 125 tests, 125 pass, 0 fail (396 s). Measured: 48 calls, 2.48 USD at the 1-hour write against 4.91 projected, priced just before the closing commit. Not pushed, not merged. |
 | Stage F10: acceptance of S7, the paired check, the mini-evaluation, the release steps | 2026-11-12 | `docs/acceptance-2026-11-12-f10.md`: eleven claims accepted, none rejected. The note equals appendix A byte for byte; `SKILL.md`, the template and the protocol equal the base plus appendices B and C. 23 single-fault cases for `checkModels`, 0 unexpected. Scenario 25 derived by hand. The paired check: two sub-agents on `claude-fable-5-2` at `high` and `xhigh`, six seeded faults that the gate and the tests do not find, each arm 6 of 6; P1 met, the cap stays; cost 5.37 and 8.77 USD (1.63 times). The mini-evaluation: scenario 25 at effort `high` in 2 of 2 runs (P3), scenarios 09 and 02 as expected (P4). Nine findings: three fixed (`973b088`, `e0ab536`, the S7 cost row), three handed on as low, three recorded. The note's table and the ledger hold a row for each arm. Gate 138 files read, 0 findings; 126 tests pass. Measured: 14.58 USD on 74 calls against 12.55, priced before the closing commit; 31.85 USD with the arms and the subjects against 24.92. |
 | Pricing refresh: Google + OpenAI (v1.2.1) | 2026-11-20 | `pricing/2026-11-20.json`: added 13 Google Gemini models (`fetched` 2026-11-20) and refreshed OpenAI (`fetched` 2026-11-20; added `gpt-6.2-astra` and `gpt-6.2-sol`, five earlier GPT-6 rows unchanged). Updated `adapters/gemini-cli-antigravity.md`, `scripts/dispatch.test.mjs`, `scripts/price-table.test.mjs`, `README.md` and `docs/status.md`. Installed across all four harnesses (`0` behind). Gate 138 files read, 0 findings. Tagged `v1.2.1` on `main` and pushed to `origin`. |
+| Public repository scrub | 2026-11-21 | Scan of 1,394 files and 117 commits: no credential or email address. Nine items decided by the operator; four removed from every commit and tag by a history rewrite, with dates in UTC and cited commit ids mapped. 363 files differ at the tip; `SKILL.md` is unchanged. Gate 138 files, 0 findings. Measured 7.164 USD on 39 calls before the closing commit. |
 
 ## In progress
 
@@ -128,6 +141,7 @@ The four installed copies (claude, codex, zcode, opencode) and the Cline rule fi
 (`pricing/2026-11-04.before-openai-expansion.json.bak`, `scripts/check.mjs`,
 `scripts/pricing-new.mjs.before-graft-dispatch-20261104`), left by the Codex session of 2026-11-04; `--check`
 lists them as extra and does not count them. Removing them is the operator's decision.
+On 2026-11-21, after the scrub, `--check` reports 4 copies, 12 files behind: two examples and `scripts/pricing-new.mjs` in each.
 
 ## To do
 
@@ -188,6 +202,8 @@ assessment; D8 and D9 are repeated below.
 - D16 A cache lifetime for each piece (F8, 2026-11-10): A, decided by the operator on 2026-11-11 ("Decision D16-A"). No formula change. Five parts below.
 - D17 The effort cap for `claude-fable-5-2` and its first measurement (F9, 2026-11-12): C, decided by the operator on 2026-11-12 ("Go with C"). The note caps effort at `high`. Stage F10 ran the paired check with threshold P1 on 2026-11-12: each arm found six of six, so the cap stays. Five parts below and in `docs/assessment-2026-11-12.md` section 10.
 - D18 The tag for the release that holds the Fable 5.2 model note (F10, 2026-11-12): A, decided by the operator on 2026-11-12 ("Tag v1.2.0"). The F10 session made the tag v1.2.0 and pushed it. Five parts below.
+- D19 The standing push approval on a public remote (scrub, 2026-11-21): waiting; below.
+- D20 Commit dates in UTC from now on (scrub, 2026-11-21): waiting; below.
 - F3-7 H2's runner (the coordinating session's, not the operator's): A, the `Agent` runner as H1 used it, decided 2026-10-30 so that H1 and H2 share one harness and F4 can attribute any change to the text; S4's CLI runner follows H2.
 - Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`: answered yes by the operator on 2026-10-30 (S3); the blocks were already there and stay.
 
@@ -280,4 +296,22 @@ Pros and cons: A makes `main` clean, so O5's branch can be merged and every sess
 Blast radius:  A and C: `main` and `origin` (the standing yes covers the push); the installed copies stay as they are until F7 reinstalls. B: none now; the merge of O5, S6 and the tag wait.
 Recommended:   A, because the work is green, the operator asked for it in those sessions, and an uncommitted table in force is the state the protocol's handoff rule exists to prevent. F7 then looks at three things in it: `max_age_days` is 8 in the table while `SKILL.md`, `AGENTS.md` rule 3, `pricing/README.md` and the protocol say 14 in prose; the `claude-fable-5-1` row is gone although the vendor still lists the model, so a session on it gets an input error and the table's note tells it to price from an older table, which step 1.4 does not allow; and `scripts/check-pricing.mjs` repeats the rules of `checkPricing` in `scripts/check.mjs` with small differences (https only, the unit, staleness per family), two owners for one rule.
 Decided:       A, by the operator on 2026-11-10 ("Yes, commit it"); committed as `5ceeb74`, unchanged, and pushed. The three points go to F7.
+```
+
+```
+D19
+Decision:      Does the standing yes of 2026-10-30 for pushes to origin still hold now that the remote is public?
+Options:       A it holds, and the scope text in docs/operator-preferences.json says "public" / B withdrawn: every push needs a yes in its session / C it holds for documents and price tables only
+Pros and cons: A keeps the stages moving, and every pushed commit is published at once. B puts a check before each publication and costs one question per stage. C is a middle rule that a session must interpret.
+Blast radius:  A: anything a session commits is public within the same stage. B: none; stages wait for a reply. C: a wrong reading publishes a change the operator wanted to see first.
+Recommended:   B, because the approval was given for a private remote, and a public push cannot be recalled.
+```
+
+```
+D20
+Decision:      Do sessions write commit and tag dates in UTC from now on?
+Options:       A yes: a rule in AGENTS.md that every commit and tag command runs with TZ=UTC / B no: commits carry the machine's local offset again
+Pros and cons: A keeps the time zone out of the history, as item 6 of the scrub asked, and costs one line and a habit. B needs nothing, and the next commit shows the offset that the rewrite removed.
+Blast radius:  A: AGENTS.md and the habits of every harness that commits here. B: the offset is public again from the next commit made without TZ=UTC.
+Recommended:   A, because B undoes part of a removal the operator approved. The scrub session made its own commit with TZ=UTC.
 ```
