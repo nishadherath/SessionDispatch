@@ -122,6 +122,12 @@ Guardrails: 1 holds (no handoff under 10 turns). 2 does not apply. 3: a Haiku se
 Adversarial pass: the case for fresh is that the work is three commands and Haiku turns cost 0.06 USD. With To 0 (a card the operator starts, nobody verifies) fresh costs 0.16 USD and wins. Nobody claims To 0: the operator asked this session to do the work, and a push to a public remote from an unverified Haiku session breaks guardrail 3. Fragile: flips at To of 4 or less. The verdict holds: continue, same model, same effort.
 Cost of deciding: about 6,000 tokens read and 900 written, under 3 minutes, about 0.13 USD at the table of 2026-11-20 (self-estimates).
 
+### Fourth run: the Codex copy clean-up (2026-11-22, operator asked)
+Inputs as the third run, except: C0 167,228 (measured), T 6 (estimate), table age 12 days of 14. Irreversible step: three files that the installer does not own leave the Codex copy; they go to the Recycle Bin, so the step can be undone. The operator's request is the approval.
+By `node scripts/dispatch.mjs`: cost_continue 1.01 USD; cost_fresh 2.18 USD, of which cost_coord 2.04 USD. Draft verdict: continue, by cost, margin 1.17 USD (116.0 percent of the smaller). Guardrails 1, 3 and 5 hold as in the third run.
+Adversarial pass: as the third run. With To 0 a Haiku session costs about 0.14 USD and wins, and nobody claims To 0 for a deletion outside the repository. Fragile: flips at To of 3 or less. The verdict holds: continue, same model, same effort.
+Result: `--check` reports 4 copies, 0 files behind, no extra file. Cost of deciding: about 0.12 USD (self-estimate).
+
 ### Cost of deciding
 
 | Row | Value | Source (measured, naming the harness report, or self-estimate) |

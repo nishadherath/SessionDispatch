@@ -7,7 +7,14 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-11-21, fifty-second update, by the public repository scrub session (claude-fable-5-2, high).
+Last updated: 2026-11-22, fifty-third update, by the public repository scrub session (claude-fable-5-2, high).
+The operator asked for the clean-up of the Codex copy ("update copies and cleanup Codex copy").
+The four copies were current before the clean-up: `--check` reported 0 files behind. The installer did not need to run again.
+The session moved the three files that the installer does not own from the Codex copy to the Windows Recycle Bin. The operator can restore them from there.
+`node scripts/install.mjs --harness all --check` reports 4 copies, 0 files behind, and no extra file.
+Session dispatch ran before the clean-up. Verdict: continue in this session, 1.01 USD against 2.18 USD. The handoff holds the record.
+No decision waits for the operator. No work is in progress.
+The fifty-second update, of 2026-11-21, by the same session, follows.
 The operator said yes to the update of the installed copies.
 `node scripts/install.mjs --harness all` ran from `main` at `430e108`. It wrote the four copies (20 files each) and the Cline rule file. It did not edit an instruction file.
 `node scripts/install.mjs --harness all --check` reports 4 copies, 0 files behind. The Codex copy still holds three files that the installer does not own.
@@ -168,6 +175,7 @@ The four installed copies (claude, codex, zcode, opencode) and the Cline rule fi
 lists them as extra and does not count them. Removing them is the operator's decision.
 On 2026-11-21, after the scrub, `--check` reports 4 copies, 12 files behind: two examples and `scripts/pricing-new.mjs` in each.
 Later on 2026-11-21 the installer ran from `main` at `430e108` on the operator's yes. `--check` reports 4 copies, 0 files behind.
+On 2026-11-22 the operator decided the removal. The three files went from the Codex copy to the Recycle Bin. `--check` lists no extra file.
 
 ## To do
 
