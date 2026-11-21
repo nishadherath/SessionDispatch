@@ -47,7 +47,7 @@ All by the operator on 2026-11-21, one question each. Do not reopen these.
 - D20, commit dates: decided A by the operator on 2026-11-21 ("Yes, add rule"). `AGENTS.md` non-negotiable 9 holds the rule. Closed.
 - One `cli-result.json` (run `15-null-price.haiku.calculator`, 2026-11-01) says four connectors need authorisation and names none. It was outside item 2 and is unchanged. Operator.
 - The old commits on GitHub: closed on 2026-11-21. The operator renamed the first repository and made it private, and a new public repository of the same name holds only the rewritten history (`docs/status.md`, fiftieth update).
-- The installed copies are 12 files behind. `node scripts/install.mjs --harness all` fixes it. Operator, or the next session.
+- The installed copies: closed on 2026-11-21. The installer ran from `430e108` on the operator's yes; `--check` reports 4 copies, 0 files behind.
 - Residual inference: handoff file names use the local date and the text says so, so a reader can still tell that local time is ahead of UTC. The offset itself is gone.
 
 ## Exact next action
@@ -114,6 +114,13 @@ The case for fresh: the session read the protocol, the skill twice and many sear
 
 ### Final verdict
 Continue in this session, same model, same effort, for both pieces.
+
+### Third run: the installed copies (2026-11-21, operator asked)
+Inputs, measured by the usage tool unless marked: W 1,000,000; K 970,000; C0 144,063; B 65,223; compacted yes; ttl 1h. Estimates: T 7, F 3,000, O 1,500, R 12,000, H 2,500, To 8 (the floor by count), coordinator this session. Task type row 1, target class haiku, `claude-haiku-5-5` from the table. Not design-heavy. Outward step: one push under `approvals.push_origin`.
+By `node scripts/dispatch.mjs`: cost_continue 1.15 USD on `claude-fable-5-2`; cost_fresh 2.16 USD, of which cost_coord 2.00 USD and the Haiku session 0.06 USD. Draft verdict: continue, by cost, margin 1.01 USD (87.8 percent of the smaller).
+Guardrails: 1 holds (no handoff under 10 turns). 2 does not apply. 3: a Haiku session would need an approval step for the push. 5: figures 11 days of 14.
+Adversarial pass: the case for fresh is that the work is three commands and Haiku turns cost 0.06 USD. With To 0 (a card the operator starts, nobody verifies) fresh costs 0.16 USD and wins. Nobody claims To 0: the operator asked this session to do the work, and a push to a public remote from an unverified Haiku session breaks guardrail 3. Fragile: flips at To of 4 or less. The verdict holds: continue, same model, same effort.
+Cost of deciding: about 6,000 tokens read and 900 written, under 3 minutes, about 0.13 USD at the table of 2026-11-20 (self-estimates).
 
 ### Cost of deciding
 

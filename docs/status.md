@@ -7,7 +7,13 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-11-21, fifty-first update, by the public repository scrub session (claude-fable-5-2, high).
+Last updated: 2026-11-21, fifty-second update, by the public repository scrub session (claude-fable-5-2, high).
+The operator said yes to the update of the installed copies.
+`node scripts/install.mjs --harness all` ran from `main` at `430e108`. It wrote the four copies (20 files each) and the Cline rule file. It did not edit an instruction file.
+`node scripts/install.mjs --harness all --check` reports 4 copies, 0 files behind. The Codex copy still holds three files that the installer does not own.
+Session dispatch ran before the update. Verdict: continue in this session, 1.15 USD against 2.16 USD for a Haiku session that this session coordinates. The handoff holds the record.
+No decision waits for the operator. No work is in progress.
+The fifty-first update, by the same session, follows.
 The operator decided D19: A ("Keep the standing approval"). The session recommended B. The operator's decision stands.
 The standing yes of 2026-10-30 for pushes to `origin` holds for the public remote. The scope text in `docs/operator-preferences.json` says "public".
 A session pushes `main` and the stage branches after a green gate and a clean commit, and names the push in its report. Each push is public at once.
@@ -161,6 +167,7 @@ The four installed copies (claude, codex, zcode, opencode) and the Cline rule fi
 `scripts/pricing-new.mjs.before-graft-dispatch-20261104`), left by the Codex session of 2026-11-04; `--check`
 lists them as extra and does not count them. Removing them is the operator's decision.
 On 2026-11-21, after the scrub, `--check` reports 4 copies, 12 files behind: two examples and `scripts/pricing-new.mjs` in each.
+Later on 2026-11-21 the installer ran from `main` at `430e108` on the operator's yes. `--check` reports 4 copies, 0 files behind.
 
 ## To do
 
