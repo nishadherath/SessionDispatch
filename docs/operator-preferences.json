@@ -24,10 +24,10 @@
   },
   "approvals": {
     "push_origin": {
-      "scope": "git push of main and the stage branches to origin (the operator's private GitHub remote nishadherath/SessionDispatch), after a green gate and a clean commit. Not a new remote, not a pull request, not a force push.",
+      "scope": "git push of main and the stage branches to origin (the operator's public GitHub remote nishadherath/SessionDispatch), after a green gate and a clean commit. Not a new remote, not a pull request, not a force push.",
       "answer": true,
       "recorded": "2026-10-30",
-      "note": "Operator, 2026-10-30, in the coordinating session, to the question whether pushes to this private remote may be treated as approved for the rest of the project: \"Push, standing yes\"."
+      "note": "Operator, 2026-10-30, in the coordinating session, to the question whether pushes to this private remote may be treated as approved for the rest of the project: \"Push, standing yes\". The remote became public in November 2026. Operator, 2026-11-21, in the public repository scrub session, to decision D19 set out in the five-part shape with B (withdraw) recommended: \"Keep the standing approval\", that is option A. The approval holds for the public remote; every push under it is published at once."
     }
   }
 }

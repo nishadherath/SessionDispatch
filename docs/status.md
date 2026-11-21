@@ -7,7 +7,14 @@ estimate moves by more than a quarter (AGENTS.md rule 11). Handoffs in
 `docs/handoffs/` are the per-stage snapshots; the roadmap and its
 arithmetic are in the newest `docs/assessment-YYYY-MM-DD.md`.
 
-Last updated: 2026-11-21, fiftieth update, by the public repository scrub session (claude-fable-5-2, high).
+Last updated: 2026-11-21, fifty-first update, by the public repository scrub session (claude-fable-5-2, high).
+The operator decided D19: A ("Keep the standing approval"). The session recommended B. The operator's decision stands.
+The standing yes of 2026-10-30 for pushes to `origin` holds for the public remote. The scope text in `docs/operator-preferences.json` says "public".
+A session pushes `main` and the stage branches after a green gate and a clean commit, and names the push in its report. Each push is public at once.
+The approval does not cover a force push, a new remote or a pull request. Those need the operator's yes.
+The operator said yes to the push of the commit of the fiftieth update. That commit is on the remote.
+No decision waits for the operator.
+The fiftieth update, by the same session, follows.
 The operator renamed the first GitHub repository and made it private. That repository still holds the commits from before the rewrite. The public cannot read it.
 The operator asked for a new repository with the same settings and the rewritten history. The session created it through the REST API on the operator's instruction.
 `origin` is the new public repository `nishadherath/SessionDispatch`. The URL is the same as before. It holds `main` and the tags `v1.0.0` to `v1.2.1`, and no commit from before the rewrite.
@@ -214,7 +221,7 @@ assessment; D8 and D9 are repeated below.
 - D16 A cache lifetime for each piece (F8, 2026-11-10): A, decided by the operator on 2026-11-11 ("Decision D16-A"). No formula change. Five parts below.
 - D17 The effort cap for `claude-fable-5-2` and its first measurement (F9, 2026-11-12): C, decided by the operator on 2026-11-12 ("Go with C"). The note caps effort at `high`. Stage F10 ran the paired check with threshold P1 on 2026-11-12: each arm found six of six, so the cap stays. Five parts below and in `docs/assessment-2026-11-12.md` section 10.
 - D18 The tag for the release that holds the Fable 5.2 model note (F10, 2026-11-12): A, decided by the operator on 2026-11-12 ("Tag v1.2.0"). The F10 session made the tag v1.2.0 and pushed it. Five parts below.
-- D19 The standing push approval on a public remote (scrub, 2026-11-21): waiting; below.
+- D19 The standing push approval on a public remote (scrub, 2026-11-21): A, decided by the operator on 2026-11-21 ("Keep the standing approval"). The scope text in `docs/operator-preferences.json` says "public"; below.
 - D20 Commit dates in UTC from now on (scrub, 2026-11-21): A, decided by the operator on 2026-11-21 ("Yes, add rule"). `AGENTS.md` non-negotiable 9 holds the rule; below.
 - F3-7 H2's runner (the coordinating session's, not the operator's): A, the `Agent` runner as H1 used it, decided 2026-10-30 so that H1 and H2 share one harness and F4 can attribute any change to the text; S4's CLI runner follows H2.
 - Carried from Stage 0: whether to paste the printed pointer blocks into `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` and `~/.gemini/GEMINI.md`: answered yes by the operator on 2026-10-30 (S3); the blocks were already there and stay.
@@ -317,6 +324,7 @@ Options:       A it holds, and the scope text in docs/operator-preferences.json 
 Pros and cons: A keeps the stages moving, and every pushed commit is published at once. B puts a check before each publication and costs one question per stage. C is a middle rule that a session must interpret.
 Blast radius:  A: anything a session commits is public within the same stage. B: none; stages wait for a reply. C: a wrong reading publishes a change the operator wanted to see first.
 Recommended:   B, because the approval was given for a private remote, and a public push cannot be recalled.
+Decided:       A, by the operator on 2026-11-21 ("Keep the standing approval"); docs/operator-preferences.json, approvals.push_origin.
 ```
 
 ```

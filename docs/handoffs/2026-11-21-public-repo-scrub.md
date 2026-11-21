@@ -43,7 +43,7 @@ All by the operator on 2026-11-21, one question each. Do not reopen these.
 - The force push of `main` and the four tags to `origin`, on the operator's answer "Rewrite history" of 2026-11-21. The stage report names the result.
 
 ## Unresolved questions
-- D19, the standing push approval: its scope names a private remote and the remote is public. Operator.
+- D19, the standing push approval: decided A by the operator on 2026-11-21 ("Keep the standing approval"), against the session's recommendation of B. The scope in `docs/operator-preferences.json` says "public". Closed.
 - D20, commit dates: decided A by the operator on 2026-11-21 ("Yes, add rule"). `AGENTS.md` non-negotiable 9 holds the rule. Closed.
 - One `cli-result.json` (run `15-null-price.haiku.calculator`, 2026-11-01) says four connectors need authorisation and names none. It was outside item 2 and is unchanged. Operator.
 - The old commits on GitHub: closed on 2026-11-21. The operator renamed the first repository and made it private, and a new public repository of the same name holds only the rewritten history (`docs/status.md`, fiftieth update).
